@@ -10,7 +10,6 @@ namespace MiceToBeHome
 
         public bool IsInvincible => invincibleTimer > 0f;
         public Vector3 Position => body != null ? body.position : transform.position;
-        public BreadcrumbTrail Trail { get; private set; }
 
         private Rigidbody body;
         private SpriteRenderer visual;
@@ -20,11 +19,10 @@ namespace MiceToBeHome
         private float knockbackTimer;
         private Vector3 knockbackVelocity;
 
-        public void Initialize(Rigidbody rigidbody, SpriteRenderer renderer, BreadcrumbTrail trail, BalanceSettings settings)
+        public void Initialize(Rigidbody rigidbody, SpriteRenderer renderer, BalanceSettings settings)
         {
             body = rigidbody;
             visual = renderer;
-            Trail = trail;
             balance = settings;
         }
 
@@ -101,11 +99,6 @@ namespace MiceToBeHome
 
             Vector3 move = ReadDirection();
             body.linearVelocity = move * balance.mouseSpeed;
-
-            if (Trail != null)
-            {
-                Trail.Record(body.position);
-            }
         }
 
         private Vector3 ReadDirection()

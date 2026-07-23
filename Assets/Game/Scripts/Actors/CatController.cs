@@ -8,28 +8,28 @@ namespace MiceToBeHome
         {
             Idle,
             Chasing,
-            Distracted,
+            Stunned,
             Recovering
         }
 
         private Rigidbody body;
         private MousePlayerController player;
-        private BreadcrumbTrail trail;
         private BalanceSettings balance;
         private AudioManager audioManager;
+        private int obstacleMask;
 
         private CatState state = CatState.Idle;
         private float currentSpeed;
         private float stateTimer;
         private bool active;
 
-        public void Initialize(Rigidbody rigidbody, MousePlayerController target, BreadcrumbTrail sharedTrail, BalanceSettings settings, AudioManager audioManager)
+        public void Initialize(Rigidbody rigidbody, MousePlayerController target, BalanceSettings settings, AudioManager audioManager, int obstacleLayerMask)
         {
             body = rigidbody;
             player = target;
-            trail = sharedTrail;
             balance = settings;
             this.audioManager = audioManager;
+            obstacleMask = obstacleLayerMask;
         }
 
         public void SetActive(bool value)
@@ -63,7 +63,15 @@ namespace MiceToBeHome
 
             switch (state)
             {
-                case CatState.Distracted:
+                case CatState.Stunned:
+                    body.linearVelocity = Vector3.zero;
+                    stateTimer -= Time.fixedDeltaTime;
+                    if (stateTimer <= 0f)
+                    {
+                        Debug.Log("[Cat] No longer stunned - resuming the chase!");
+                        state = CatState.Chasing;
+                    }
+                    break;
                 case CatState.Recovering:
                     body.linearVelocity = Vector3.zero;
                     stateTimer -= Time.fixedDeltaTime;
@@ -80,23 +88,50 @@ namespace MiceToBeHome
 
         private void Chase()
         {
-            if (TryDistract())
+            if (TryStun())
             {
                 return;
             }
 
             currentSpeed = Mathf.Min(balance.catMaxSpeed, currentSpeed + balance.catAcceleration * Time.fixedDeltaTime);
 
-            Vector3 destination = trail != null ? trail.GetTarget(body.position, player.Position) : player.Position;
-            Vector3 direction = destination - body.position;
-            direction.y = 0f;
+            Vector3 toPlayer = player.Position - body.position;
+            toPlayer.y = 0f;
 
-            body.linearVelocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
+            if (toPlayer.sqrMagnitude > 0.0004f)
+            {
+                Vector3 heading = SteerAround(toPlayer.normalized);
+                body.linearVelocity = heading * currentSpeed;
+            }
+            else
+            {
+                body.linearVelocity = Vector3.zero;
+            }
 
             TryCatch();
         }
 
-        private bool TryDistract()
+        private Vector3 SteerAround(Vector3 desiredDirection)
+        {
+            float radius = balance.cellSize * 0.11f;
+            float probe = balance.cellSize * 0.9f;
+            Vector3 origin = body.position + Vector3.up * 0.3f;
+
+            if (Physics.SphereCast(origin, radius, desiredDirection, out RaycastHit hit, probe, obstacleMask, QueryTriggerInteraction.Ignore))
+            {
+                Vector3 slide = Vector3.ProjectOnPlane(desiredDirection, hit.normal);
+                slide.y = 0f;
+                if (slide.sqrMagnitude < 0.0004f)
+                {
+                    slide = Vector3.Cross(Vector3.up, hit.normal);
+                }
+                return slide.normalized;
+            }
+
+            return desiredDirection;
+        }
+
+        private bool TryStun()
         {
             Trap best = null;
             float bestDistance = float.MaxValue;
@@ -123,10 +158,13 @@ namespace MiceToBeHome
                 return false;
             }
 
-            stateTimer = best.Trigger();
-            state = CatState.Distracted;
+            float seconds = best.Trigger();
+            stateTimer = seconds;
+            state = CatState.Stunned;
             currentSpeed = balance.catBaseSpeed;
             body.linearVelocity = Vector3.zero;
+
+            Debug.Log($"[Cat] Stunned by {best.Definition.displayName} for {seconds:0.0}s");
 
             if (audioManager != null)
             {
@@ -145,10 +183,6 @@ namespace MiceToBeHome
             if (HorizontalDistance(body.position, player.Position) <= balance.catchRadius && player.TakeHit(body.position))
             {
                 currentSpeed = balance.catBaseSpeed;
-                if (trail != null)
-                {
-                    trail.Clear();
-                }
                 stateTimer = 0.6f;
                 state = CatState.Recovering;
             }

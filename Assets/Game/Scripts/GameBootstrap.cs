@@ -8,6 +8,8 @@ namespace MiceToBeHome
 
         private BalanceSettings balance;
         private SpriteLibrary sprites;
+        private PhysicsMaterial slipperyMaterial;
+        private const int ObstacleLayer = 8;
 
         private void Reset()
         {
@@ -29,6 +31,7 @@ namespace MiceToBeHome
             config.EnsureDefaults();
             balance = config.Balance;
             sprites = config.Sprites;
+            slipperyMaterial = CreateSlipperyMaterial();
 
             WarnIfTextMeshProMissing();
 
@@ -122,6 +125,7 @@ namespace MiceToBeHome
                 var piece = new GameObject("Furniture");
                 piece.transform.SetParent(furniture, false);
                 piece.transform.position = grid.CellToWorld(cell);
+                piece.layer = ObstacleLayer;
                 VisualFactory.CreateBillboard("Visual", piece.transform, sprites.furniture, sprites.furnitureTint,
                     SpriteShape.Square, balance.cellSize * 0.72f);
                 var collider = piece.AddComponent<BoxCollider>();
@@ -144,11 +148,8 @@ namespace MiceToBeHome
             SpriteRenderer visual = VisualFactory.CreateBillboard("Visual", go.transform, sprites.mouse, sprites.mouseTint,
                 SpriteShape.Circle, balance.cellSize * 0.5f);
 
-            var trail = go.AddComponent<BreadcrumbTrail>();
-            trail.Configure(balance.breadcrumbSpacing, balance.breadcrumbArrive);
-
             var controller = go.AddComponent<MousePlayerController>();
-            controller.Initialize(body, visual, trail, balance);
+            controller.Initialize(body, visual, balance);
 
             go.SetActive(false);
             return controller;
@@ -166,7 +167,7 @@ namespace MiceToBeHome
                 SpriteShape.Circle, balance.cellSize * 0.62f);
 
             var controller = go.AddComponent<CatController>();
-            controller.Initialize(body, player, player.Trail, balance, audio);
+            controller.Initialize(body, player, balance, audio, 1 << ObstacleLayer);
 
             go.SetActive(false);
             return controller;
@@ -225,13 +226,26 @@ namespace MiceToBeHome
             collider.radius = balance.cellSize * 0.12f;
             collider.height = 1f;
             collider.center = new Vector3(0f, 0.5f, 0f);
+            collider.sharedMaterial = slipperyMaterial;
+        }
+
+        private static PhysicsMaterial CreateSlipperyMaterial()
+        {
+            return new PhysicsMaterial("MiceSlippery")
+            {
+                dynamicFriction = 0f,
+                staticFriction = 0f,
+                frictionCombine = PhysicsMaterialCombine.Minimum,
+                bounciness = 0f,
+                bounceCombine = PhysicsMaterialCombine.Minimum
+            };
         }
 
         private static void WarnIfTextMeshProMissing()
         {
             if (TMPro.TMP_Settings.instance == null || TMPro.TMP_Settings.defaultFontAsset == null)
             {
-                Debug.LogError("[Mice to be Home] Falta importar TextMeshPro. Ve a Window > TextMeshPro > Import TMP Essential Resources para que el texto se vea.");
+                Debug.LogError("[Mice to be Home] TextMeshPro is missing. Go to Window > TextMeshPro > Import TMP Essential Resources so the on-screen text renders.");
             }
         }
     }

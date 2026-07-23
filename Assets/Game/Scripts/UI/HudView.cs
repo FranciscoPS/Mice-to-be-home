@@ -26,7 +26,7 @@ namespace MiceToBeHome
             UIFactory.Anchor(phaseText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -104f), new Vector2(560f, 40f));
 
-            livesText = UIFactory.CreateText(parent, "Lives", "Vidas: 3", 34f, TextAlignmentOptions.Right, Color.white);
+            livesText = UIFactory.CreateText(parent, "Lives", "Lives: 3", 34f, TextAlignmentOptions.Right, Color.white);
             UIFactory.Anchor(livesText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f),
                 new Vector2(-28f, -22f), new Vector2(320f, 46f));
 
@@ -36,12 +36,12 @@ namespace MiceToBeHome
                 new Vector2(28f, -22f), new Vector2(70f, 70f));
 
             hintText = UIFactory.CreateText(parent, "Hint",
-                "Clic: tomar y colocar trampa   -   Q / E: rotar   -   Clic derecho: cancelar", 22f,
+                "Click: pick up & place a trap   -   Q / E: rotate   -   Right click: cancel", 22f,
                 TextAlignmentOptions.Center, new Color(0.9f, 0.9f, 0.95f));
             UIFactory.Anchor(hintText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 40f), new Vector2(900f, 40f));
 
-            StartButton = UIFactory.CreateButton(parent, "StartButton", "EMPEZAR   (medianoche)",
+            StartButton = UIFactory.CreateButton(parent, "StartButton", "START   (midnight)",
                 new Color(0.85f, 0.35f, 0.45f, 1f), Color.white, 34f, out _);
             UIFactory.Anchor(((RectTransform)StartButton.transform), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0.5f, 0f), new Vector2(0f, 108f), new Vector2(420f, 84f));
@@ -62,13 +62,13 @@ namespace MiceToBeHome
 
         public void SetLives(int current, int max)
         {
-            livesText.text = $"Vidas: {current}";
+            livesText.text = $"Lives: {current}";
         }
 
         public void SetPhase(GameState state)
         {
             bool editing = state == GameState.Editing;
-            phaseText.text = editing ? "Coloca tus trampas" : "Sobrevive al gato";
+            phaseText.text = editing ? "Place your traps" : "Survive the cat";
 
             inventoryRoot.SetActive(editing);
             StartButton.gameObject.SetActive(editing);

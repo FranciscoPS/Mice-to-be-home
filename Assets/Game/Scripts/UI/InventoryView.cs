@@ -13,11 +13,11 @@ namespace MiceToBeHome
             UIFactory.Anchor(panel.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f),
                 Vector2.zero, new Vector2(330f, 0f));
 
-            var header = UIFactory.CreateText(panel.transform, "Header", "INVENTARIO", 30f, TextAlignmentOptions.Center, Color.white);
+            var header = UIFactory.CreateText(panel.transform, "Header", "INVENTORY", 30f, TextAlignmentOptions.Center, Color.white);
             UIFactory.Anchor(header.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -12f), new Vector2(0f, 52f));
 
-            var subtitle = UIFactory.CreateText(panel.transform, "Subtitle", "Trampas ilimitadas", 18f,
+            var subtitle = UIFactory.CreateText(panel.transform, "Subtitle", "Unlimited traps", 18f,
                 TextAlignmentOptions.Center, new Color(0.8f, 0.8f, 0.85f));
             UIFactory.Anchor(subtitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -60f), new Vector2(0f, 26f));
@@ -69,7 +69,7 @@ namespace MiceToBeHome
             UIFactory.Anchor(icon.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(14f, 0f), new Vector2(62f, 62f));
 
-            string body = $"{definition.displayName}\n<size=17><color=#C8C8D0>Tamano {definition.gridSize} - Distrae {definition.effectSeconds:0}s</color></size>";
+            string body = $"{definition.displayName}\n<size=17><color=#C8C8D0>Size {definition.gridSize} - Stuns {definition.effectSeconds:0}s</color></size>";
             var text = UIFactory.CreateText(go.transform, "Info", body, 21f, TextAlignmentOptions.Left, Color.white);
             UIFactory.Stretch(text.rectTransform);
             text.rectTransform.offsetMin = new Vector2(88f, 6f);
@@ -84,7 +84,7 @@ namespace MiceToBeHome
 
         private static string BuildTooltip(TrapDefinition definition)
         {
-            return $"<b>{definition.displayName}</b>\n{definition.description}\n\nDistrae al gato {definition.effectSeconds:0}s\nOcupa {definition.gridSize} casilla(s)";
+            return $"<b>{definition.displayName}</b>\n{definition.description}\n\nStuns the cat for {definition.effectSeconds:0}s\nTakes up {definition.gridSize} cell(s)";
         }
     }
 }

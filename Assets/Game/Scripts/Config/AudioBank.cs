@@ -6,12 +6,12 @@ namespace MiceToBeHome
     [Serializable]
     public class AudioBank
     {
-        [Header("Musica (opcional)")]
+        [Header("Music (optional)")]
         public AudioClip menuMusic;
         public AudioClip editMusic;
         public AudioClip chaseMusic;
 
-        [Header("Efectos (opcional)")]
+        [Header("SFX (optional)")]
         public AudioClip placeTrap;
         public AudioClip rotateTrap;
         public AudioClip catDistracted;

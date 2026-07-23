@@ -146,7 +146,6 @@ namespace MiceToBeHome
             player.gameObject.SetActive(true);
             player.SetActive(true);
             player.Teleport(center);
-            player.Trail.Clear();
 
             Vector3 catStart = center + new Vector3(0f, 0f, balance.catStartDistance);
             cat.gameObject.SetActive(true);

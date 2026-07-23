@@ -7,7 +7,7 @@ namespace MiceToBeHome.EditorTools
 {
     public static class GameSetupMenu
     {
-        [MenuItem("Tools/Mice to be Home/Crear juego en la escena")]
+        [MenuItem("Tools/Mice to be Home/Create Game In Scene")]
         public static void CreateGameInScene()
         {
             var existing = Object.FindFirstObjectByType<GameBootstrap>();
@@ -22,7 +22,7 @@ namespace MiceToBeHome.EditorTools
             var bootstrap = go.AddComponent<GameBootstrap>();
             bootstrap.EditorEnsureDefaults();
             EditorUtility.SetDirty(bootstrap);
-            Undo.RegisterCreatedObjectUndo(go, "Crear MiceGame");
+            Undo.RegisterCreatedObjectUndo(go, "Create MiceGame");
             Selection.activeObject = go;
             EditorGUIUtility.PingObject(go);
         }

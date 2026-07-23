@@ -11,7 +11,7 @@ namespace MiceToBeHome
         [Min(1)] public int gridRows = 5;
         [Min(0.5f)] public float cellSize = 2f;
 
-        [Tooltip("Distribucion de muebles. Una letra por casilla. 'X' = mueble (bloqueado), '.' = libre.")]
+        [Tooltip("Furniture layout. One letter per cell. 'X' = furniture (blocked), '.' = free.")]
         public string[] furnitureRows =
         {
             "X...X",
@@ -21,30 +21,26 @@ namespace MiceToBeHome
             "X...X"
         };
 
-        [Header("Tiempos (segundos)")]
+        [Header("Timers (seconds)")]
         [Min(1f)] public float editSeconds = 60f;
         [Min(1f)] public float surviveSeconds = 120f;
 
-        [Header("Vidas")]
+        [Header("Lives")]
         [Min(1)] public int lives = 3;
         [Min(0f)] public float invincibleSeconds = 1.5f;
 
-        [Header("Ratona")]
+        [Header("Mouse (player)")]
         [Min(0.1f)] public float mouseSpeed = 5f;
         [Min(0f)] public float mouseKnockback = 2.5f;
 
-        [Header("Gato")]
+        [Header("Cat")]
         [Min(0.1f)] public float catBaseSpeed = 3f;
         [Min(0.1f)] public float catMaxSpeed = 6.5f;
         [Min(0f)] public float catAcceleration = 0.35f;
         [Min(0.1f)] public float catchRadius = 0.6f;
         [Min(0.5f)] public float catStartDistance = 4.5f;
 
-        [Header("Rastro (persecucion)")]
-        [Min(0.1f)] public float breadcrumbSpacing = 0.4f;
-        [Min(0.1f)] public float breadcrumbArrive = 0.35f;
-
-        [Header("Trampas")]
+        [Header("Traps")]
         [Min(0f)] public float trapCooldown = 4f;
 
         public string GetFurnitureRow(int index)

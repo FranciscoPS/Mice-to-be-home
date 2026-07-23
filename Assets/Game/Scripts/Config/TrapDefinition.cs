@@ -6,29 +6,29 @@ namespace MiceToBeHome
     [Serializable]
     public class TrapDefinition
     {
-        [Tooltip("Nombre que se muestra en el inventario.")]
-        public string displayName = "Trampa";
+        [Tooltip("Name shown in the inventory.")]
+        public string displayName = "Trap";
 
         [TextArea]
-        [Tooltip("Descripcion que aparece en el tooltip al pasar el mouse.")]
+        [Tooltip("Description shown in the tooltip on hover.")]
         public string description = "";
 
         [Min(0f)]
-        [Tooltip("Segundos que el gato se queda distraido con este objeto.")]
+        [Tooltip("Seconds the cat stays stunned by this object.")]
         public float effectSeconds = 3f;
 
         [Range(1, 2)]
-        [Tooltip("Cuantas casillas ocupa (1 o 2).")]
+        [Tooltip("How many cells it takes up (1 or 2).")]
         public int gridSize = 1;
 
         [Min(0.1f)]
-        [Tooltip("Distancia a la que el gato detecta y se distrae con la trampa.")]
+        [Tooltip("Distance at which the cat detects and gets stunned by the trap.")]
         public float distractionRadius = 1.6f;
 
-        [Tooltip("Sprite del objeto. Si se deja vacio se usa un cuadro de color.")]
+        [Tooltip("Object sprite. If left empty, a colored square is used.")]
         public Sprite sprite;
 
-        [Tooltip("Color del placeholder cuando no hay sprite asignado.")]
+        [Tooltip("Placeholder color used when no sprite is assigned.")]
         public Color tint = Color.white;
     }
 }
