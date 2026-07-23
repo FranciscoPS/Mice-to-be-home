@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -248,14 +248,14 @@ MonoBehaviour:
   m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
-  m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,14 +282,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 410087039}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 2
     m_Resolution: -1
@@ -336,6 +336,9 @@ Light:
   m_ForceVisible: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!4 &410087041
 Transform:
   m_ObjectHideFlags: 0
@@ -363,17 +366,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,6 +432,154 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &847287716
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 847287718}
+  - component: {fileID: 847287717}
+  m_Layer: 0
+  m_Name: MiceGame
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &847287717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847287716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e40e491ba15e44bcad024474ab5afbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.GameBootstrap
+  config:
+    sprites:
+      mouse: {fileID: 0}
+      mouseTint: {r: 0.75, g: 0.6, b: 0.85, a: 1}
+      cat: {fileID: 0}
+      catTint: {r: 0.95, g: 0.55, b: 0.3, a: 1}
+      furniture: {fileID: 0}
+      furnitureTint: {r: 0.4, g: 0.45, b: 0.55, a: 1}
+      floor: {fileID: 0}
+      floorTint: {r: 0.86, g: 0.82, b: 0.74, a: 1}
+      cell: {fileID: 0}
+      freeCellTint: {r: 1, g: 1, b: 1, a: 0.15}
+      blockedCellTint: {r: 0, g: 0, b: 0, a: 0.2}
+    balance:
+      gridColumns: 5
+      gridRows: 5
+      cellSize: 2
+      furnitureRows:
+      - X...X
+      - ..X..
+      - .X.X.
+      - ..X..
+      - X...X
+      editSeconds: 60
+      surviveSeconds: 120
+      lives: 3
+      invincibleSeconds: 1.5
+      mouseSpeed: 5
+      mouseKnockback: 2.5
+      catBaseSpeed: 3
+      catMaxSpeed: 6.5
+      catAcceleration: 0.35
+      catchRadius: 0.6
+      catStartDistance: 4.5
+      breadcrumbSpacing: 0.4
+      breadcrumbArrive: 0.35
+      trapCooldown: 4
+    audio:
+      menuMusic: {fileID: 0}
+      editMusic: {fileID: 0}
+      chaseMusic: {fileID: 0}
+      placeTrap: {fileID: 0}
+      rotateTrap: {fileID: 0}
+      catDistracted: {fileID: 0}
+      mouseHit: {fileID: 0}
+      victory: {fileID: 0}
+      defeat: {fileID: 0}
+    traps:
+    - displayName: Bola de estambre
+      description: Rueda y llama la atencion del gato.
+      effectSeconds: 3
+      gridSize: 1
+      distractionRadius: 1.6
+      sprite: {fileID: 0}
+      tint: {r: 0.91, g: 0.42, b: 0.57, a: 1}
+    - displayName: Raton de juguete
+      description: Un senuelo rapido y economico.
+      effectSeconds: 2
+      gridSize: 1
+      distractionRadius: 1.6
+      sprite: {fileID: 0}
+      tint: {r: 0.6, g: 0.63, b: 0.65, a: 1}
+    - displayName: Caja de carton
+      description: 'Irresistible: el gato tiene que meterse.'
+      effectSeconds: 3
+      gridSize: 2
+      distractionRadius: 2
+      sprite: {fileID: 0}
+      tint: {r: 0.76, g: 0.57, b: 0.35, a: 1}
+    - displayName: Lata de atun
+      description: El olor lo mantiene ocupado un buen rato.
+      effectSeconds: 5
+      gridSize: 1
+      distractionRadius: 1.6
+      sprite: {fileID: 0}
+      tint: {r: 0.5, g: 0.7, b: 0.84, a: 1}
+    - displayName: Rascador
+      description: Le encanta afilar sus garras aqui.
+      effectSeconds: 4
+      gridSize: 2
+      distractionRadius: 2
+      sprite: {fileID: 0}
+      tint: {r: 0.85, g: 0.7, b: 0.35, a: 1}
+    - displayName: Catnip
+      description: Lo deja en las nubes por varios segundos.
+      effectSeconds: 5
+      gridSize: 1
+      distractionRadius: 1.6
+      sprite: {fileID: 0}
+      tint: {r: 0.5, g: 0.69, b: 0.41, a: 1}
+    - displayName: Liston con plumas
+      description: Baila con el aire y lo hipnotiza.
+      effectSeconds: 3
+      gridSize: 2
+      distractionRadius: 2
+      sprite: {fileID: 0}
+      tint: {r: 0.69, g: 0.52, b: 0.8, a: 1}
+    - displayName: Pajaro de juguete
+      description: Pia y salta para robar su atencion.
+      effectSeconds: 3
+      gridSize: 1
+      distractionRadius: 1.6
+      sprite: {fileID: 0}
+      tint: {r: 0.95, g: 0.76, b: 0.31, a: 1}
+--- !u!4 &847287718
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847287716}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -430,3 +587,4 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
+  - {fileID: 847287718}
