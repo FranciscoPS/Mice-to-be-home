@@ -31,12 +31,12 @@ MonoBehaviour:
     gridRows: 6
     cellSize: 2
     furnitureRows:
-    - XX..XX...X
-    - X......X..
-    - ..X....X..
+    - .X...X...X
+    - .X..XX.X..
+    - .X.....XX.
     - ..........
-    - ...X.X...X
-    - XX.X..X.XX
+    - XXX..X..XX
+    - .X.X..X.X.
     editSeconds: 60
     surviveSeconds: 120
     lives: 3
