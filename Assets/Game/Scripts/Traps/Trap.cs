@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MiceToBeHome
 {
@@ -20,7 +20,8 @@ namespace MiceToBeHome
         private readonly List<Vector2Int> cells = new List<Vector2Int>();
         private BoxCollider zone;
         private SpriteRenderer visual;
-        private TextMeshPro countdown;
+        private GameObject repairRoot;
+        private Image repairFill;
         private Transform cameraTransform;
         private Color baseVisualColor = Color.white;
         private bool captured;
@@ -52,10 +53,16 @@ namespace MiceToBeHome
                 baseVisualColor = visual.color;
             }
 
-            countdown = GetComponentInChildren<TextMeshPro>(true);
-            if (countdown != null)
+            Transform repair = transform.Find("Repair");
+            if (repair != null)
             {
-                countdown.gameObject.SetActive(false);
+                repairRoot = repair.gameObject;
+                Transform fill = repair.Find("Fill");
+                if (fill != null)
+                {
+                    repairFill = fill.GetComponent<Image>();
+                }
+                repairRoot.SetActive(false);
             }
 
             captured = true;
@@ -92,7 +99,7 @@ namespace MiceToBeHome
             spent = true;
             repairProgress = 0f;
             SetGhost(true);
-            RefreshCountdown();
+            UpdateRepairVisual();
             return definition.effectSeconds;
         }
 
@@ -109,7 +116,10 @@ namespace MiceToBeHome
                 spent = false;
                 repairProgress = 0f;
                 SetGhost(false);
+                return;
             }
+
+            UpdateRepairVisual();
         }
 
         public bool IsInZone(Vector3 point)
@@ -128,19 +138,21 @@ namespace MiceToBeHome
         {
             if (spent)
             {
-                RefreshCountdown();
+                UpdateRepairVisual();
             }
         }
 
-        private void RefreshCountdown()
+        private void UpdateRepairVisual()
         {
-            if (countdown == null)
+            if (repairFill != null && definition != null && definition.effectSeconds > 0f)
+            {
+                repairFill.fillAmount = Mathf.Clamp01(repairProgress / definition.effectSeconds);
+            }
+
+            if (repairRoot == null)
             {
                 return;
             }
-
-            float remaining = definition != null ? definition.effectSeconds - repairProgress : 0f;
-            countdown.text = Mathf.CeilToInt(Mathf.Max(0f, remaining)).ToString();
 
             if (cameraTransform == null && Camera.main != null)
             {
@@ -148,7 +160,7 @@ namespace MiceToBeHome
             }
             if (cameraTransform != null)
             {
-                countdown.transform.rotation = cameraTransform.rotation;
+                repairRoot.transform.rotation = cameraTransform.rotation;
             }
         }
 
@@ -160,9 +172,9 @@ namespace MiceToBeHome
                 c.a = ghost ? GhostAlpha : baseVisualColor.a;
                 visual.color = c;
             }
-            if (countdown != null)
+            if (repairRoot != null)
             {
-                countdown.gameObject.SetActive(ghost);
+                repairRoot.SetActive(ghost);
             }
         }
 

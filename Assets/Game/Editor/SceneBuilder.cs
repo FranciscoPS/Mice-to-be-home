@@ -1,11 +1,11 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
-using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace MiceToBeHome.EditorTools
 {
@@ -332,35 +332,67 @@ namespace MiceToBeHome.EditorTools
             visual.transform.localScale = Vector3.one * size;
             visual.transform.localPosition = new Vector3(0f, size * 0.5f, 0f);
 
-            ConfigureTrapCountdown(trapRoot, cell, size);
+            ConfigureTrapRepair(trapRoot, cell, size);
         }
 
-        private static void ConfigureTrapCountdown(GameObject trapRoot, float cell, float size)
+        private static void ConfigureTrapRepair(GameObject trapRoot, float cell, float size)
         {
-            Transform found = trapRoot.transform.Find("Countdown");
-            GameObject go = found != null ? found.gameObject : NewChild(trapRoot.transform, "Countdown");
-
-            var text = go.GetComponent<TextMeshPro>();
-            if (text == null)
+            Transform legacy = trapRoot.transform.Find("Countdown");
+            if (legacy != null)
             {
-                text = go.AddComponent<TextMeshPro>();
+                Object.DestroyImmediate(legacy.gameObject);
             }
-            text.text = string.Empty;
-            text.alignment = TextAlignmentOptions.Center;
-            text.color = Color.white;
-            text.fontStyle = FontStyles.Bold;
-            text.enableAutoSizing = true;
-            text.fontSizeMin = 1f;
-            text.fontSizeMax = 24f;
+            Transform previous = trapRoot.transform.Find("Repair");
+            if (previous != null)
+            {
+                Object.DestroyImmediate(previous.gameObject);
+            }
 
-            var rect = text.rectTransform;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(cell * 1.2f, cell * 0.7f);
-            rect.localRotation = Quaternion.Euler(55f, 0f, 0f);
-            rect.localScale = Vector3.one;
-            rect.localPosition = new Vector3(0f, size + cell * 0.5f, 0f);
+            var root = new GameObject("Repair", typeof(RectTransform), typeof(Canvas));
+            root.transform.SetParent(trapRoot.transform, false);
 
-            go.SetActive(false);
+            var canvas = root.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.sortingOrder = 30000;
+
+            var rootRect = root.GetComponent<RectTransform>();
+            rootRect.sizeDelta = new Vector2(100f, 100f);
+
+            float diameter = cell * 0.6f;
+            root.transform.localScale = Vector3.one * (diameter / 100f);
+            root.transform.localPosition = new Vector3(0f, size * 0.5f, 0f);
+            root.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
+
+            var track = new GameObject("Track", typeof(RectTransform), typeof(Image));
+            track.transform.SetParent(root.transform, false);
+            var trackImage = track.GetComponent<Image>();
+            trackImage.sprite = CircleSprite;
+            trackImage.color = new Color(0f, 0f, 0f, 0.45f);
+            trackImage.raycastTarget = false;
+            StretchRect(track.GetComponent<RectTransform>());
+
+            var fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            fill.transform.SetParent(root.transform, false);
+            var fillImage = fill.GetComponent<Image>();
+            fillImage.sprite = CircleSprite;
+            fillImage.color = new Color(0.45f, 1f, 0.55f, 0.95f);
+            fillImage.raycastTarget = false;
+            fillImage.type = Image.Type.Filled;
+            fillImage.fillMethod = Image.FillMethod.Radial360;
+            fillImage.fillOrigin = (int)Image.Origin360.Top;
+            fillImage.fillClockwise = true;
+            fillImage.fillAmount = 0f;
+            StretchRect(fill.GetComponent<RectTransform>());
+
+            root.SetActive(false);
+        }
+
+        private static void StretchRect(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
         }
 
         private static Trap BuildTrapVariant(GameObject basePrefab, TrapDefinition data)
