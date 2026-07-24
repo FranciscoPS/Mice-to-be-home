@@ -36,7 +36,7 @@ namespace MiceToBeHome
                 new Vector2(28f, -22f), new Vector2(70f, 70f));
 
             hintText = UIFactory.CreateText(parent, "Hint",
-                "Click: pick up & place a trap   -   Q / E: rotate   -   Right click: cancel", 22f,
+                "Click: pick up & place a trap   -   Right click: cancel", 22f,
                 TextAlignmentOptions.Center, new Color(0.9f, 0.9f, 0.95f));
             UIFactory.Anchor(hintText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 40f), new Vector2(900f, 40f));

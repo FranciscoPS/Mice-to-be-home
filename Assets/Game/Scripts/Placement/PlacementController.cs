@@ -19,7 +19,6 @@ namespace MiceToBeHome
         private readonly List<Vector2Int> footprintBuffer = new List<Vector2Int>();
 
         private Trap selected;
-        private Orientation orientation = Orientation.Horizontal;
         private bool carrying;
         private bool active;
 
@@ -49,7 +48,6 @@ namespace MiceToBeHome
         public void SelectFromInventory(Trap trapPrefab)
         {
             selected = trapPrefab;
-            orientation = Orientation.Horizontal;
             carrying = true;
         }
 
@@ -87,8 +85,6 @@ namespace MiceToBeHome
                 return;
             }
 
-            HandleRotation();
-
             bool overUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
             bool leftClick = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
             bool rightClick = Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame;
@@ -118,7 +114,8 @@ namespace MiceToBeHome
                 return;
             }
 
-            TrapFootprint.Compute(origin, selected.Definition.gridSize, orientation, footprintBuffer);
+            footprintBuffer.Clear();
+            footprintBuffer.Add(origin);
             bool valid = grid.CanPlace(footprintBuffer);
             Vector3 center = grid.FootprintCenter(footprintBuffer);
             ghost.UpdatePreview(footprintBuffer, center, valid, grid);
@@ -129,40 +126,12 @@ namespace MiceToBeHome
             }
         }
 
-        private void HandleRotation()
-        {
-            if (!carrying || selected == null || selected.Definition.gridSize < 2 || Keyboard.current == null)
-            {
-                return;
-            }
-
-            if (Keyboard.current.qKey.wasPressedThisFrame || Keyboard.current.eKey.wasPressedThisFrame)
-            {
-                orientation = TrapFootprint.Toggle(orientation);
-                if (audioManager != null)
-                {
-                    audioManager.PlayRotate();
-                }
-            }
-        }
-
         private void PlaceTrap(Vector3 center)
         {
             Trap trap = Instantiate(selected, center, Quaternion.identity, trapParent);
             trap.name = "Trap_" + selected.Definition.displayName;
             trap.SourcePrefab = selected;
-            trap.Configure(footprintBuffer, orientation);
-
-            int minCol = int.MaxValue, maxCol = int.MinValue, minRow = int.MaxValue, maxRow = int.MinValue;
-            for (int i = 0; i < footprintBuffer.Count; i++)
-            {
-                Vector2Int c = footprintBuffer[i];
-                if (c.x < minCol) minCol = c.x;
-                if (c.x > maxCol) maxCol = c.x;
-                if (c.y < minRow) minRow = c.y;
-                if (c.y > maxRow) maxRow = c.y;
-            }
-            trap.FitToFootprint(maxCol - minCol + 1, maxRow - minRow + 1, balance.cellSize);
+            trap.Configure(footprintBuffer);
 
             grid.Occupy(footprintBuffer);
             for (int i = 0; i < footprintBuffer.Count; i++)
@@ -187,7 +156,6 @@ namespace MiceToBeHome
             placedTraps.Remove(trap);
 
             selected = trap.SourcePrefab;
-            orientation = trap.Orientation;
             carrying = selected != null;
 
             Destroy(trap.gameObject);

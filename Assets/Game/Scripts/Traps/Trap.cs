@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace MiceToBeHome
@@ -6,21 +7,24 @@ namespace MiceToBeHome
     [RequireComponent(typeof(BoxCollider))]
     public class Trap : MonoBehaviour
     {
+        private const float GhostAlpha = 0.3f;
+
         [SerializeField] private TrapDefinition definition = new TrapDefinition();
 
         public TrapDefinition Definition => definition;
-        public Orientation Orientation { get; private set; }
         public Trap SourcePrefab { get; set; }
         public IReadOnlyList<Vector2Int> Cells => cells;
-        public bool IsAvailable => armed;
+        public bool IsAvailable => armed && cooldownRemaining <= 0f;
 
         private readonly List<Vector2Int> cells = new List<Vector2Int>();
         private BoxCollider zone;
         private SpriteRenderer visual;
-        private Vector3 baseZoneSize;
-        private Vector3 baseVisualScale;
+        private TextMeshPro countdown;
+        private Transform cameraTransform;
+        private Color baseVisualColor = Color.white;
         private bool captured;
         private bool armed;
+        private float cooldownRemaining;
 
         private void Awake()
         {
@@ -38,22 +42,26 @@ namespace MiceToBeHome
             if (zone != null)
             {
                 zone.isTrigger = true;
-                baseZoneSize = zone.size;
             }
 
             visual = GetComponentInChildren<SpriteRenderer>();
             if (visual != null)
             {
-                baseVisualScale = visual.transform.localScale;
+                baseVisualColor = visual.color;
+            }
+
+            countdown = GetComponentInChildren<TextMeshPro>(true);
+            if (countdown != null)
+            {
+                countdown.gameObject.SetActive(false);
             }
 
             captured = true;
         }
 
-        public void Configure(IReadOnlyList<Vector2Int> footprint, Orientation orientation)
+        public void Configure(IReadOnlyList<Vector2Int> footprint)
         {
             EnsureRefs();
-            Orientation = orientation;
 
             cells.Clear();
             for (int i = 0; i < footprint.Count; i++)
@@ -62,23 +70,8 @@ namespace MiceToBeHome
             }
 
             armed = false;
-        }
-
-        public void FitToFootprint(int cellsX, int cellsZ, float cellSize)
-        {
-            EnsureRefs();
-
-            float extraX = (cellsX - 1) * cellSize;
-            float extraZ = (cellsZ - 1) * cellSize;
-
-            if (zone != null)
-            {
-                zone.size = new Vector3(baseZoneSize.x + extraX, baseZoneSize.y, baseZoneSize.z + extraZ);
-            }
-            if (visual != null)
-            {
-                visual.transform.localScale = new Vector3(baseVisualScale.x + extraX, baseVisualScale.y + extraZ, 1f);
-            }
+            cooldownRemaining = 0f;
+            SetGhost(false);
         }
 
         public void SetArmed(bool value)
@@ -88,7 +81,15 @@ namespace MiceToBeHome
 
         public float Trigger()
         {
-            return definition != null ? definition.effectSeconds : 0f;
+            if (definition == null)
+            {
+                return 0f;
+            }
+
+            cooldownRemaining = definition.cooldownSeconds;
+            SetGhost(true);
+            RefreshCountdown();
+            return definition.effectSeconds;
         }
 
         public bool IsInZone(Vector3 point)
@@ -101,6 +102,57 @@ namespace MiceToBeHome
 
             Vector3 sample = new Vector3(point.x, zone.bounds.center.y, point.z);
             return (zone.ClosestPoint(sample) - sample).sqrMagnitude < 0.0004f;
+        }
+
+        private void Update()
+        {
+            if (cooldownRemaining <= 0f)
+            {
+                return;
+            }
+
+            cooldownRemaining -= Time.deltaTime;
+            if (cooldownRemaining <= 0f)
+            {
+                cooldownRemaining = 0f;
+                SetGhost(false);
+                return;
+            }
+
+            RefreshCountdown();
+        }
+
+        private void RefreshCountdown()
+        {
+            if (countdown == null)
+            {
+                return;
+            }
+
+            countdown.text = Mathf.CeilToInt(cooldownRemaining).ToString();
+
+            if (cameraTransform == null && Camera.main != null)
+            {
+                cameraTransform = Camera.main.transform;
+            }
+            if (cameraTransform != null)
+            {
+                countdown.transform.rotation = cameraTransform.rotation;
+            }
+        }
+
+        private void SetGhost(bool ghost)
+        {
+            if (visual != null)
+            {
+                Color c = baseVisualColor;
+                c.a = ghost ? GhostAlpha : baseVisualColor.a;
+                visual.color = c;
+            }
+            if (countdown != null)
+            {
+                countdown.gameObject.SetActive(ghost);
+            }
         }
 
         private void OnEnable() => TrapRegistry.Register(this);

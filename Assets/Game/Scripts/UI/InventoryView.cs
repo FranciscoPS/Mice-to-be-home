@@ -73,7 +73,7 @@ namespace MiceToBeHome
             UIFactory.Anchor(icon.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(14f, 0f), new Vector2(62f, 62f));
 
-            string body = $"{definition.displayName}\n<size=17><color=#C8C8D0>Size {definition.gridSize} - Stuns {definition.effectSeconds:0}s</color></size>";
+            string body = $"{definition.displayName}\n<size=17><color=#C8C8D0>Stuns {definition.effectSeconds:0}s - Cooldown {definition.cooldownSeconds:0}s</color></size>";
             var text = UIFactory.CreateText(go.transform, "Info", body, 21f, TextAlignmentOptions.Left, Color.white);
             UIFactory.Stretch(text.rectTransform);
             text.rectTransform.offsetMin = new Vector2(88f, 6f);
@@ -88,7 +88,7 @@ namespace MiceToBeHome
 
         private static string BuildTooltip(TrapDefinition definition)
         {
-            return $"<b>{definition.displayName}</b>\n{definition.description}\n\nStuns the cat for {definition.effectSeconds:0}s\nTakes up {definition.gridSize} cell(s)";
+            return $"<b>{definition.displayName}</b>\n{definition.description}\n\nStuns the cat for {definition.effectSeconds:0}s\nCooldown {definition.cooldownSeconds:0}s";
         }
     }
 }

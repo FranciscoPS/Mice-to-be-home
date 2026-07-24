@@ -101,12 +101,8 @@ namespace MiceToBeHome
             if (sprite != null)
             {
                 image.sprite = sprite;
-                image.color = Color.white;
             }
-            else
-            {
-                image.color = color;
-            }
+            image.color = color;
             image.raycastTarget = false;
             return image;
         }

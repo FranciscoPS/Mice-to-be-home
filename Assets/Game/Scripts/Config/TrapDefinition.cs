@@ -17,9 +17,9 @@ namespace MiceToBeHome
         [Tooltip("Seconds the cat stays stunned by this object.")]
         public float effectSeconds = 3f;
 
-        [Range(1, 2)]
-        [Tooltip("How many cells it takes up (1 or 2).")]
-        public int gridSize = 1;
+        [Min(0f)]
+        [Tooltip("Seconds the trap is on cooldown (ghosted) after being triggered.")]
+        public float cooldownSeconds = 6f;
 
         [Tooltip("Placeholder color used when the visual has no sprite.")]
         public Color tint = Color.white;

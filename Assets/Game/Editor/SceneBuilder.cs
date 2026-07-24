@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -286,10 +287,13 @@ namespace MiceToBeHome.EditorTools
         private static GameObject BuildBaseTrapPrefab(float cell)
         {
             string path = TrapPrefabFolder + "/BaseTrap.prefab";
-            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (existing != null)
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
             {
-                return existing;
+                GameObject contents = PrefabUtility.LoadPrefabContents(path);
+                ConfigureTrapVisual(contents, cell);
+                PrefabUtility.SaveAsPrefabAsset(contents, path);
+                PrefabUtility.UnloadPrefabContents(contents);
+                return AssetDatabase.LoadAssetAtPath<GameObject>(path);
             }
 
             var template = new GameObject("Trap");
@@ -299,16 +303,64 @@ namespace MiceToBeHome.EditorTools
             zone.center = new Vector3(0f, 0.5f, 0f);
             zone.size = new Vector3(cell * 1.15f, 1.2f, cell * 1.15f);
 
-            var visual = NewChild(template.transform, "Visual");
-            var renderer = visual.AddComponent<SpriteRenderer>();
-            renderer.sprite = SquareSprite;
-            renderer.color = Color.white;
-            renderer.sortingOrder = -8000;
-            visual.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            visual.transform.localScale = new Vector3(cell * 0.85f, cell * 0.85f, 1f);
-            visual.transform.localPosition = new Vector3(0f, 0.02f, 0f);
-
+            ConfigureTrapVisual(template, cell);
             return SavePrefab(template, path);
+        }
+
+        private static void ConfigureTrapVisual(GameObject trapRoot, float cell)
+        {
+            Transform found = trapRoot.transform.Find("Visual");
+            GameObject visual = found != null ? found.gameObject : NewChild(trapRoot.transform, "Visual");
+
+            var renderer = visual.GetComponent<SpriteRenderer>();
+            if (renderer == null)
+            {
+                renderer = visual.AddComponent<SpriteRenderer>();
+            }
+            if (renderer.sprite == null)
+            {
+                renderer.sprite = SquareSprite;
+            }
+
+            if (visual.GetComponent<Billboard>() == null)
+            {
+                visual.AddComponent<Billboard>();
+            }
+
+            float size = cell * 0.9f;
+            visual.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
+            visual.transform.localScale = Vector3.one * size;
+            visual.transform.localPosition = new Vector3(0f, size * 0.5f, 0f);
+
+            ConfigureTrapCountdown(trapRoot, cell, size);
+        }
+
+        private static void ConfigureTrapCountdown(GameObject trapRoot, float cell, float size)
+        {
+            Transform found = trapRoot.transform.Find("Countdown");
+            GameObject go = found != null ? found.gameObject : NewChild(trapRoot.transform, "Countdown");
+
+            var text = go.GetComponent<TextMeshPro>();
+            if (text == null)
+            {
+                text = go.AddComponent<TextMeshPro>();
+            }
+            text.text = string.Empty;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = Color.white;
+            text.fontStyle = FontStyles.Bold;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 1f;
+            text.fontSizeMax = 24f;
+
+            var rect = text.rectTransform;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(cell * 1.2f, cell * 0.7f);
+            rect.localRotation = Quaternion.Euler(55f, 0f, 0f);
+            rect.localScale = Vector3.one;
+            rect.localPosition = new Vector3(0f, size + cell * 0.5f, 0f);
+
+            go.SetActive(false);
         }
 
         private static Trap BuildTrapVariant(GameObject basePrefab, TrapDefinition data)
@@ -317,7 +369,15 @@ namespace MiceToBeHome.EditorTools
             GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (existing != null)
             {
-                return existing.GetComponent<Trap>();
+                GameObject contents = PrefabUtility.LoadPrefabContents(path);
+                var existingTrap = contents.GetComponent<Trap>();
+                if (existingTrap != null)
+                {
+                    existingTrap.EditorAssign(data);
+                }
+                PrefabUtility.SaveAsPrefabAsset(contents, path);
+                PrefabUtility.UnloadPrefabContents(contents);
+                return AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<Trap>();
             }
 
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);
