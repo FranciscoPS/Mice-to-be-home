@@ -96,7 +96,7 @@ namespace MiceToBeHome
 #endif
 
             var controls = UIFactory.CreateText(panel.transform, "Controls",
-                "Edit: mouse to place traps, Q/E to rotate.    Chase: move with WASD.    Esc: pause.", 22f,
+                "Edit: click to place traps (max 5).    Chase: WASD to move, stand on a faded trap to repair it.    Esc: pause.", 22f,
                 TextAlignmentOptions.Center, new Color(0.75f, 0.75f, 0.82f));
             UIFactory.Anchor(controls.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 60f), new Vector2(1300f, 40f));

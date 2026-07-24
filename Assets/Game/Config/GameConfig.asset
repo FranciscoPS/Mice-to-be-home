@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.GameConfig
   sprites:
-    mouse: {fileID: 0}
+    mouse: {fileID: 21300000, guid: 5d4bb7830fe2a41ddb27a32f35af2879, type: 3}
     mouseTint: {r: 0.75, g: 0.6, b: 0.85, a: 1}
-    cat: {fileID: 0}
+    cat: {fileID: 21300000, guid: 225387d49a8254cadbe17dedf1909954, type: 3}
     catTint: {r: 0.95, g: 0.55, b: 0.3, a: 1}
-    furniture: {fileID: 0}
+    furniture: {fileID: 21300000, guid: 2cefa8e1ce3a64b52ae0870a6b3add6b, type: 3}
     furnitureTint: {r: 0.4, g: 0.45, b: 0.55, a: 1}
     floor: {fileID: 0}
     floorTint: {r: 0.86, g: 0.82, b: 0.74, a: 1}
