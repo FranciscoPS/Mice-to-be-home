@@ -11,7 +11,10 @@ namespace MiceToBeHome
         public void Initialize(AudioBank audioBank)
         {
             bank = audioBank;
+        }
 
+        private void Awake()
+        {
             music = gameObject.AddComponent<AudioSource>();
             music.loop = true;
             music.playOnAwake = false;

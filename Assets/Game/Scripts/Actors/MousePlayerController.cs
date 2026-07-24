@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace MiceToBeHome
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class MousePlayerController : MonoBehaviour
     {
         public event Action Hit;
@@ -19,10 +20,15 @@ namespace MiceToBeHome
         private float knockbackTimer;
         private Vector3 knockbackVelocity;
 
-        public void Initialize(Rigidbody rigidbody, SpriteRenderer renderer, BalanceSettings settings)
+        private void Awake()
         {
-            body = rigidbody;
-            visual = renderer;
+            body = GetComponent<Rigidbody>();
+            visual = GetComponentInChildren<SpriteRenderer>();
+            ActorPhysics.ApplyTo(GetComponent<Collider>());
+        }
+
+        public void Initialize(BalanceSettings settings)
+        {
             balance = settings;
         }
 

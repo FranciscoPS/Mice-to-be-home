@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace MiceToBeHome
 {
+    [RequireComponent(typeof(Camera))]
     public class CameraController : MonoBehaviour
     {
         [SerializeField] private float pitch = 55f;
@@ -15,9 +16,13 @@ namespace MiceToBeHome
         private float followDistance;
         private bool following;
 
-        public void Initialize(Camera camera, BalanceSettings balance, Vector3 center)
+        private void Awake()
         {
-            view = camera;
+            view = GetComponent<Camera>();
+        }
+
+        public void Initialize(BalanceSettings balance, Vector3 center)
+        {
             gridCenter = center;
 
             view.orthographic = false;

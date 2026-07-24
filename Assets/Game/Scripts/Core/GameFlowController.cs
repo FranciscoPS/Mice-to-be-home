@@ -147,7 +147,7 @@ namespace MiceToBeHome
             player.SetActive(true);
             player.Teleport(center);
 
-            Vector3 catStart = center + new Vector3(0f, 0f, balance.catStartDistance);
+            Vector3 catStart = center + new Vector3(balance.catStartDistance, 0f, 0f);
             cat.gameObject.SetActive(true);
             cat.SetActive(true);
             cat.ResetForChase(catStart);

@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace MiceToBeHome
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class CatController : MonoBehaviour
     {
         private enum CatState
@@ -16,20 +17,23 @@ namespace MiceToBeHome
         private MousePlayerController player;
         private BalanceSettings balance;
         private AudioManager audioManager;
-        private int obstacleMask;
 
         private CatState state = CatState.Idle;
         private float currentSpeed;
         private float stateTimer;
         private bool active;
 
-        public void Initialize(Rigidbody rigidbody, MousePlayerController target, BalanceSettings settings, AudioManager audioManager, int obstacleLayerMask)
+        private void Awake()
         {
-            body = rigidbody;
+            body = GetComponent<Rigidbody>();
+            ActorPhysics.ApplyTo(GetComponent<Collider>());
+        }
+
+        public void Initialize(MousePlayerController target, BalanceSettings settings, AudioManager audio)
+        {
             player = target;
             balance = settings;
-            this.audioManager = audioManager;
-            obstacleMask = obstacleLayerMask;
+            audioManager = audio;
         }
 
         public void SetActive(bool value)
@@ -95,40 +99,12 @@ namespace MiceToBeHome
 
             currentSpeed = Mathf.Min(balance.catMaxSpeed, currentSpeed + balance.catAcceleration * Time.fixedDeltaTime);
 
-            Vector3 toPlayer = player.Position - body.position;
-            toPlayer.y = 0f;
+            Vector3 direction = player.Position - body.position;
+            direction.y = 0f;
 
-            if (toPlayer.sqrMagnitude > 0.0004f)
-            {
-                Vector3 heading = SteerAround(toPlayer.normalized);
-                body.linearVelocity = heading * currentSpeed;
-            }
-            else
-            {
-                body.linearVelocity = Vector3.zero;
-            }
+            body.linearVelocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
 
             TryCatch();
-        }
-
-        private Vector3 SteerAround(Vector3 desiredDirection)
-        {
-            float radius = balance.cellSize * 0.11f;
-            float probe = balance.cellSize * 0.9f;
-            Vector3 origin = body.position + Vector3.up * 0.3f;
-
-            if (Physics.SphereCast(origin, radius, desiredDirection, out RaycastHit hit, probe, obstacleMask, QueryTriggerInteraction.Ignore))
-            {
-                Vector3 slide = Vector3.ProjectOnPlane(desiredDirection, hit.normal);
-                slide.y = 0f;
-                if (slide.sqrMagnitude < 0.0004f)
-                {
-                    slide = Vector3.Cross(Vector3.up, hit.normal);
-                }
-                return slide.normalized;
-            }
-
-            return desiredDirection;
         }
 
         private bool TryStun()

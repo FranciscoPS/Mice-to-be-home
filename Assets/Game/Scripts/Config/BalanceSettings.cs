@@ -16,7 +16,7 @@ namespace MiceToBeHome
         {
             "X...X",
             "..X..",
-            ".X.X.",
+            ".....",
             "..X..",
             "X...X"
         };

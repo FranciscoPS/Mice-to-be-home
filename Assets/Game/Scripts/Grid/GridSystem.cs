@@ -27,14 +27,18 @@ namespace MiceToBeHome
 
             cornerOrigin = transform.position - new Vector3(Columns * CellSize * 0.5f, 0f, Rows * CellSize * 0.5f);
 
-            for (int row = 0; row < Rows; row++)
+            MarkFurnitureFromScene();
+        }
+
+        private void MarkFurnitureFromScene()
+        {
+            FurniturePiece[] pieces = FindObjectsByType<FurniturePiece>(FindObjectsSortMode.None);
+            for (int i = 0; i < pieces.Length; i++)
             {
-                int stringIndex = Rows - 1 - row;
-                string line = balance.GetFurnitureRow(stringIndex);
-                for (int col = 0; col < Columns; col++)
+                Vector2Int cell = WorldToCell(pieces[i].transform.position);
+                if (IsInside(cell))
                 {
-                    bool blocked = col < line.Length && (line[col] == 'X' || line[col] == 'x');
-                    furniture[Index(col, row)] = blocked;
+                    furniture[Index(cell.x, cell.y)] = true;
                 }
             }
         }
@@ -102,9 +106,15 @@ namespace MiceToBeHome
 
         public Vector3 CellToWorld(Vector2Int cell)
         {
-            float x = cornerOrigin.x + (cell.x + 0.5f) * CellSize;
-            float z = cornerOrigin.z + (cell.y + 0.5f) * CellSize;
-            return new Vector3(x, transform.position.y, z);
+            return CellToWorld(transform.position, Columns, Rows, CellSize, cell.x, cell.y);
+        }
+
+        public static Vector3 CellToWorld(Vector3 center, int columns, int rows, float cellSize, int col, int row)
+        {
+            Vector3 corner = center - new Vector3(columns * cellSize * 0.5f, 0f, rows * cellSize * 0.5f);
+            float x = corner.x + (col + 0.5f) * cellSize;
+            float z = corner.z + (row + 0.5f) * cellSize;
+            return new Vector3(x, center.y, z);
         }
 
         public Vector3 FootprintCenter(IReadOnlyList<Vector2Int> cells)
