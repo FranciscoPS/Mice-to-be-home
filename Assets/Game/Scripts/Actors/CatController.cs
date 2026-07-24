@@ -159,7 +159,7 @@ namespace MiceToBeHome
                     continue;
                 }
 
-                float distance = HorizontalDistance(body.position, trap.transform.position);
+                float distance = trap.HorizontalDistanceTo(body.position);
                 if (distance <= trap.DistractionRadius)
                 {
                     insideTrapZone = true;

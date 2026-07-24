@@ -17,6 +17,7 @@ namespace MiceToBeHome
         private readonly List<Trap> placedTraps = new List<Trap>();
         private readonly Dictionary<Vector2Int, Trap> cellToTrap = new Dictionary<Vector2Int, Trap>();
         private readonly List<Vector2Int> footprintBuffer = new List<Vector2Int>();
+        private readonly List<Vector3> cellCentersBuffer = new List<Vector3>();
 
         private TrapDefinition selected;
         private Orientation orientation = Orientation.Horizontal;
@@ -153,11 +154,22 @@ namespace MiceToBeHome
             go.transform.SetParent(trapParent, false);
             go.transform.position = center;
 
-            VisualFactory.CreateBillboard("Visual", go.transform, selected.sprite, selected.tint,
-                SpriteShape.Square, balance.cellSize * 0.8f);
+            cellCentersBuffer.Clear();
+            for (int i = 0; i < footprintBuffer.Count; i++)
+            {
+                cellCentersBuffer.Add(grid.CellToWorld(footprintBuffer[i]));
+            }
+
+            float visualSize = balance.cellSize * 0.82f;
+            for (int i = 0; i < cellCentersBuffer.Count; i++)
+            {
+                SpriteRenderer cellVisual = VisualFactory.CreateBillboard("Visual", go.transform, selected.sprite,
+                    selected.tint, SpriteShape.Square, visualSize);
+                cellVisual.transform.position = cellCentersBuffer[i];
+            }
 
             var trap = go.AddComponent<Trap>();
-            trap.Initialize(selected, footprintBuffer, orientation);
+            trap.Initialize(selected, footprintBuffer, orientation, cellCentersBuffer);
 
             grid.Occupy(footprintBuffer);
             for (int i = 0; i < footprintBuffer.Count; i++)

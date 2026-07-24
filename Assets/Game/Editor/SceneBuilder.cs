@@ -217,7 +217,7 @@ namespace MiceToBeHome.EditorTools
             template.AddComponent<FurniturePiece>();
             var box = template.AddComponent<BoxCollider>();
             box.center = new Vector3(0f, 0.5f, 0f);
-            box.size = new Vector3(cell * 0.6f, 1f, cell * 0.6f);
+            box.size = new Vector3(cell * 0.45f, 1f, cell * 0.45f);
             AddBillboard(template.transform, "Visual", sprites.furniture, sprites.furnitureTint, false, cell * 0.72f);
             return SavePrefab(template, path);
         }

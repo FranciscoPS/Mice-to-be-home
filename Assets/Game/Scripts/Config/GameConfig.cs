@@ -51,7 +51,7 @@ namespace MiceToBeHome
                 description = description,
                 effectSeconds = seconds,
                 gridSize = size,
-                distractionRadius = size >= 2 ? 2f : 1.6f,
+                distractionRadius = 1f,
                 tint = tint
             };
         }
