@@ -40,6 +40,10 @@ PrefabInstance:
       propertyPath: definition.displayName
       value: Feather Wand
       objectReference: {fileID: 0}
+    - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: definition.effectSeconds
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5529659622753508376, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
