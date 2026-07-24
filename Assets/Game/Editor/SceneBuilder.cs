@@ -7,6 +7,8 @@ namespace MiceToBeHome.EditorTools
 {
     public static class SceneBuilder
     {
+        private const string PrefabFolder = "Assets/Game/Prefabs";
+
         [MenuItem("Tools/Mice to be Home/Build Scene")]
         public static void BuildScene()
         {
@@ -14,11 +16,13 @@ namespace MiceToBeHome.EditorTools
             if (existing != null)
             {
                 EditorUtility.DisplayDialog("Mice to be Home",
-                    "There is already a 'Game' object in this scene. Delete it first if you want to rebuild from scratch.", "OK");
+                    "There is already a 'Game' object in this scene. Delete it first if you want to rebuild.", "OK");
                 Selection.activeObject = existing.gameObject;
                 EditorGUIUtility.PingObject(existing.gameObject);
                 return;
             }
+
+            EnsurePrefabFolder();
 
             var root = new GameObject("Game");
             Undo.RegisterCreatedObjectUndo(root, "Build Mice Scene");
@@ -32,6 +36,11 @@ namespace MiceToBeHome.EditorTools
             int rows = Mathf.Max(1, balance.gridRows);
             float cell = Mathf.Max(0.1f, balance.cellSize);
             Vector3 center = Vector3.zero;
+
+            GameObject furniturePrefab = GetOrCreateFurniturePrefab(sprites, cell);
+            GameObject cellPrefab = GetOrCreateCellPrefab(sprites, cell);
+            GameObject playerPrefab = GetOrCreateActorPrefab("Player", sprites.mouse, sprites.mouseTint, cell, cell * 0.5f, false);
+            GameObject catPrefab = GetOrCreateActorPrefab("Cat", sprites.cat, sprites.catTint, cell, cell * 0.62f, true);
 
             var gameManager = NewChild(root.transform, "GameManager").AddComponent<GameManager>();
             var audio = NewChild(root.transform, "Audio").AddComponent<AudioManager>();
@@ -53,8 +62,8 @@ namespace MiceToBeHome.EditorTools
             {
                 for (int c = 0; c < cols; c++)
                 {
-                    SpriteRenderer tile = AddGround(cellsParent, $"Cell_{c}_{r}", new Vector2(cell * 0.94f, cell * 0.94f),
-                        sprites.cell, new Color(1f, 1f, 1f, 0.14f), -9000);
+                    var tile = (GameObject)PrefabUtility.InstantiatePrefab(cellPrefab, cellsParent);
+                    tile.name = $"Cell_{c}_{r}";
                     tile.transform.position = GridSystem.CellToWorld(center, cols, rows, cell, c, r) + Vector3.up * 0.01f;
                 }
             }
@@ -68,18 +77,19 @@ namespace MiceToBeHome.EditorTools
                 {
                     if (line[c] == 'X' || line[c] == 'x')
                     {
-                        CreateFurnitureObject(furnitureParent, GridSystem.CellToWorld(center, cols, rows, cell, c, gridRow), cell, sprites);
+                        var piece = (GameObject)PrefabUtility.InstantiatePrefab(furniturePrefab, furnitureParent);
+                        piece.transform.position = GridSystem.CellToWorld(center, cols, rows, cell, c, gridRow);
                     }
                 }
             }
 
-            GameObject playerGO = CreateActor(root.transform, "Player", sprites.mouse, sprites.mouseTint, cell, cell * 0.5f);
+            var playerGO = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab, root.transform);
             playerGO.transform.position = center;
-            var player = playerGO.AddComponent<MousePlayerController>();
+            var player = playerGO.GetComponent<MousePlayerController>();
 
-            GameObject catGO = CreateActor(root.transform, "Cat", sprites.cat, sprites.catTint, cell, cell * 0.62f);
+            var catGO = (GameObject)PrefabUtility.InstantiatePrefab(catPrefab, root.transform);
             catGO.transform.position = center + new Vector3(balance.catStartDistance, 0f, 0f);
-            var cat = catGO.AddComponent<CatController>();
+            var cat = catGO.GetComponent<CatController>();
 
             Camera cam = SetupCamera(center, cols, rows, cell);
             var cameraController = cam.gameObject.AddComponent<CameraController>();
@@ -100,22 +110,23 @@ namespace MiceToBeHome.EditorTools
             EditorSceneManager.MarkSceneDirty(root.scene);
             Selection.activeObject = root;
             EditorGUIUtility.PingObject(root);
-            Debug.Log("[Mice to be Home] Scene built. Assign sprites on each 'Visual' child (or on Game > Config) and press Play.");
+            Debug.Log("[Mice to be Home] Scene built. Reusable prefabs live in Assets/Game/Prefabs. Press Play.");
         }
 
         [MenuItem("Tools/Mice to be Home/Add Furniture Piece")]
         public static void AddFurniturePiece()
         {
-            var installer = Object.FindFirstObjectByType<GameInstaller>();
-            float cell = 2f;
-            SpriteLibrary sprites = new SpriteLibrary();
-            Transform parent = null;
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Furniture.prefab");
+            if (prefab == null)
+            {
+                EditorUtility.DisplayDialog("Mice to be Home", "Build the scene first (Tools > Mice to be Home > Build Scene).", "OK");
+                return;
+            }
 
+            Transform parent = null;
+            var installer = Object.FindFirstObjectByType<GameInstaller>();
             if (installer != null)
             {
-                GameConfig config = installer.EditorEnsureConfig();
-                cell = Mathf.Max(0.1f, config.Balance.cellSize);
-                sprites = config.Sprites;
                 var grid = installer.GetComponentInChildren<GridSystem>();
                 if (grid != null)
                 {
@@ -124,10 +135,94 @@ namespace MiceToBeHome.EditorTools
                 }
             }
 
-            GameObject piece = CreateFurnitureObject(parent, Vector3.zero, cell, sprites);
+            var piece = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+            piece.transform.position = Vector3.zero;
             Undo.RegisterCreatedObjectUndo(piece, "Add Furniture Piece");
             Selection.activeObject = piece;
             EditorGUIUtility.PingObject(piece);
+        }
+
+        private static void EnsurePrefabFolder()
+        {
+            if (!AssetDatabase.IsValidFolder(PrefabFolder))
+            {
+                AssetDatabase.CreateFolder("Assets/Game", "Prefabs");
+            }
+        }
+
+        private static GameObject GetOrCreateFurniturePrefab(SpriteLibrary sprites, float cell)
+        {
+            string path = PrefabFolder + "/Furniture.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var template = new GameObject("Furniture");
+            template.AddComponent<FurniturePiece>();
+            var box = template.AddComponent<BoxCollider>();
+            box.center = new Vector3(0f, 0.5f, 0f);
+            box.size = new Vector3(cell * 0.6f, 1f, cell * 0.6f);
+            AddBillboard(template.transform, "Visual", sprites.furniture, sprites.furnitureTint, false, cell * 0.72f);
+            return SavePrefab(template, path);
+        }
+
+        private static GameObject GetOrCreateCellPrefab(SpriteLibrary sprites, float cell)
+        {
+            string path = PrefabFolder + "/Cell.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var template = new GameObject("Cell");
+            AddGroundRenderer(template, new Vector2(cell * 0.94f, cell * 0.94f), sprites.cell, new Color(1f, 1f, 1f, 0.14f), -9000);
+            return SavePrefab(template, path);
+        }
+
+        private static GameObject GetOrCreateActorPrefab(string name, Sprite artwork, Color tint, float cell, float visualSize, bool isCat)
+        {
+            string path = PrefabFolder + "/" + name + ".prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var template = new GameObject(name);
+            var body = template.AddComponent<Rigidbody>();
+            body.useGravity = false;
+            body.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
+            body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            body.interpolation = RigidbodyInterpolation.Interpolate;
+
+            var capsule = template.AddComponent<CapsuleCollider>();
+            capsule.direction = 1;
+            capsule.radius = cell * 0.12f;
+            capsule.height = 1f;
+            capsule.center = new Vector3(0f, 0.5f, 0f);
+
+            AddBillboard(template.transform, "Visual", artwork, tint, true, visualSize);
+
+            if (isCat)
+            {
+                template.AddComponent<CatController>();
+            }
+            else
+            {
+                template.AddComponent<MousePlayerController>();
+            }
+
+            return SavePrefab(template, path);
+        }
+
+        private static GameObject SavePrefab(GameObject template, string path)
+        {
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(template, path);
+            Object.DestroyImmediate(template);
+            return prefab;
         }
 
         private static GameObject NewChild(Transform parent, string name)
@@ -143,6 +238,11 @@ namespace MiceToBeHome.EditorTools
         private static SpriteRenderer AddGround(Transform parent, string name, Vector2 size, Sprite artwork, Color tint, int sortingOrder)
         {
             var go = NewChild(parent, name);
+            return AddGroundRenderer(go, size, artwork, tint, sortingOrder);
+        }
+
+        private static SpriteRenderer AddGroundRenderer(GameObject go, Vector2 size, Sprite artwork, Color tint, int sortingOrder)
+        {
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = artwork != null ? artwork : SquareSprite;
             renderer.color = artwork != null ? Color.white : tint;
@@ -161,45 +261,7 @@ namespace MiceToBeHome.EditorTools
             go.AddComponent<Billboard>();
             go.transform.localScale = Vector3.one * worldSize;
             go.transform.localPosition = new Vector3(0f, worldSize * 0.5f, 0f);
-            go.transform.rotation = Quaternion.Euler(55f, 0f, 0f);
-        }
-
-        private static GameObject CreateFurnitureObject(Transform parent, Vector3 position, float cell, SpriteLibrary sprites)
-        {
-            var go = new GameObject("Furniture");
-            if (parent != null)
-            {
-                go.transform.SetParent(parent, false);
-            }
-            go.transform.position = position;
-
-            go.AddComponent<FurniturePiece>();
-            var box = go.AddComponent<BoxCollider>();
-            box.center = new Vector3(0f, 0.5f, 0f);
-            box.size = new Vector3(cell * 0.6f, 1f, cell * 0.6f);
-
-            AddBillboard(go.transform, "Visual", sprites.furniture, sprites.furnitureTint, false, cell * 0.72f);
-            return go;
-        }
-
-        private static GameObject CreateActor(Transform parent, string name, Sprite artwork, Color tint, float cell, float visualSize)
-        {
-            var go = NewChild(parent, name);
-
-            var body = go.AddComponent<Rigidbody>();
-            body.useGravity = false;
-            body.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
-            body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            body.interpolation = RigidbodyInterpolation.Interpolate;
-
-            var capsule = go.AddComponent<CapsuleCollider>();
-            capsule.direction = 1;
-            capsule.radius = cell * 0.12f;
-            capsule.height = 1f;
-            capsule.center = new Vector3(0f, 0.5f, 0f);
-
-            AddBillboard(go.transform, "Visual", artwork, tint, true, visualSize);
-            return go;
+            go.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
         }
 
         private static Camera SetupCamera(Vector3 center, int cols, int rows, float cell)

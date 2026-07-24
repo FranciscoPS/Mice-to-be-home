@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MiceToBeHome
@@ -17,6 +18,11 @@ namespace MiceToBeHome
         private MousePlayerController player;
         private BalanceSettings balance;
         private AudioManager audioManager;
+        private GridSystem grid;
+
+        private readonly List<Vector2Int> path = new List<Vector2Int>();
+        private Vector2Int cachedGoal = new Vector2Int(int.MinValue, int.MinValue);
+        private float repathTimer;
 
         private CatState state = CatState.Idle;
         private float currentSpeed;
@@ -29,11 +35,12 @@ namespace MiceToBeHome
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
-        public void Initialize(MousePlayerController target, BalanceSettings settings, AudioManager audio)
+        public void Initialize(MousePlayerController target, BalanceSettings settings, AudioManager audio, GridSystem gridSystem)
         {
             player = target;
             balance = settings;
             audioManager = audio;
+            grid = gridSystem;
         }
 
         public void SetActive(bool value)
@@ -99,12 +106,40 @@ namespace MiceToBeHome
 
             currentSpeed = Mathf.Min(balance.catMaxSpeed, currentSpeed + balance.catAcceleration * Time.fixedDeltaTime);
 
-            Vector3 direction = player.Position - body.position;
+            Vector3 target = ResolveSteerTarget();
+            Vector3 direction = target - body.position;
             direction.y = 0f;
 
             body.linearVelocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
 
             TryCatch();
+        }
+
+        private Vector3 ResolveSteerTarget()
+        {
+            if (grid == null)
+            {
+                return player.Position;
+            }
+
+            Vector2Int catCell = grid.WorldToCell(body.position);
+            Vector2Int playerCell = grid.WorldToCell(player.Position);
+
+            if (catCell == playerCell || grid.HasLineOfSight(catCell, playerCell))
+            {
+                return player.Position;
+            }
+
+            repathTimer -= Time.fixedDeltaTime;
+            bool stale = path.Count == 0 || path[0] != catCell || playerCell != cachedGoal || repathTimer <= 0f;
+            if (stale)
+            {
+                GridPathfinder.TryFindPath(grid, catCell, playerCell, path);
+                cachedGoal = playerCell;
+                repathTimer = 0.2f;
+            }
+
+            return path.Count > 1 ? grid.CellToWorld(path[1]) : player.Position;
         }
 
         private bool TryStun()
