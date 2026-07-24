@@ -153,11 +153,11 @@ namespace MiceToBeHome
             go.transform.SetParent(trapParent, false);
             go.transform.position = center;
 
-            SpriteRenderer renderer = VisualFactory.CreateBillboard("Visual", go.transform, selected.sprite, selected.tint,
+            VisualFactory.CreateBillboard("Visual", go.transform, selected.sprite, selected.tint,
                 SpriteShape.Square, balance.cellSize * 0.8f);
 
             var trap = go.AddComponent<Trap>();
-            trap.Initialize(selected, footprintBuffer, orientation, renderer, balance.trapCooldown);
+            trap.Initialize(selected, footprintBuffer, orientation);
 
             grid.Occupy(footprintBuffer);
             for (int i = 0; i < footprintBuffer.Count; i++)

@@ -28,6 +28,7 @@ namespace MiceToBeHome
         private float currentSpeed;
         private float stateTimer;
         private bool active;
+        private bool stunImmune;
 
         private void Awake()
         {
@@ -63,6 +64,7 @@ namespace MiceToBeHome
             currentSpeed = balance.catBaseSpeed;
             state = CatState.Chasing;
             stateTimer = 0f;
+            stunImmune = false;
         }
 
         private void FixedUpdate()
@@ -146,6 +148,7 @@ namespace MiceToBeHome
         {
             Trap best = null;
             float bestDistance = float.MaxValue;
+            bool insideTrapZone = false;
             var traps = TrapRegistry.Active;
 
             for (int i = 0; i < traps.Count; i++)
@@ -157,14 +160,23 @@ namespace MiceToBeHome
                 }
 
                 float distance = HorizontalDistance(body.position, trap.transform.position);
-                if (distance <= trap.DistractionRadius && distance < bestDistance)
+                if (distance <= trap.DistractionRadius)
                 {
-                    best = trap;
-                    bestDistance = distance;
+                    insideTrapZone = true;
+                    if (distance < bestDistance)
+                    {
+                        best = trap;
+                        bestDistance = distance;
+                    }
                 }
             }
 
-            if (best == null)
+            if (!insideTrapZone)
+            {
+                stunImmune = false;
+            }
+
+            if (stunImmune || best == null)
             {
                 return false;
             }
@@ -174,6 +186,7 @@ namespace MiceToBeHome
             state = CatState.Stunned;
             currentSpeed = balance.catBaseSpeed;
             body.linearVelocity = Vector3.zero;
+            stunImmune = true;
 
             Debug.Log($"[Cat] Stunned by {best.Definition.displayName} for {seconds:0.0}s");
 
