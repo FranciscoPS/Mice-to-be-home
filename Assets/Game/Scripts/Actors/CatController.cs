@@ -214,21 +214,37 @@ namespace MiceToBeHome
 
             if (catCell == playerCell || grid.HasLineOfSight(catCell, playerCell))
             {
+                path.Clear();
                 return player.Position;
             }
 
             Vector2Int goalCell = grid.IsWalkable(playerCell) ? playerCell : NearestWalkable(playerCell);
 
-            repathTimer -= Time.fixedDeltaTime;
-            bool stale = path.Count == 0 || path[0] != catCell || goalCell != cachedGoal || repathTimer <= 0f;
-            if (stale)
+            while (path.Count > 0 && path[0] == catCell)
             {
-                GridPathfinder.TryFindPath(grid, catCell, goalCell, path);
-                cachedGoal = goalCell;
-                repathTimer = 0.2f;
+                path.RemoveAt(0);
             }
 
-            return path.Count > 1 ? grid.CellToWorld(path[1]) : player.Position;
+            repathTimer -= Time.fixedDeltaTime;
+            int goalDrift = Mathf.Abs(goalCell.x - cachedGoal.x) + Mathf.Abs(goalCell.y - cachedGoal.y);
+
+            // Commit to the chosen route so the cat cannot be mirror-juked back and
+            // forth around a symmetric obstacle: only repath when the route is spent,
+            // when the player relocates far, or as an occasional safety refresh.
+            if (path.Count == 0 || goalDrift >= 4 || repathTimer <= 0f)
+            {
+                if (GridPathfinder.TryFindPath(grid, catCell, goalCell, path))
+                {
+                    while (path.Count > 0 && path[0] == catCell)
+                    {
+                        path.RemoveAt(0);
+                    }
+                }
+                cachedGoal = goalCell;
+                repathTimer = 1.5f;
+            }
+
+            return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)
