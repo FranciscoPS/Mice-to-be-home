@@ -24,25 +24,27 @@ MonoBehaviour:
     cell: {fileID: 0}
     freeCellTint: {r: 1, g: 1, b: 1, a: 0.15}
     blockedCellTint: {r: 0, g: 0, b: 0, a: 0.2}
+    wall: {fileID: 0}
+    wallTint: {r: 0.34, g: 0.29, b: 0.38, a: 1}
   balance:
     gridColumns: 10
     gridRows: 6
     cellSize: 2
     furnitureRows:
-    - XX..XX....
+    - XX..XX...X
     - X......X..
     - ..X....X..
     - ..........
-    - ...XX..XX.
-    - XX.XX..XX.
+    - ...X.X...X
+    - XX.X..X.XX
     editSeconds: 60
     surviveSeconds: 120
     lives: 3
     invincibleSeconds: 1.5
     mouseSpeed: 5
     mouseKnockback: 2.5
-    catBaseSpeed: 3
-    catMaxSpeed: 6.5
+    catBaseSpeed: 4
+    catMaxSpeed: 7
     catAcceleration: 0.35
     catchRadius: 0.6
     catStartDistance: 4.5

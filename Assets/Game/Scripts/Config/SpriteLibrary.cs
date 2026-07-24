@@ -26,5 +26,9 @@ namespace MiceToBeHome
         public Sprite cell;
         public Color freeCellTint = new Color(1f, 1f, 1f, 0.15f);
         public Color blockedCellTint = new Color(0f, 0f, 0f, 0.2f);
+
+        [Header("Walls (room border)")]
+        public Sprite wall;
+        public Color wallTint = new Color(0.34f, 0.29f, 0.38f);
     }
 }

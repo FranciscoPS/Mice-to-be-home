@@ -70,6 +70,8 @@ namespace MiceToBeHome.EditorTools
             SpriteRenderer floor = AddGround(gridGO.transform, "Floor", floorSize, sprites.floor, sprites.floorTint, -10000);
             floor.transform.position = center;
 
+            BuildWalls(gridGO.transform, cols, rows, cell, sprites);
+
             var cellsParent = NewChild(gridGO.transform, "Cells").transform;
             for (int r = 0; r < rows; r++)
             {
@@ -596,6 +598,46 @@ namespace MiceToBeHome.EditorTools
             go.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             go.transform.localScale = new Vector3(size.x, size.y, 1f);
             return renderer;
+        }
+
+        private static void BuildWalls(Transform gridParent, int cols, int rows, float cell, SpriteLibrary sprites)
+        {
+            Transform walls = NewChild(gridParent, "Walls").transform;
+
+            float hx = cols * cell * 0.5f;
+            float hz = rows * cell * 0.5f;
+            float thickness = 0.6f;
+            float colliderHeight = 2.5f;
+            float wallHeight = cell * 0.9f;
+
+            AddWallCollider(walls, "ColliderNorth", new Vector3(0f, colliderHeight * 0.5f, hz + thickness * 0.5f), new Vector3(2f * hx + 2f * thickness, colliderHeight, thickness));
+            AddWallCollider(walls, "ColliderSouth", new Vector3(0f, colliderHeight * 0.5f, -(hz + thickness * 0.5f)), new Vector3(2f * hx + 2f * thickness, colliderHeight, thickness));
+            AddWallCollider(walls, "ColliderEast", new Vector3(hx + thickness * 0.5f, colliderHeight * 0.5f, 0f), new Vector3(thickness, colliderHeight, 2f * hz + 2f * thickness));
+            AddWallCollider(walls, "ColliderWest", new Vector3(-(hx + thickness * 0.5f), colliderHeight * 0.5f, 0f), new Vector3(thickness, colliderHeight, 2f * hz + 2f * thickness));
+
+            AddWallVisual(walls, "WallNorth", sprites, new Vector3(0f, wallHeight * 0.5f, hz), Quaternion.identity, new Vector2(2f * hx + 2f * thickness, wallHeight));
+            AddWallVisual(walls, "WallEast", sprites, new Vector3(hx, wallHeight * 0.5f, 0f), Quaternion.Euler(0f, 90f, 0f), new Vector2(2f * hz + 2f * thickness, wallHeight));
+            AddWallVisual(walls, "WallWest", sprites, new Vector3(-hx, wallHeight * 0.5f, 0f), Quaternion.Euler(0f, 90f, 0f), new Vector2(2f * hz + 2f * thickness, wallHeight));
+        }
+
+        private static void AddWallCollider(Transform parent, string name, Vector3 localPosition, Vector3 size)
+        {
+            var go = NewChild(parent, name);
+            go.transform.localPosition = localPosition;
+            var box = go.AddComponent<BoxCollider>();
+            box.size = size;
+        }
+
+        private static void AddWallVisual(Transform parent, string name, SpriteLibrary sprites, Vector3 localPosition, Quaternion localRotation, Vector2 size)
+        {
+            var go = NewChild(parent, name);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprites.wall != null ? sprites.wall : SquareSprite;
+            renderer.color = sprites.wall != null ? Color.white : sprites.wallTint;
+            renderer.sortingOrder = -5000;
+            go.transform.localRotation = localRotation;
+            go.transform.localScale = new Vector3(size.x, size.y, 1f);
+            go.transform.localPosition = localPosition;
         }
 
         private static void AddBillboard(Transform parent, string name, Sprite artwork, Color tint, bool circle, float worldSize)
