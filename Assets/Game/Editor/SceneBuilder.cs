@@ -299,6 +299,48 @@ namespace MiceToBeHome.EditorTools
             AssetDatabase.SaveAssets();
         }
 
+        [MenuItem("Tools/Mice to be Home/Reset Traps to Default Values")]
+        public static void ResetTrapValues()
+        {
+            if (!EditorUtility.DisplayDialog("Mice to be Home",
+                "Re-apply the default stun and stock values from code to every trap prefab? Each prefab keeps its visuals and collider - only the data (stun, stock) changes.",
+                "Apply values", "Cancel"))
+            {
+                return;
+            }
+
+            GameConfig config = LoadOrCreateConfig();
+            float cell = Mathf.Max(0.1f, config.Balance.cellSize);
+            BuildTrapPrefabs(config, cell);
+
+            List<TrapDefinition> defaults = GameConfig.BuildDefaultTraps();
+            for (int i = 0; i < defaults.Count; i++)
+            {
+                ApplyTrapData(defaults[i]);
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Mice to be Home] Trap values reset to code defaults (visuals kept).");
+        }
+
+        private static void ApplyTrapData(TrapDefinition data)
+        {
+            string path = TrapPrefabFolder + "/" + Sanitize(data.displayName) + ".prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+            {
+                return;
+            }
+
+            GameObject contents = PrefabUtility.LoadPrefabContents(path);
+            var trap = contents.GetComponent<Trap>();
+            if (trap != null)
+            {
+                trap.EditorAssign(data);
+            }
+            PrefabUtility.SaveAsPrefabAsset(contents, path);
+            PrefabUtility.UnloadPrefabContents(contents);
+        }
+
         private static GameObject BuildBaseTrapPrefab(float cell)
         {
             string path = TrapPrefabFolder + "/BaseTrap.prefab";
