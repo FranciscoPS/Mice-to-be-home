@@ -21,14 +21,7 @@ namespace MiceToBeHome
         [Tooltip("How many cells it takes up (1 or 2).")]
         public int gridSize = 1;
 
-        [Min(0.1f)]
-        [Tooltip("Distance at which the cat detects and gets stunned by the trap.")]
-        public float distractionRadius = 1.6f;
-
-        [Tooltip("Object sprite. If left empty, a colored square is used.")]
-        public Sprite sprite;
-
-        [Tooltip("Placeholder color used when no sprite is assigned.")]
+        [Tooltip("Placeholder color used when the visual has no sprite.")]
         public Color tint = Color.white;
     }
 }

@@ -7,7 +7,7 @@ namespace MiceToBeHome
 {
     public class InventoryView : MonoBehaviour
     {
-        public void Build(Transform parent, IReadOnlyList<TrapDefinition> traps, PlacementController placement, TooltipView tooltip)
+        public void Build(Transform parent, IReadOnlyList<Trap> traps, PlacementController placement, TooltipView tooltip)
         {
             var panel = UIFactory.CreatePanel(parent, "InventoryPanel", new Color(0.12f, 0.10f, 0.16f, 0.92f));
             UIFactory.Anchor(panel.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f),
@@ -45,8 +45,9 @@ namespace MiceToBeHome
             }
         }
 
-        private void CreateSlot(Transform parent, TrapDefinition definition, PlacementController placement, TooltipView tooltip)
+        private void CreateSlot(Transform parent, Trap trapPrefab, PlacementController placement, TooltipView tooltip)
         {
+            TrapDefinition definition = trapPrefab.Definition;
             var go = new GameObject("Slot_" + definition.displayName, typeof(RectTransform));
             go.transform.SetParent(parent, false);
 
@@ -65,7 +66,10 @@ namespace MiceToBeHome
             element.minHeight = 86f;
             element.preferredHeight = 86f;
 
-            var icon = UIFactory.CreateIcon(go.transform, "Icon", definition.sprite, definition.tint);
+            SpriteRenderer skin = trapPrefab.GetComponentInChildren<SpriteRenderer>();
+            Sprite iconSprite = skin != null ? skin.sprite : null;
+            Color iconColor = skin != null ? skin.color : definition.tint;
+            var icon = UIFactory.CreateIcon(go.transform, "Icon", iconSprite, iconColor);
             UIFactory.Anchor(icon.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(14f, 0f), new Vector2(62f, 62f));
 
@@ -78,7 +82,7 @@ namespace MiceToBeHome
             var trigger = go.AddComponent<TooltipTrigger>();
             trigger.Setup(tooltip, BuildTooltip(definition));
 
-            TrapDefinition captured = definition;
+            Trap captured = trapPrefab;
             button.onClick.AddListener(() => placement.SelectFromInventory(captured));
         }
 

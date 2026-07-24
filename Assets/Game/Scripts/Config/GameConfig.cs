@@ -9,23 +9,19 @@ namespace MiceToBeHome
         [SerializeField] private SpriteLibrary sprites = new SpriteLibrary();
         [SerializeField] private BalanceSettings balance = new BalanceSettings();
         [SerializeField] private AudioBank audio = new AudioBank();
-        [SerializeField] private List<TrapDefinition> traps = new List<TrapDefinition>();
+        [SerializeField] private List<Trap> trapPrefabs = new List<Trap>();
 
         public SpriteLibrary Sprites => sprites;
         public BalanceSettings Balance => balance;
         public AudioBank Audio => audio;
-        public IReadOnlyList<TrapDefinition> Traps => traps;
+        public IReadOnlyList<Trap> Traps => trapPrefabs;
 
         public void EnsureDefaults()
         {
             sprites ??= new SpriteLibrary();
             balance ??= new BalanceSettings();
             audio ??= new AudioBank();
-
-            if (traps == null || traps.Count == 0)
-            {
-                traps = BuildDefaultTraps();
-            }
+            trapPrefabs ??= new List<Trap>();
         }
 
         public static List<TrapDefinition> BuildDefaultTraps()
@@ -51,9 +47,15 @@ namespace MiceToBeHome
                 description = description,
                 effectSeconds = seconds,
                 gridSize = size,
-                distractionRadius = 1f,
                 tint = tint
             };
         }
+
+#if UNITY_EDITOR
+        public void EditorSetTrapPrefabs(List<Trap> prefabs)
+        {
+            trapPrefabs = prefabs;
+        }
+#endif
     }
 }

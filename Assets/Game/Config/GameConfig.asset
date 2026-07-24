@@ -55,60 +55,12 @@ MonoBehaviour:
     mouseHit: {fileID: 0}
     victory: {fileID: 0}
     defeat: {fileID: 0}
-  traps:
-  - displayName: Yarn Ball
-    description: Rolls around and grabs the cat's attention.
-    effectSeconds: 3
-    gridSize: 1
-    distractionRadius: 1.6
-    sprite: {fileID: 0}
-    tint: {r: 0.91, g: 0.42, b: 0.57, a: 1}
-  - displayName: Toy Mouse
-    description: A quick, cheap decoy.
-    effectSeconds: 2
-    gridSize: 1
-    distractionRadius: 1.6
-    sprite: {fileID: 0}
-    tint: {r: 0.6, g: 0.63, b: 0.65, a: 1}
-  - displayName: Cardboard Box
-    description: Irresistible - the cat just has to climb in.
-    effectSeconds: 3
-    gridSize: 2
-    distractionRadius: 2
-    sprite: {fileID: 0}
-    tint: {r: 0.76, g: 0.57, b: 0.35, a: 1}
-  - displayName: Tuna Can
-    description: The smell keeps it busy for a good while.
-    effectSeconds: 5
-    gridSize: 1
-    distractionRadius: 1.6
-    sprite: {fileID: 0}
-    tint: {r: 0.5, g: 0.7, b: 0.84, a: 1}
-  - displayName: Scratching Post
-    description: It loves sharpening its claws here.
-    effectSeconds: 4
-    gridSize: 2
-    distractionRadius: 2
-    sprite: {fileID: 0}
-    tint: {r: 0.85, g: 0.7, b: 0.35, a: 1}
-  - displayName: Catnip
-    description: Leaves it dazed for several seconds.
-    effectSeconds: 5
-    gridSize: 1
-    distractionRadius: 1.6
-    sprite: {fileID: 0}
-    tint: {r: 0.5, g: 0.69, b: 0.41, a: 1}
-  - displayName: Feather Wand
-    description: Dances in the air and hypnotizes it.
-    effectSeconds: 3
-    gridSize: 2
-    distractionRadius: 2
-    sprite: {fileID: 0}
-    tint: {r: 0.69, g: 0.52, b: 0.8, a: 1}
-  - displayName: Toy Bird
-    description: Chirps and hops to steal its attention.
-    effectSeconds: 3
-    gridSize: 1
-    distractionRadius: 1.6
-    sprite: {fileID: 0}
-    tint: {r: 0.95, g: 0.76, b: 0.31, a: 1}
+  trapPrefabs:
+  - {fileID: 6094170036717752252, guid: b252053b92758464f82a9e14da9a375c, type: 3}
+  - {fileID: 6057645688644259183, guid: cb3b2fd849e68495cb9f831c8ef57fbf, type: 3}
+  - {fileID: 5168653721478309279, guid: 354674602a8814451b9aebaf33ede9a9, type: 3}
+  - {fileID: 4154820394901769077, guid: 33d5b8eea558c419982d799de24e98ff, type: 3}
+  - {fileID: 6857798724931112623, guid: cb096109244aa40668f8300b9a8ce552, type: 3}
+  - {fileID: 8230581120841956286, guid: 205fab3d39fc34d37873122bf9787a7f, type: 3}
+  - {fileID: 2929685729294464283, guid: b05727ac8a6ff450b832b5d8491b13aa, type: 3}
+  - {fileID: 7172717486109822559, guid: d52cc95b972d0471e9fe228ef35133a1, type: 3}

@@ -147,7 +147,6 @@ namespace MiceToBeHome
         private bool TryStun()
         {
             Trap best = null;
-            float bestDistance = float.MaxValue;
             bool insideTrapZone = false;
             var traps = TrapRegistry.Active;
 
@@ -159,14 +158,12 @@ namespace MiceToBeHome
                     continue;
                 }
 
-                float distance = trap.HorizontalDistanceTo(body.position);
-                if (distance <= trap.DistractionRadius)
+                if (trap.IsInZone(body.position))
                 {
                     insideTrapZone = true;
-                    if (distance < bestDistance)
+                    if (best == null)
                     {
                         best = trap;
-                        bestDistance = distance;
                     }
                 }
             }

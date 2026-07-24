@@ -17,9 +17,8 @@ namespace MiceToBeHome
         private readonly List<Trap> placedTraps = new List<Trap>();
         private readonly Dictionary<Vector2Int, Trap> cellToTrap = new Dictionary<Vector2Int, Trap>();
         private readonly List<Vector2Int> footprintBuffer = new List<Vector2Int>();
-        private readonly List<Vector3> cellCentersBuffer = new List<Vector3>();
 
-        private TrapDefinition selected;
+        private Trap selected;
         private Orientation orientation = Orientation.Horizontal;
         private bool carrying;
         private bool active;
@@ -47,12 +46,11 @@ namespace MiceToBeHome
             }
         }
 
-        public void SelectFromInventory(TrapDefinition definition)
+        public void SelectFromInventory(Trap trapPrefab)
         {
-            selected = definition;
+            selected = trapPrefab;
             orientation = Orientation.Horizontal;
             carrying = true;
-            ghost.SetDefinition(definition);
         }
 
         public void SetTrapsArmed(bool armed)
@@ -120,7 +118,7 @@ namespace MiceToBeHome
                 return;
             }
 
-            TrapFootprint.Compute(origin, selected.gridSize, orientation, footprintBuffer);
+            TrapFootprint.Compute(origin, selected.Definition.gridSize, orientation, footprintBuffer);
             bool valid = grid.CanPlace(footprintBuffer);
             Vector3 center = grid.FootprintCenter(footprintBuffer);
             ghost.UpdatePreview(footprintBuffer, center, valid, grid);
@@ -133,7 +131,7 @@ namespace MiceToBeHome
 
         private void HandleRotation()
         {
-            if (!carrying || selected == null || selected.gridSize < 2 || Keyboard.current == null)
+            if (!carrying || selected == null || selected.Definition.gridSize < 2 || Keyboard.current == null)
             {
                 return;
             }
@@ -150,26 +148,21 @@ namespace MiceToBeHome
 
         private void PlaceTrap(Vector3 center)
         {
-            var go = new GameObject("Trap_" + selected.displayName);
-            go.transform.SetParent(trapParent, false);
-            go.transform.position = center;
+            Trap trap = Instantiate(selected, center, Quaternion.identity, trapParent);
+            trap.name = "Trap_" + selected.Definition.displayName;
+            trap.SourcePrefab = selected;
+            trap.Configure(footprintBuffer, orientation);
 
-            cellCentersBuffer.Clear();
+            int minCol = int.MaxValue, maxCol = int.MinValue, minRow = int.MaxValue, maxRow = int.MinValue;
             for (int i = 0; i < footprintBuffer.Count; i++)
             {
-                cellCentersBuffer.Add(grid.CellToWorld(footprintBuffer[i]));
+                Vector2Int c = footprintBuffer[i];
+                if (c.x < minCol) minCol = c.x;
+                if (c.x > maxCol) maxCol = c.x;
+                if (c.y < minRow) minRow = c.y;
+                if (c.y > maxRow) maxRow = c.y;
             }
-
-            float visualSize = balance.cellSize * 0.82f;
-            for (int i = 0; i < cellCentersBuffer.Count; i++)
-            {
-                SpriteRenderer cellVisual = VisualFactory.CreateBillboard("Visual", go.transform, selected.sprite,
-                    selected.tint, SpriteShape.Square, visualSize);
-                cellVisual.transform.position = cellCentersBuffer[i];
-            }
-
-            var trap = go.AddComponent<Trap>();
-            trap.Initialize(selected, footprintBuffer, orientation, cellCentersBuffer);
+            trap.FitToFootprint(maxCol - minCol + 1, maxRow - minRow + 1, balance.cellSize);
 
             grid.Occupy(footprintBuffer);
             for (int i = 0; i < footprintBuffer.Count; i++)
@@ -193,10 +186,9 @@ namespace MiceToBeHome
             }
             placedTraps.Remove(trap);
 
-            selected = trap.Definition;
+            selected = trap.SourcePrefab;
             orientation = trap.Orientation;
-            carrying = true;
-            ghost.SetDefinition(selected);
+            carrying = selected != null;
 
             Destroy(trap.gameObject);
         }

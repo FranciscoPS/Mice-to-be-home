@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -10,6 +11,7 @@ namespace MiceToBeHome.EditorTools
     public static class SceneBuilder
     {
         private const string PrefabFolder = "Assets/Game/Prefabs";
+        private const string TrapPrefabFolder = "Assets/Game/Prefabs/Traps";
         private const string PlaceholderFolder = "Assets/Game/Placeholders";
         private const string ConfigFolder = "Assets/Game/Config";
 
@@ -49,6 +51,8 @@ namespace MiceToBeHome.EditorTools
             GameObject cellPrefab = BuildCellPrefab(sprites, cell);
             GameObject playerPrefab = BuildActorPrefab("Player", sprites.mouse, sprites.mouseTint, cell, cell * 0.5f, false);
             GameObject catPrefab = BuildActorPrefab("Cat", sprites.cat, sprites.catTint, cell, cell * 0.62f, true);
+
+            BuildTrapPrefabs(config, cell);
 
             var gameManager = NewChild(root.transform, "GameManager").AddComponent<GameManager>();
             var audio = NewChild(root.transform, "Audio").AddComponent<AudioManager>();
@@ -260,6 +264,102 @@ namespace MiceToBeHome.EditorTools
             }
 
             return SavePrefab(template, path);
+        }
+
+        private static void BuildTrapPrefabs(GameConfig config, float cell)
+        {
+            EnsureTrapFolder();
+            GameObject basePrefab = BuildBaseTrapPrefab(cell);
+
+            List<TrapDefinition> defaults = GameConfig.BuildDefaultTraps();
+            var prefabs = new List<Trap>(defaults.Count);
+            for (int i = 0; i < defaults.Count; i++)
+            {
+                prefabs.Add(BuildTrapVariant(basePrefab, defaults[i]));
+            }
+
+            config.EditorSetTrapPrefabs(prefabs);
+            EditorUtility.SetDirty(config);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static GameObject BuildBaseTrapPrefab(float cell)
+        {
+            string path = TrapPrefabFolder + "/BaseTrap.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var template = new GameObject("Trap");
+            template.AddComponent<Trap>();
+            var zone = template.GetComponent<BoxCollider>();
+            zone.isTrigger = true;
+            zone.center = new Vector3(0f, 0.5f, 0f);
+            zone.size = new Vector3(cell * 1.15f, 1.2f, cell * 1.15f);
+
+            var visual = NewChild(template.transform, "Visual");
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = SquareSprite;
+            renderer.color = Color.white;
+            renderer.sortingOrder = -8000;
+            visual.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            visual.transform.localScale = new Vector3(cell * 0.85f, cell * 0.85f, 1f);
+            visual.transform.localPosition = new Vector3(0f, 0.02f, 0f);
+
+            return SavePrefab(template, path);
+        }
+
+        private static Trap BuildTrapVariant(GameObject basePrefab, TrapDefinition data)
+        {
+            string path = TrapPrefabFolder + "/" + Sanitize(data.displayName) + ".prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing.GetComponent<Trap>();
+            }
+
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);
+            var trap = instance.GetComponent<Trap>();
+            trap.EditorAssign(data);
+
+            var renderer = instance.GetComponentInChildren<SpriteRenderer>();
+            if (renderer != null)
+            {
+                renderer.color = data.tint;
+            }
+
+            GameObject variantAsset = PrefabUtility.SaveAsPrefabAsset(instance, path);
+            Object.DestroyImmediate(instance);
+            return variantAsset.GetComponent<Trap>();
+        }
+
+        private static void EnsureTrapFolder()
+        {
+            if (AssetDatabase.IsValidFolder(TrapPrefabFolder))
+            {
+                return;
+            }
+            if (!AssetDatabase.IsValidFolder(PrefabFolder))
+            {
+                AssetDatabase.CreateFolder("Assets/Game", "Prefabs");
+            }
+            AssetDatabase.CreateFolder(PrefabFolder, "Traps");
+        }
+
+        private static string Sanitize(string name)
+        {
+            var builder = new System.Text.StringBuilder(name.Length);
+            for (int i = 0; i < name.Length; i++)
+            {
+                char c = name[i];
+                if (char.IsLetterOrDigit(c))
+                {
+                    builder.Append(c);
+                }
+            }
+            return builder.Length > 0 ? builder.ToString() : "Trap";
         }
 
         private static GameObject SavePrefab(GameObject template, string path)

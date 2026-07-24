@@ -16,7 +16,7 @@ namespace MiceToBeHome
         private TextMeshProUGUI hintText;
         private GameObject inventoryRoot;
 
-        public void Build(Transform parent, IReadOnlyList<TrapDefinition> traps, PlacementController placement, TooltipView tooltip)
+        public void Build(Transform parent, IReadOnlyList<Trap> traps, PlacementController placement, TooltipView tooltip)
         {
             timerText = UIFactory.CreateText(parent, "Timer", "02:00", 74f, TextAlignmentOptions.Center, Color.white);
             UIFactory.Anchor(timerText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),

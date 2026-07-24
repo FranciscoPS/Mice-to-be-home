@@ -8,7 +8,6 @@ namespace MiceToBeHome
         private static readonly Color ValidColor = new Color(0.35f, 1f, 0.4f, 0.55f);
         private static readonly Color InvalidColor = new Color(1f, 0.35f, 0.35f, 0.55f);
 
-        private SpriteRenderer trapSprite;
         private Transform tileParent;
         private readonly List<SpriteRenderer> tiles = new List<SpriteRenderer>();
         private float cellSize;
@@ -21,16 +20,7 @@ namespace MiceToBeHome
             tileRoot.transform.SetParent(transform, false);
             tileParent = tileRoot.transform;
 
-            trapSprite = VisualFactory.CreateBillboard("Preview", transform, null, Color.white, SpriteShape.Square, cell * 0.85f);
             Hide();
-        }
-
-        public void SetDefinition(TrapDefinition definition)
-        {
-            PlaceholderFactory.Configure(trapSprite, definition.sprite, definition.tint, SpriteShape.Square, new Vector2(0.5f, 0f));
-            Color color = trapSprite.color;
-            color.a = 0.75f;
-            trapSprite.color = color;
         }
 
         public void UpdatePreview(IReadOnlyList<Vector2Int> footprint, Vector3 center, bool valid, GridSystem grid)
