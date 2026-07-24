@@ -217,6 +217,11 @@ namespace MiceToBeHome.EditorTools
         private static GameObject BuildFurniturePrefab(SpriteLibrary sprites, float cell)
         {
             string path = PrefabFolder + "/Furniture.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
 
             var template = new GameObject("Furniture");
             template.AddComponent<FurniturePiece>();
@@ -230,6 +235,11 @@ namespace MiceToBeHome.EditorTools
         private static GameObject BuildCellPrefab(SpriteLibrary sprites, float cell)
         {
             string path = PrefabFolder + "/Cell.prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
 
             var template = new GameObject("Cell");
             AddGroundRenderer(template, new Vector2(cell * 0.94f, cell * 0.94f), sprites.cell, new Color(1f, 1f, 1f, 0.14f), -9000);
@@ -239,6 +249,11 @@ namespace MiceToBeHome.EditorTools
         private static GameObject BuildActorPrefab(string name, Sprite artwork, Color tint, float cell, float visualSize, bool isCat)
         {
             string path = PrefabFolder + "/" + name + ".prefab";
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
 
             var template = new GameObject(name);
             var body = template.AddComponent<Rigidbody>();
@@ -287,13 +302,10 @@ namespace MiceToBeHome.EditorTools
         private static GameObject BuildBaseTrapPrefab(float cell)
         {
             string path = TrapPrefabFolder + "/BaseTrap.prefab";
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) != null)
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing != null)
             {
-                GameObject contents = PrefabUtility.LoadPrefabContents(path);
-                ConfigureTrapVisual(contents, cell);
-                PrefabUtility.SaveAsPrefabAsset(contents, path);
-                PrefabUtility.UnloadPrefabContents(contents);
-                return AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                return existing;
             }
 
             var template = new GameObject("Trap");
@@ -401,15 +413,7 @@ namespace MiceToBeHome.EditorTools
             GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (existing != null)
             {
-                GameObject contents = PrefabUtility.LoadPrefabContents(path);
-                var existingTrap = contents.GetComponent<Trap>();
-                if (existingTrap != null)
-                {
-                    existingTrap.EditorAssign(data);
-                }
-                PrefabUtility.SaveAsPrefabAsset(contents, path);
-                PrefabUtility.UnloadPrefabContents(contents);
-                return AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<Trap>();
+                return existing.GetComponent<Trap>();
             }
 
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(basePrefab);

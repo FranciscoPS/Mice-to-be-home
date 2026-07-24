@@ -25,8 +25,8 @@ MonoBehaviour:
     freeCellTint: {r: 1, g: 1, b: 1, a: 0.15}
     blockedCellTint: {r: 0, g: 0, b: 0, a: 0.2}
   balance:
-    gridColumns: 5
-    gridRows: 5
+    gridColumns: 10
+    gridRows: 10
     cellSize: 2
     furnitureRows:
     - X...X
