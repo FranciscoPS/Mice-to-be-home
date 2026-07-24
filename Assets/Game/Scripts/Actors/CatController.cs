@@ -29,6 +29,22 @@ namespace MiceToBeHome
         private float stateTimer;
         private bool active;
         private bool stunImmune;
+        private Vector3 lastPosition;
+        private float stuckTimer;
+        private float unstickTimer;
+        private Vector3 unstickVelocity;
+
+        private static readonly Vector2Int[] NeighborOffsets =
+        {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1),
+            new Vector2Int(1, 1),
+            new Vector2Int(1, -1),
+            new Vector2Int(-1, 1),
+            new Vector2Int(-1, -1)
+        };
 
         private void Awake()
         {
@@ -65,6 +81,9 @@ namespace MiceToBeHome
             state = CatState.Chasing;
             stateTimer = 0f;
             stunImmune = false;
+            lastPosition = startPosition;
+            stuckTimer = 0f;
+            unstickTimer = 0f;
         }
 
         private void FixedUpdate()
@@ -108,13 +127,79 @@ namespace MiceToBeHome
 
             currentSpeed = Mathf.Min(balance.catMaxSpeed, currentSpeed + balance.catAcceleration * Time.fixedDeltaTime);
 
+            if (unstickTimer > 0f)
+            {
+                unstickTimer -= Time.fixedDeltaTime;
+                body.linearVelocity = unstickVelocity;
+                TrackProgress();
+                TryCatch();
+                return;
+            }
+
             Vector3 target = ResolveSteerTarget();
             Vector3 direction = target - body.position;
             direction.y = 0f;
 
-            body.linearVelocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
+            Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
+            body.linearVelocity = velocity;
+
+            if (velocity.sqrMagnitude > 0.01f)
+            {
+                TrackProgress();
+            }
+            else
+            {
+                stuckTimer = 0f;
+                lastPosition = body.position;
+            }
 
             TryCatch();
+        }
+
+        private void TrackProgress()
+        {
+            float moved = HorizontalDistance(body.position, lastPosition);
+            lastPosition = body.position;
+
+            float expected = currentSpeed * Time.fixedDeltaTime * 0.35f;
+            if (moved < expected)
+            {
+                stuckTimer += Time.fixedDeltaTime;
+                if (stuckTimer >= 0.4f)
+                {
+                    BeginUnstick();
+                }
+            }
+            else
+            {
+                stuckTimer = 0f;
+            }
+        }
+
+        private void BeginUnstick()
+        {
+            stuckTimer = 0f;
+            unstickTimer = 0.45f;
+
+            Vector3 toPlayer = player.Position - body.position;
+            toPlayer.y = 0f;
+            if (toPlayer.sqrMagnitude < 0.0001f)
+            {
+                toPlayer = Vector3.forward;
+            }
+            toPlayer.Normalize();
+
+            Vector3 perpendicular = new Vector3(-toPlayer.z, 0f, toPlayer.x);
+            if (Random.value < 0.5f)
+            {
+                perpendicular = -perpendicular;
+            }
+
+            unstickVelocity = (perpendicular * 0.8f + toPlayer * 0.2f).normalized * currentSpeed;
+
+            repathTimer = 0f;
+            path.Clear();
+            cachedGoal = new Vector2Int(int.MinValue, int.MinValue);
         }
 
         private Vector3 ResolveSteerTarget()
@@ -132,16 +217,40 @@ namespace MiceToBeHome
                 return player.Position;
             }
 
+            Vector2Int goalCell = grid.IsWalkable(playerCell) ? playerCell : NearestWalkable(playerCell);
+
             repathTimer -= Time.fixedDeltaTime;
-            bool stale = path.Count == 0 || path[0] != catCell || playerCell != cachedGoal || repathTimer <= 0f;
+            bool stale = path.Count == 0 || path[0] != catCell || goalCell != cachedGoal || repathTimer <= 0f;
             if (stale)
             {
-                GridPathfinder.TryFindPath(grid, catCell, playerCell, path);
-                cachedGoal = playerCell;
+                GridPathfinder.TryFindPath(grid, catCell, goalCell, path);
+                cachedGoal = goalCell;
                 repathTimer = 0.2f;
             }
 
             return path.Count > 1 ? grid.CellToWorld(path[1]) : player.Position;
+        }
+
+        private Vector2Int NearestWalkable(Vector2Int cell)
+        {
+            Vector2Int best = cell;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < NeighborOffsets.Length; i++)
+            {
+                Vector2Int neighbor = cell + NeighborOffsets[i];
+                if (!grid.IsWalkable(neighbor))
+                {
+                    continue;
+                }
+
+                float distance = HorizontalDistance(grid.CellToWorld(neighbor), body.position);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = neighbor;
+                }
+            }
+            return best;
         }
 
         private bool TryStun()
