@@ -4,7 +4,8 @@ namespace MiceToBeHome
 {
     public class GameInstaller : MonoBehaviour
     {
-        [SerializeField] private GameConfig config = new GameConfig();
+        [Header("Configuration asset")]
+        public GameConfig config;
 
         [Header("Scene references (filled by Build Scene)")]
         public GridSystem grid;
@@ -19,26 +20,14 @@ namespace MiceToBeHome
         public UIManager ui;
         public Transform trapParent;
 
-        public GameConfig Config => config;
-
-        private void Reset()
-        {
-            config ??= new GameConfig();
-            config.EnsureDefaults();
-        }
-
-#if UNITY_EDITOR
-        public GameConfig EditorEnsureConfig()
-        {
-            config ??= new GameConfig();
-            config.EnsureDefaults();
-            return config;
-        }
-#endif
-
         private void Start()
         {
-            config ??= new GameConfig();
+            if (config == null)
+            {
+                Debug.LogError("[Mice to be Home] GameInstaller has no GameConfig assigned. Run Tools > Mice to be Home > Build Scene.");
+                return;
+            }
+
             config.EnsureDefaults();
             BalanceSettings balance = config.Balance;
 

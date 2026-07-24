@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace MiceToBeHome
 {
-    [Serializable]
-    public class GameConfig
+    [CreateAssetMenu(fileName = "GameConfig", menuName = "Mice to be Home/Game Config")]
+    public class GameConfig : ScriptableObject
     {
         [SerializeField] private SpriteLibrary sprites = new SpriteLibrary();
         [SerializeField] private BalanceSettings balance = new BalanceSettings();

@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cb9b9688cfa9455ba9adf2fb9cb4dc1, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.GameConfig
+  sprites:
+    mouse: {fileID: 0}
+    mouseTint: {r: 0.75, g: 0.6, b: 0.85, a: 1}
+    cat: {fileID: 0}
+    catTint: {r: 0.95, g: 0.55, b: 0.3, a: 1}
+    furniture: {fileID: 0}
+    furnitureTint: {r: 0.4, g: 0.45, b: 0.55, a: 1}
+    floor: {fileID: 0}
+    floorTint: {r: 0.86, g: 0.82, b: 0.74, a: 1}
+    cell: {fileID: 0}
+    freeCellTint: {r: 1, g: 1, b: 1, a: 0.15}
+    blockedCellTint: {r: 0, g: 0, b: 0, a: 0.2}
+  balance:
+    gridColumns: 5
+    gridRows: 5
+    cellSize: 2
+    furnitureRows:
+    - X...X
+    - ..X..
+    - .....
+    - ..X..
+    - X...X
+    editSeconds: 60
+    surviveSeconds: 120
+    lives: 3
+    invincibleSeconds: 1.5
+    mouseSpeed: 5
+    mouseKnockback: 2.5
+    catBaseSpeed: 3
+    catMaxSpeed: 6.5
+    catAcceleration: 0.35
+    catchRadius: 0.6
+    catStartDistance: 4.5
+    trapCooldown: 4
+  audio:
+    menuMusic: {fileID: 0}
+    editMusic: {fileID: 0}
+    chaseMusic: {fileID: 0}
+    placeTrap: {fileID: 0}
+    rotateTrap: {fileID: 0}
+    catDistracted: {fileID: 0}
+    mouseHit: {fileID: 0}
+    victory: {fileID: 0}
+    defeat: {fileID: 0}
+  traps:
+  - displayName: Yarn Ball
+    description: Rolls around and grabs the cat's attention.
+    effectSeconds: 3
+    gridSize: 1
+    distractionRadius: 1.6
+    sprite: {fileID: 0}
+    tint: {r: 0.91, g: 0.42, b: 0.57, a: 1}
+  - displayName: Toy Mouse
+    description: A quick, cheap decoy.
+    effectSeconds: 2
+    gridSize: 1
+    distractionRadius: 1.6
+    sprite: {fileID: 0}
+    tint: {r: 0.6, g: 0.63, b: 0.65, a: 1}
+  - displayName: Cardboard Box
+    description: Irresistible - the cat just has to climb in.
+    effectSeconds: 3
+    gridSize: 2
+    distractionRadius: 2
+    sprite: {fileID: 0}
+    tint: {r: 0.76, g: 0.57, b: 0.35, a: 1}
+  - displayName: Tuna Can
+    description: The smell keeps it busy for a good while.
+    effectSeconds: 5
+    gridSize: 1
+    distractionRadius: 1.6
+    sprite: {fileID: 0}
+    tint: {r: 0.5, g: 0.7, b: 0.84, a: 1}
+  - displayName: Scratching Post
+    description: It loves sharpening its claws here.
+    effectSeconds: 4
+    gridSize: 2
+    distractionRadius: 2
+    sprite: {fileID: 0}
+    tint: {r: 0.85, g: 0.7, b: 0.35, a: 1}
+  - displayName: Catnip
+    description: Leaves it dazed for several seconds.
+    effectSeconds: 5
+    gridSize: 1
+    distractionRadius: 1.6
+    sprite: {fileID: 0}
+    tint: {r: 0.5, g: 0.69, b: 0.41, a: 1}
+  - displayName: Feather Wand
+    description: Dances in the air and hypnotizes it.
+    effectSeconds: 3
+    gridSize: 2
+    distractionRadius: 2
+    sprite: {fileID: 0}
+    tint: {r: 0.69, g: 0.52, b: 0.8, a: 1}
+  - displayName: Toy Bird
+    description: Chirps and hops to steal its attention.
+    effectSeconds: 3
+    gridSize: 1
+    distractionRadius: 1.6
+    sprite: {fileID: 0}
+    tint: {r: 0.95, g: 0.76, b: 0.31, a: 1}

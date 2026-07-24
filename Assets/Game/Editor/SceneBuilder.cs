@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace MiceToBeHome.EditorTools
     public static class SceneBuilder
     {
         private const string PrefabFolder = "Assets/Game/Prefabs";
+        private const string PlaceholderFolder = "Assets/Game/Placeholders";
+        private const string ConfigFolder = "Assets/Game/Config";
 
         [MenuItem("Tools/Mice to be Home/Build Scene")]
         public static void BuildScene()
@@ -32,7 +35,8 @@ namespace MiceToBeHome.EditorTools
             Undo.RegisterCreatedObjectUndo(root, "Build Mice Scene");
 
             var installer = root.AddComponent<GameInstaller>();
-            GameConfig config = installer.EditorEnsureConfig();
+            GameConfig config = LoadOrCreateConfig();
+            installer.config = config;
             BalanceSettings balance = config.Balance;
             SpriteLibrary sprites = config.Sprites;
 
@@ -41,10 +45,10 @@ namespace MiceToBeHome.EditorTools
             float cell = Mathf.Max(0.1f, balance.cellSize);
             Vector3 center = Vector3.zero;
 
-            GameObject furniturePrefab = GetOrCreateFurniturePrefab(sprites, cell);
-            GameObject cellPrefab = GetOrCreateCellPrefab(sprites, cell);
-            GameObject playerPrefab = GetOrCreateActorPrefab("Player", sprites.mouse, sprites.mouseTint, cell, cell * 0.5f, false);
-            GameObject catPrefab = GetOrCreateActorPrefab("Cat", sprites.cat, sprites.catTint, cell, cell * 0.62f, true);
+            GameObject furniturePrefab = BuildFurniturePrefab(sprites, cell);
+            GameObject cellPrefab = BuildCellPrefab(sprites, cell);
+            GameObject playerPrefab = BuildActorPrefab("Player", sprites.mouse, sprites.mouseTint, cell, cell * 0.5f, false);
+            GameObject catPrefab = BuildActorPrefab("Cat", sprites.cat, sprites.catTint, cell, cell * 0.62f, true);
 
             var gameManager = NewChild(root.transform, "GameManager").AddComponent<GameManager>();
             var audio = NewChild(root.transform, "Audio").AddComponent<AudioManager>();
@@ -181,14 +185,33 @@ namespace MiceToBeHome.EditorTools
             }
         }
 
-        private static GameObject GetOrCreateFurniturePrefab(SpriteLibrary sprites, float cell)
+        private static GameConfig LoadOrCreateConfig()
+        {
+            string path = ConfigFolder + "/GameConfig.asset";
+            GameConfig config = AssetDatabase.LoadAssetAtPath<GameConfig>(path);
+            if (config == null)
+            {
+                if (!AssetDatabase.IsValidFolder(ConfigFolder))
+                {
+                    AssetDatabase.CreateFolder("Assets/Game", "Config");
+                }
+                config = ScriptableObject.CreateInstance<GameConfig>();
+                config.EnsureDefaults();
+                AssetDatabase.CreateAsset(config, path);
+            }
+            else
+            {
+                config.EnsureDefaults();
+            }
+
+            EditorUtility.SetDirty(config);
+            AssetDatabase.SaveAssets();
+            return config;
+        }
+
+        private static GameObject BuildFurniturePrefab(SpriteLibrary sprites, float cell)
         {
             string path = PrefabFolder + "/Furniture.prefab";
-            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (existing != null)
-            {
-                return existing;
-            }
 
             var template = new GameObject("Furniture");
             template.AddComponent<FurniturePiece>();
@@ -199,28 +222,18 @@ namespace MiceToBeHome.EditorTools
             return SavePrefab(template, path);
         }
 
-        private static GameObject GetOrCreateCellPrefab(SpriteLibrary sprites, float cell)
+        private static GameObject BuildCellPrefab(SpriteLibrary sprites, float cell)
         {
             string path = PrefabFolder + "/Cell.prefab";
-            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (existing != null)
-            {
-                return existing;
-            }
 
             var template = new GameObject("Cell");
             AddGroundRenderer(template, new Vector2(cell * 0.94f, cell * 0.94f), sprites.cell, new Color(1f, 1f, 1f, 0.14f), -9000);
             return SavePrefab(template, path);
         }
 
-        private static GameObject GetOrCreateActorPrefab(string name, Sprite artwork, Color tint, float cell, float visualSize, bool isCat)
+        private static GameObject BuildActorPrefab(string name, Sprite artwork, Color tint, float cell, float visualSize, bool isCat)
         {
             string path = PrefabFolder + "/" + name + ".prefab";
-            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (existing != null)
-            {
-                return existing;
-            }
 
             var template = new GameObject(name);
             var body = template.AddComponent<Rigidbody>();
@@ -263,8 +276,72 @@ namespace MiceToBeHome.EditorTools
             return go;
         }
 
-        private static Sprite SquareSprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-        private static Sprite CircleSprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+        private static Sprite squareCache;
+        private static Sprite circleCache;
+
+        private static Sprite SquareSprite => squareCache != null ? squareCache : (squareCache = GetOrCreatePlaceholder("PlaceholderSquare", false));
+        private static Sprite CircleSprite => circleCache != null ? circleCache : (circleCache = GetOrCreatePlaceholder("PlaceholderCircle", true));
+
+        private static Sprite GetOrCreatePlaceholder(string fileName, bool circle)
+        {
+            string path = PlaceholderFolder + "/" + fileName + ".png";
+            Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            if (!AssetDatabase.IsValidFolder(PlaceholderFolder))
+            {
+                AssetDatabase.CreateFolder("Assets/Game", "Placeholders");
+            }
+
+            const int size = 128;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var pixels = new Color32[size * size];
+            float mid = (size - 1) * 0.5f;
+            float radius = size * 0.5f - 1f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    bool inside;
+                    bool edge;
+                    if (circle)
+                    {
+                        float distance = Mathf.Sqrt((x - mid) * (x - mid) + (y - mid) * (y - mid));
+                        inside = distance <= radius;
+                        edge = distance > radius - 6f && distance <= radius;
+                    }
+                    else
+                    {
+                        inside = true;
+                        edge = x < 5 || y < 5 || x >= size - 5 || y >= size - 5;
+                    }
+
+                    pixels[y * size + x] = inside
+                        ? (edge ? new Color32(180, 180, 180, 255) : new Color32(255, 255, 255, 255))
+                        : new Color32(255, 255, 255, 0);
+                }
+            }
+
+            texture.SetPixels32(pixels);
+            texture.Apply();
+            File.WriteAllBytes(Path.GetFullPath(path), texture.EncodeToPNG());
+            Object.DestroyImmediate(texture);
+
+            AssetDatabase.ImportAsset(path);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = size;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            importer.SaveAndReimport();
+
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
 
         private static SpriteRenderer AddGround(Transform parent, string name, Vector2 size, Sprite artwork, Color tint, int sortingOrder)
         {
