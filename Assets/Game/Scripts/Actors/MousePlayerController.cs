@@ -105,6 +105,21 @@ namespace MiceToBeHome
 
             Vector3 move = ReadDirection();
             body.linearVelocity = move * balance.mouseSpeed;
+
+            RepairTrapsUnderfoot();
+        }
+
+        private void RepairTrapsUnderfoot()
+        {
+            var traps = TrapRegistry.Active;
+            for (int i = 0; i < traps.Count; i++)
+            {
+                Trap trap = traps[i];
+                if (trap != null && trap.NeedsRepair && trap.IsInZone(body.position))
+                {
+                    trap.Repair(Time.fixedDeltaTime);
+                }
+            }
         }
 
         private Vector3 ReadDirection()

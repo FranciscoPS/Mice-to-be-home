@@ -68,11 +68,21 @@ namespace MiceToBeHome
         public void SetPhase(GameState state)
         {
             bool editing = state == GameState.Editing;
+            bool playing = state == GameState.Playing;
             phaseText.text = editing ? "Place your traps" : "Survive the cat";
+
+            if (editing)
+            {
+                hintText.text = "Click: place / pick up a trap   -   Right click: cancel   -   Max 5 traps";
+            }
+            else if (playing)
+            {
+                hintText.text = "WASD / arrows: run   -   Stand on a faded trap to repair it";
+            }
 
             inventoryRoot.SetActive(editing);
             StartButton.gameObject.SetActive(editing);
-            hintText.gameObject.SetActive(editing);
+            hintText.gameObject.SetActive(editing || playing);
         }
     }
 }

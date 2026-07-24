@@ -26,7 +26,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: definition.description
-      value: Leaves it dazed for several seconds.
+      value: Leaves it totally dazed - your panic button.
       objectReference: {fileID: 0}
     - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: definition.displayName
@@ -34,7 +34,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: definition.effectSeconds
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: definition.cooldownSeconds

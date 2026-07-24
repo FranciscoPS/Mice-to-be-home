@@ -358,5 +358,5 @@ MonoBehaviour:
     displayName: Trap
     description: 
     effectSeconds: 3
-    cooldownSeconds: 6
+    stock: 1
     tint: {r: 1, g: 1, b: 1, a: 1}

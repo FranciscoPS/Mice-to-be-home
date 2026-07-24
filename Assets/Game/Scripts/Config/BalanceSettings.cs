@@ -40,6 +40,9 @@ namespace MiceToBeHome
         [Min(0.1f)] public float catchRadius = 0.6f;
         [Min(0.5f)] public float catStartDistance = 4.5f;
 
+        [Header("Traps")]
+        [Min(1)] public int maxTraps = 5;
+
         public string GetFurnitureRow(int index)
         {
             if (furnitureRows == null || index < 0 || index >= furnitureRows.Length)

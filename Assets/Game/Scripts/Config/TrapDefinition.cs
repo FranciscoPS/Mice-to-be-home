@@ -14,12 +14,12 @@ namespace MiceToBeHome
         public string description = "";
 
         [Min(0f)]
-        [Tooltip("Seconds the cat stays stunned by this object.")]
+        [Tooltip("Seconds the cat stays stunned. Also the time the mouse must stand on the trap to repair it.")]
         public float effectSeconds = 3f;
 
-        [Min(0f)]
-        [Tooltip("Seconds the trap is on cooldown (ghosted) after being triggered.")]
-        public float cooldownSeconds = 6f;
+        [Min(0)]
+        [Tooltip("How many copies of this trap the player can place (per type).")]
+        public int stock = 1;
 
         [Tooltip("Placeholder color used when the visual has no sprite.")]
         public Color tint = Color.white;

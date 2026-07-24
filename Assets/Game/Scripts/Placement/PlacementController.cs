@@ -17,23 +17,51 @@ namespace MiceToBeHome
         private readonly List<Trap> placedTraps = new List<Trap>();
         private readonly Dictionary<Vector2Int, Trap> cellToTrap = new Dictionary<Vector2Int, Trap>();
         private readonly List<Vector2Int> footprintBuffer = new List<Vector2Int>();
+        private readonly List<Trap> inventory = new List<Trap>();
+        private readonly Dictionary<Trap, int> stock = new Dictionary<Trap, int>();
 
         private Trap selected;
+        private int maxTraps = 5;
         private bool carrying;
         private bool active;
 
-        public void Initialize(GridSystem gridSystem, BalanceSettings balanceSettings, Camera camera, Transform placedParent, AudioManager audioManager)
+        public int MaxTraps => maxTraps;
+        public int PlacedCount => placedTraps.Count;
+        public int GetStock(Trap prefab) => prefab != null && stock.TryGetValue(prefab, out int amount) ? amount : 0;
+
+        public void Initialize(GridSystem gridSystem, BalanceSettings balanceSettings, Camera camera, Transform placedParent, AudioManager audioManager, IReadOnlyList<Trap> trapPrefabs)
         {
             grid = gridSystem;
             balance = balanceSettings;
             viewCamera = camera;
             trapParent = placedParent;
             this.audioManager = audioManager;
+            maxTraps = Mathf.Max(1, balanceSettings.maxTraps);
+
+            inventory.Clear();
+            for (int i = 0; i < trapPrefabs.Count; i++)
+            {
+                if (trapPrefabs[i] != null && !inventory.Contains(trapPrefabs[i]))
+                {
+                    inventory.Add(trapPrefabs[i]);
+                }
+            }
+            RefillStock();
 
             var ghostObject = new GameObject("PlacementGhost");
             ghostObject.transform.SetParent(transform, false);
             ghost = ghostObject.AddComponent<PlacementGhost>();
             ghost.Build(balance.cellSize);
+        }
+
+        private void RefillStock()
+        {
+            stock.Clear();
+            for (int i = 0; i < inventory.Count; i++)
+            {
+                Trap prefab = inventory[i];
+                stock[prefab] = prefab.Definition != null ? Mathf.Max(0, prefab.Definition.stock) : 0;
+            }
         }
 
         public void SetActive(bool value)
@@ -47,6 +75,11 @@ namespace MiceToBeHome
 
         public void SelectFromInventory(Trap trapPrefab)
         {
+            if (trapPrefab == null || placedTraps.Count >= maxTraps || GetStock(trapPrefab) <= 0)
+            {
+                return;
+            }
+
             selected = trapPrefab;
             carrying = true;
         }
@@ -75,6 +108,7 @@ namespace MiceToBeHome
             placedTraps.Clear();
             cellToTrap.Clear();
             grid.ClearOccupancy();
+            RefillStock();
             CancelCarry();
         }
 
@@ -140,9 +174,19 @@ namespace MiceToBeHome
             }
             placedTraps.Add(trap);
 
+            if (stock.ContainsKey(selected))
+            {
+                stock[selected] = Mathf.Max(0, stock[selected] - 1);
+            }
+
             if (audioManager != null)
             {
                 audioManager.PlayPlace();
+            }
+
+            if (GetStock(selected) <= 0 || placedTraps.Count >= maxTraps)
+            {
+                CancelCarry();
             }
         }
 
@@ -155,10 +199,16 @@ namespace MiceToBeHome
             }
             placedTraps.Remove(trap);
 
-            selected = trap.SourcePrefab;
-            carrying = selected != null;
+            Trap source = trap.SourcePrefab;
+            if (source != null && stock.ContainsKey(source))
+            {
+                stock[source] += 1;
+            }
 
             Destroy(trap.gameObject);
+
+            selected = source;
+            carrying = source != null;
         }
 
         private void CancelCarry()

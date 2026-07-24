@@ -14,7 +14,8 @@ namespace MiceToBeHome
         public TrapDefinition Definition => definition;
         public Trap SourcePrefab { get; set; }
         public IReadOnlyList<Vector2Int> Cells => cells;
-        public bool IsAvailable => armed && cooldownRemaining <= 0f;
+        public bool IsAvailable => armed && !spent;
+        public bool NeedsRepair => spent;
 
         private readonly List<Vector2Int> cells = new List<Vector2Int>();
         private BoxCollider zone;
@@ -24,7 +25,8 @@ namespace MiceToBeHome
         private Color baseVisualColor = Color.white;
         private bool captured;
         private bool armed;
-        private float cooldownRemaining;
+        private bool spent;
+        private float repairProgress;
 
         private void Awake()
         {
@@ -70,7 +72,8 @@ namespace MiceToBeHome
             }
 
             armed = false;
-            cooldownRemaining = 0f;
+            spent = false;
+            repairProgress = 0f;
             SetGhost(false);
         }
 
@@ -86,10 +89,27 @@ namespace MiceToBeHome
                 return 0f;
             }
 
-            cooldownRemaining = definition.cooldownSeconds;
+            spent = true;
+            repairProgress = 0f;
             SetGhost(true);
             RefreshCountdown();
             return definition.effectSeconds;
+        }
+
+        public void Repair(float deltaTime)
+        {
+            if (!spent || definition == null)
+            {
+                return;
+            }
+
+            repairProgress += deltaTime;
+            if (repairProgress >= definition.effectSeconds)
+            {
+                spent = false;
+                repairProgress = 0f;
+                SetGhost(false);
+            }
         }
 
         public bool IsInZone(Vector3 point)
@@ -106,20 +126,10 @@ namespace MiceToBeHome
 
         private void Update()
         {
-            if (cooldownRemaining <= 0f)
+            if (spent)
             {
-                return;
+                RefreshCountdown();
             }
-
-            cooldownRemaining -= Time.deltaTime;
-            if (cooldownRemaining <= 0f)
-            {
-                cooldownRemaining = 0f;
-                SetGhost(false);
-                return;
-            }
-
-            RefreshCountdown();
         }
 
         private void RefreshCountdown()
@@ -129,7 +139,8 @@ namespace MiceToBeHome
                 return;
             }
 
-            countdown.text = Mathf.CeilToInt(cooldownRemaining).ToString();
+            float remaining = definition != null ? definition.effectSeconds - repairProgress : 0f;
+            countdown.text = Mathf.CeilToInt(Mathf.Max(0f, remaining)).ToString();
 
             if (cameraTransform == null && Camera.main != null)
             {

@@ -45,6 +45,7 @@ MonoBehaviour:
     catAcceleration: 0.35
     catchRadius: 0.6
     catStartDistance: 4.5
+    maxTraps: 5
   audio:
     menuMusic: {fileID: 0}
     editMusic: {fileID: 0}
@@ -56,11 +57,11 @@ MonoBehaviour:
     victory: {fileID: 0}
     defeat: {fileID: 0}
   trapPrefabs:
-  - {fileID: 6094170036717752252, guid: b252053b92758464f82a9e14da9a375c, type: 3}
   - {fileID: 6057645688644259183, guid: cb3b2fd849e68495cb9f831c8ef57fbf, type: 3}
-  - {fileID: 5168653721478309279, guid: 354674602a8814451b9aebaf33ede9a9, type: 3}
-  - {fileID: 4154820394901769077, guid: 33d5b8eea558c419982d799de24e98ff, type: 3}
-  - {fileID: 6857798724931112623, guid: cb096109244aa40668f8300b9a8ce552, type: 3}
-  - {fileID: 8230581120841956286, guid: 205fab3d39fc34d37873122bf9787a7f, type: 3}
-  - {fileID: 2929685729294464283, guid: b05727ac8a6ff450b832b5d8491b13aa, type: 3}
+  - {fileID: 6094170036717752252, guid: b252053b92758464f82a9e14da9a375c, type: 3}
   - {fileID: 7172717486109822559, guid: d52cc95b972d0471e9fe228ef35133a1, type: 3}
+  - {fileID: 2929685729294464283, guid: b05727ac8a6ff450b832b5d8491b13aa, type: 3}
+  - {fileID: 5168653721478309279, guid: 354674602a8814451b9aebaf33ede9a9, type: 3}
+  - {fileID: 6857798724931112623, guid: cb096109244aa40668f8300b9a8ce552, type: 3}
+  - {fileID: 4154820394901769077, guid: 33d5b8eea558c419982d799de24e98ff, type: 3}
+  - {fileID: 8230581120841956286, guid: 205fab3d39fc34d37873122bf9787a7f, type: 3}
