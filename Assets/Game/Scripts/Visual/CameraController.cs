@@ -5,6 +5,8 @@ namespace MiceToBeHome
     [RequireComponent(typeof(Camera))]
     public class CameraController : MonoBehaviour
     {
+        public static readonly Color BackgroundColor = new Color(0.15f, 0.12f, 0.12f);
+
         [SerializeField] private float pitch = 55f;
         [SerializeField] private float smoothTime = 0.15f;
 
@@ -15,6 +17,7 @@ namespace MiceToBeHome
         private float frameDistance;
         private float followDistance;
         private bool following;
+        private bool ready;
 
         private void Awake()
         {
@@ -28,11 +31,14 @@ namespace MiceToBeHome
             view.orthographic = false;
             view.fieldOfView = 45f;
             view.nearClipPlane = 0.1f;
+            view.clearFlags = CameraClearFlags.SolidColor;
+            view.backgroundColor = BackgroundColor;
 
             float extent = Mathf.Max(balance.gridColumns, balance.gridRows) * balance.cellSize;
             frameDistance = extent * 1.15f + 3f;
             followDistance = extent * 0.55f + 3f;
 
+            ready = true;
             SnapTo(gridCenter, frameDistance);
         }
 
@@ -49,7 +55,7 @@ namespace MiceToBeHome
 
         private void LateUpdate()
         {
-            if (view == null)
+            if (view == null || !ready)
             {
                 return;
             }

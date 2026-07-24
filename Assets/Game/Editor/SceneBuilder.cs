@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MiceToBeHome.EditorTools
 {
@@ -12,14 +13,17 @@ namespace MiceToBeHome.EditorTools
         [MenuItem("Tools/Mice to be Home/Build Scene")]
         public static void BuildScene()
         {
-            var existing = Object.FindFirstObjectByType<GameInstaller>();
-            if (existing != null)
+            bool hasExisting = Object.FindFirstObjectByType<GameInstaller>() != null
+                || Object.FindFirstObjectByType<CameraController>() != null;
+            if (hasExisting)
             {
-                EditorUtility.DisplayDialog("Mice to be Home",
-                    "There is already a 'Game' object in this scene. Delete it first if you want to rebuild.", "OK");
-                Selection.activeObject = existing.gameObject;
-                EditorGUIUtility.PingObject(existing.gameObject);
-                return;
+                if (!EditorUtility.DisplayDialog("Mice to be Home",
+                    "This removes the existing Game setup (and any duplicate camera scripts) and rebuilds it. Continue?",
+                    "Rebuild", "Cancel"))
+                {
+                    return;
+                }
+                ClearExisting();
             }
 
             EnsurePrefabFolder();
@@ -140,6 +144,33 @@ namespace MiceToBeHome.EditorTools
             Undo.RegisterCreatedObjectUndo(piece, "Add Furniture Piece");
             Selection.activeObject = piece;
             EditorGUIUtility.PingObject(piece);
+        }
+
+        [MenuItem("Tools/Mice to be Home/Clear Scene")]
+        public static void ClearScene()
+        {
+            ClearExisting();
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            Debug.Log("[Mice to be Home] Removed the Game setup and camera scripts. Run Build Scene to recreate it.");
+        }
+
+        private static void ClearExisting()
+        {
+            foreach (var installer in Object.FindObjectsByType<GameInstaller>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (installer != null)
+                {
+                    Object.DestroyImmediate(installer.gameObject);
+                }
+            }
+
+            foreach (var controller in Object.FindObjectsByType<CameraController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (controller != null)
+                {
+                    Object.DestroyImmediate(controller);
+                }
+            }
         }
 
         private static void EnsurePrefabFolder()
@@ -278,7 +309,7 @@ namespace MiceToBeHome.EditorTools
             }
 
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.09f, 0.09f, 0.13f);
+            cam.backgroundColor = CameraController.BackgroundColor;
 
             float extent = Mathf.Max(cols, rows) * cell;
             float distance = extent * 1.15f + 3f;
