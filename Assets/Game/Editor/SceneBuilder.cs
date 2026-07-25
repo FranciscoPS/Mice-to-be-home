@@ -19,8 +19,7 @@ namespace MiceToBeHome.EditorTools
         [MenuItem("Tools/Mice to be Home/Build Scene")]
         public static void BuildScene()
         {
-            bool hasExisting = Object.FindFirstObjectByType<GameInstaller>() != null
-                || Object.FindFirstObjectByType<CameraController>() != null;
+            bool hasExisting = Object.FindFirstObjectByType<GameInstaller>() != null;
             if (hasExisting)
             {
                 if (!EditorUtility.DisplayDialog("Mice to be Home",
@@ -106,8 +105,8 @@ namespace MiceToBeHome.EditorTools
             catGO.transform.position = center + new Vector3(balance.catStartDistance, 0f, 0f);
             var cat = catGO.GetComponent<CatController>();
 
-            Camera cam = SetupCamera(center, cols, rows, cell);
-            var cameraController = cam.gameObject.AddComponent<CameraController>();
+            CameraController cameraController = CameraRigBuilder.EnsureRig(config);
+            Camera cam = Camera.main;
 
             installer.grid = grid;
             installer.player = player;
@@ -172,14 +171,6 @@ namespace MiceToBeHome.EditorTools
                 if (installer != null)
                 {
                     Object.DestroyImmediate(installer.gameObject);
-                }
-            }
-
-            foreach (var controller in Object.FindObjectsByType<CameraController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-            {
-                if (controller != null)
-                {
-                    Object.DestroyImmediate(controller);
                 }
             }
         }
@@ -650,31 +641,6 @@ namespace MiceToBeHome.EditorTools
             go.transform.localScale = Vector3.one * worldSize;
             go.transform.localPosition = new Vector3(0f, worldSize * 0.5f, 0f);
             go.transform.localRotation = Quaternion.Euler(55f, 0f, 0f);
-        }
-
-        private static Camera SetupCamera(Vector3 center, int cols, int rows, float cell)
-        {
-            Camera cam = Camera.main;
-            if (cam == null)
-            {
-                var go = new GameObject("Main Camera") { tag = "MainCamera" };
-                cam = go.AddComponent<Camera>();
-            }
-            if (cam.GetComponent<AudioListener>() == null)
-            {
-                cam.gameObject.AddComponent<AudioListener>();
-            }
-
-            cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = CameraController.BackgroundColor;
-
-            float extent = Mathf.Max(cols, rows) * cell;
-            float distance = extent * 1.15f + 3f;
-            const float pitch = 55f;
-            float radians = pitch * Mathf.Deg2Rad;
-            cam.transform.rotation = Quaternion.Euler(pitch, 0f, 0f);
-            cam.transform.position = center + new Vector3(0f, Mathf.Sin(radians) * distance, -Mathf.Cos(radians) * distance);
-            return cam;
         }
     }
 }
