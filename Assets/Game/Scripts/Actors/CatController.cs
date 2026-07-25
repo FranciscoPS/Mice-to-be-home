@@ -21,7 +21,8 @@ namespace MiceToBeHome
         private GridSystem grid;
 
         private readonly List<Vector2Int> path = new List<Vector2Int>();
-        private Vector2Int cachedGoal = new Vector2Int(int.MinValue, int.MinValue);
+        private Vector2Int cachedGoal;
+        private bool hasCachedGoal;
         private float repathTimer;
 
         private CatState state = CatState.Idle;
@@ -84,6 +85,8 @@ namespace MiceToBeHome
             lastPosition = startPosition;
             stuckTimer = 0f;
             unstickTimer = 0f;
+            path.Clear();
+            hasCachedGoal = false;
         }
 
         private void FixedUpdate()
@@ -199,7 +202,7 @@ namespace MiceToBeHome
 
             repathTimer = 0f;
             path.Clear();
-            cachedGoal = new Vector2Int(int.MinValue, int.MinValue);
+            hasCachedGoal = false;
         }
 
         private Vector3 ResolveSteerTarget()
@@ -226,12 +229,19 @@ namespace MiceToBeHome
             }
 
             repathTimer -= Time.fixedDeltaTime;
-            int goalDrift = Mathf.Abs(goalCell.x - cachedGoal.x) + Mathf.Abs(goalCell.y - cachedGoal.y);
 
             // Commit to the chosen route so the cat cannot be mirror-juked back and
-            // forth around a symmetric obstacle: only repath when the route is spent,
-            // when the player relocates far, or as an occasional safety refresh.
-            if (path.Count == 0 || goalDrift >= 4 || repathTimer <= 0f)
+            // forth around a symmetric obstacle: only repath when there is no committed
+            // goal yet, when the route is spent, when the player relocates far, or as an
+            // occasional safety refresh.
+            bool needsRepath = !hasCachedGoal || path.Count == 0 || repathTimer <= 0f;
+            if (!needsRepath)
+            {
+                int goalDrift = Mathf.Abs(goalCell.x - cachedGoal.x) + Mathf.Abs(goalCell.y - cachedGoal.y);
+                needsRepath = goalDrift >= 4;
+            }
+
+            if (needsRepath)
             {
                 if (GridPathfinder.TryFindPath(grid, catCell, goalCell, path))
                 {
@@ -241,6 +251,7 @@ namespace MiceToBeHome
                     }
                 }
                 cachedGoal = goalCell;
+                hasCachedGoal = true;
                 repathTimer = 1.5f;
             }
 

@@ -44,6 +44,34 @@ PrefabInstance:
       propertyPath: definition.cooldownSeconds
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 5314550826127377591, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5314550826127377591, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5314550826127377591, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5474465825774775782, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_Size.x
+      value: 0.8456514
+      objectReference: {fileID: 0}
+    - target: {fileID: 5474465825774775782, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_Size.z
+      value: 0.66337806
+      objectReference: {fileID: 0}
+    - target: {fileID: 5474465825774775782, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_Center.x
+      value: -0.120000005
+      objectReference: {fileID: 0}
+    - target: {fileID: 5474465825774775782, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_Center.z
+      value: 0.12258864
+      objectReference: {fileID: 0}
     - target: {fileID: 5529659622753508376, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -84,6 +112,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8814423798820679406, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 29614ab49ff857342bccbbf5e43f388e, type: 3}
     - target: {fileID: 8814423798820679406, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: m_Color.b
       value: 0.65
