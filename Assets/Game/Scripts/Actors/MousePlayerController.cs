@@ -14,6 +14,7 @@ namespace MiceToBeHome
 
         private Rigidbody body;
         private SpriteRenderer visual;
+        private Animator animator;
         private BalanceSettings balance;
         private bool active;
         private float invincibleTimer;
@@ -24,6 +25,7 @@ namespace MiceToBeHome
         {
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
+            animator = GetComponentInChildren<Animator>();
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -105,6 +107,12 @@ namespace MiceToBeHome
 
             Vector3 move = ReadDirection();
             body.linearVelocity = move * balance.mouseSpeed;
+
+            // Actualizar animación según si hay movimiento
+            if (animator != null)
+            {
+                animator.SetBool("IsMoving", move.sqrMagnitude > 0f);
+            }
 
             RepairTrapsUnderfoot();
         }
