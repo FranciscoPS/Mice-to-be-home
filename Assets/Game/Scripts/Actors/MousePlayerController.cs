@@ -20,6 +20,7 @@ namespace MiceToBeHome
         private float invincibleTimer;
         private float knockbackTimer;
         private Vector3 knockbackVelocity;
+        private float lastDirectionX = 1f;
 
         private void Awake()
         {
@@ -112,6 +113,16 @@ namespace MiceToBeHome
             if (animator != null)
             {
                 animator.SetBool("IsMoving", move.sqrMagnitude > 0f);
+            }
+
+            // Flipear sprite según dirección horizontal
+            if (move.x != 0f)
+            {
+                lastDirectionX = move.x;
+                if (visual != null)
+                {
+                    visual.flipX = lastDirectionX < 0f;
+                }
             }
 
             RepairTrapsUnderfoot();
