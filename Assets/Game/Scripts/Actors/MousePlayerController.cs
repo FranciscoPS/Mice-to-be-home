@@ -14,16 +14,19 @@ namespace MiceToBeHome
 
         private Rigidbody body;
         private SpriteRenderer visual;
+        private Animator animator;
         private BalanceSettings balance;
         private bool active;
         private float invincibleTimer;
         private float knockbackTimer;
         private Vector3 knockbackVelocity;
+        private float lastDirectionX = 1f;
 
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
+            animator = GetComponentInChildren<Animator>();
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -105,6 +108,22 @@ namespace MiceToBeHome
 
             Vector3 move = ReadDirection();
             body.linearVelocity = move * balance.mouseSpeed;
+
+            // Actualizar animación según si hay movimiento
+            if (animator != null)
+            {
+                animator.SetBool("IsMoving", move.sqrMagnitude > 0f);
+            }
+
+            // Flipear sprite según dirección horizontal
+            if (move.x != 0f)
+            {
+                lastDirectionX = move.x;
+                if (visual != null)
+                {
+                    visual.flipX = lastDirectionX < 0f;
+                }
+            }
 
             RepairTrapsUnderfoot();
         }
