@@ -40,6 +40,12 @@ namespace MiceToBeHome
         [Min(0.1f)] public float catchRadius = 0.6f;
         [Min(0.5f)] public float catStartDistance = 4.5f;
 
+        [Header("Hit feedback")]
+        [Tooltip("Time scale during a hit (1 = normal, lower = slower). The run frame freezes while the world slows.")]
+        [Range(0.01f, 1f)] public float hitSlowScale = 0.15f;
+        [Tooltip("Real-time seconds the slow-motion lasts on each hit. 0 disables it.")]
+        [Min(0f)] public float hitSlowDuration = 0.15f;
+
         [Header("Traps")]
         [Min(1)] public int maxTraps = 5;
 

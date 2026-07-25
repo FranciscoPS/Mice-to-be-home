@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,6 +22,7 @@ namespace MiceToBeHome
         private float knockbackTimer;
         private Vector3 knockbackVelocity;
         private float lastDirectionX = 1f;
+        private bool hitReactionActive;
 
         private void Awake()
         {
@@ -76,7 +78,69 @@ namespace MiceToBeHome
             knockbackVelocity = away.normalized * balance.mouseKnockback;
             knockbackTimer = 0.25f;
             Hit?.Invoke();
+            TriggerHitReaction();
             return true;
+        }
+
+        private void TriggerHitReaction()
+        {
+            if (!isActiveAndEnabled || balance == null)
+            {
+                return;
+            }
+
+            // Skip the slow-mo on the killing blow (game already freezes) or outside play.
+            if (GameManager.Instance != null && GameManager.Instance.State != GameState.Playing)
+            {
+                return;
+            }
+
+            if (balance.hitSlowDuration <= 0f)
+            {
+                return;
+            }
+
+            StartCoroutine(HitReaction());
+        }
+
+        private IEnumerator HitReaction()
+        {
+            hitReactionActive = true;
+
+            // Freeze the current run frame and slow the world for hit game-feel (never idle).
+            if (animator != null)
+            {
+                animator.SetBool("IsMoving", true);
+                animator.speed = 0f;
+            }
+
+            Time.timeScale = Mathf.Clamp01(balance.hitSlowScale);
+            yield return new WaitForSecondsRealtime(balance.hitSlowDuration);
+
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
+            if (GameManager.Instance == null || GameManager.Instance.State == GameState.Playing)
+            {
+                Time.timeScale = 1f;
+            }
+
+            hitReactionActive = false;
+        }
+
+        private void OnDisable()
+        {
+            // Safety: never leave the game frozen/slowed if disabled mid-reaction.
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
+            if (hitReactionActive)
+            {
+                hitReactionActive = false;
+                Time.timeScale = 1f;
+            }
         }
 
         private void Update()
@@ -103,6 +167,11 @@ namespace MiceToBeHome
             {
                 knockbackTimer -= Time.fixedDeltaTime;
                 body.linearVelocity = knockbackVelocity;
+                // Mantener la animación de correr durante el golpe (no idle).
+                if (animator != null)
+                {
+                    animator.SetBool("IsMoving", true);
+                }
                 return;
             }
 

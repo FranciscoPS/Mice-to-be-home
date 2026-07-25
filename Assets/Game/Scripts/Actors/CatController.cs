@@ -105,10 +105,6 @@ namespace MiceToBeHome
             {
                 case CatState.Stunned:
                     body.linearVelocity = Vector3.zero;
-                    if (animator != null)
-                    {
-                        animator.SetBool("IsMoving", false);
-                    }
                     stateTimer -= Time.fixedDeltaTime;
                     if (stateTimer <= 0f)
                     {
@@ -118,10 +114,6 @@ namespace MiceToBeHome
                     break;
                 case CatState.Recovering:
                     body.linearVelocity = Vector3.zero;
-                    if (animator != null)
-                    {
-                        animator.SetBool("IsMoving", false);
-                    }
                     stateTimer -= Time.fixedDeltaTime;
                     if (stateTimer <= 0f)
                     {
@@ -131,6 +123,13 @@ namespace MiceToBeHome
                 case CatState.Chasing:
                     Chase();
                     break;
+            }
+
+            // Idle SOLO cuando el gato está stunneado; persiguiendo / atacando / recuperándose
+            // se mantiene la animación de correr (no tenemos animación de ataque).
+            if (animator != null)
+            {
+                animator.SetBool("IsMoving", state != CatState.Stunned);
             }
         }
 
@@ -158,12 +157,6 @@ namespace MiceToBeHome
 
             Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
             body.linearVelocity = velocity;
-
-            // Actualizar animación según si hay movimiento
-            if (animator != null)
-            {
-                animator.SetBool("IsMoving", velocity.sqrMagnitude > 0.01f);
-            }
 
             // Flipear sprite según dirección horizontal
             if (direction.x != 0f)
