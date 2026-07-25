@@ -15,6 +15,8 @@ namespace MiceToBeHome
         }
 
         private Rigidbody body;
+        private SpriteRenderer visual;
+        private Animator animator;
         private MousePlayerController player;
         private BalanceSettings balance;
         private AudioManager audioManager;
@@ -34,6 +36,7 @@ namespace MiceToBeHome
         private float stuckTimer;
         private float unstickTimer;
         private Vector3 unstickVelocity;
+        private float lastDirectionX = 1f;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -50,6 +53,8 @@ namespace MiceToBeHome
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
+            visual = GetComponentInChildren<SpriteRenderer>();
+            animator = GetComponentInChildren<Animator>();
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -100,6 +105,10 @@ namespace MiceToBeHome
             {
                 case CatState.Stunned:
                     body.linearVelocity = Vector3.zero;
+                    if (animator != null)
+                    {
+                        animator.SetBool("IsMoving", false);
+                    }
                     stateTimer -= Time.fixedDeltaTime;
                     if (stateTimer <= 0f)
                     {
@@ -109,6 +118,10 @@ namespace MiceToBeHome
                     break;
                 case CatState.Recovering:
                     body.linearVelocity = Vector3.zero;
+                    if (animator != null)
+                    {
+                        animator.SetBool("IsMoving", false);
+                    }
                     stateTimer -= Time.fixedDeltaTime;
                     if (stateTimer <= 0f)
                     {
@@ -145,6 +158,22 @@ namespace MiceToBeHome
 
             Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
             body.linearVelocity = velocity;
+
+            // Actualizar animación según si hay movimiento
+            if (animator != null)
+            {
+                animator.SetBool("IsMoving", velocity.sqrMagnitude > 0.01f);
+            }
+
+            // Flipear sprite según dirección horizontal
+            if (direction.x != 0f)
+            {
+                lastDirectionX = direction.x;
+                if (visual != null)
+                {
+                    visual.flipX = lastDirectionX < 0f;
+                }
+            }
 
             if (velocity.sqrMagnitude > 0.01f)
             {
