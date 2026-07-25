@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 6218699172517640771}
   - component: {fileID: 3836587354716456939}
   - component: {fileID: 531384855482144511}
+  - component: {fileID: 4863777356181809228}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -202,3 +203,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.Billboard
   sortingScale: 100
+--- !u!95 &4863777356181809228
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8460241767743740680}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d2772049221db1846b0810b48182873b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
