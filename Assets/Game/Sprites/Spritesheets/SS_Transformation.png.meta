@@ -1,0 +1,902 @@
+fileFormatVersion: 2
+guid: 80b41fbc937134c13aa41ac010ab3111
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SS_Transformation_0
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 5546
+        width: 554
+        height: 997
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ee637ce827a0f415399a94bac2825e26
+      internalID: -1224701321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_1
+      rect:
+        serializedVersion: 2
+        x: 3267
+        y: 5829
+        width: 409
+        height: 714
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f457d5284b60b4944bfa612572bdcb40
+      internalID: 2072122196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_2
+      rect:
+        serializedVersion: 2
+        x: 5629
+        y: 5829
+        width: 409
+        height: 714
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 68b1e61b835e2405686f053fd8541526
+      internalID: 1677670165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_3
+      rect:
+        serializedVersion: 2
+        x: 6136
+        y: 6105
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 98edea1fbb1e44279ad05dc7fcb9af3e
+      internalID: 371796764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_4
+      rect:
+        serializedVersion: 2
+        x: 7997
+        y: 5817
+        width: 467
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7be425a18f71f4c0c967f921434efd22
+      internalID: -1871207749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_5
+      rect:
+        serializedVersion: 2
+        x: 10313
+        y: 5811
+        width: 513
+        height: 726
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a01191d1bcd3a4b4fb82523a372b4e64
+      internalID: -1455851919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_6
+      rect:
+        serializedVersion: 2
+        x: 7917
+        y: 5581
+        width: 23
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9d423077b491d48c3a1186bd303c0ce9
+      internalID: 1748515922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_7
+      rect:
+        serializedVersion: 2
+        x: 10262
+        y: 5581
+        width: 28
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad8b8d8bc33504be7bf0f7d40aacd3f5
+      internalID: -938464947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_8
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 4700
+        width: 594
+        height: 743
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 031720873f61c47eaaee8cf1cd2ba71f
+      internalID: -298460555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_9
+      rect:
+        serializedVersion: 2
+        x: 3071
+        y: 4452
+        width: 772
+        height: 991
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f29edc0cb5e93405bb280734dfa41233
+      internalID: 1903600890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_10
+      rect:
+        serializedVersion: 2
+        x: 5404
+        y: 4452
+        width: 1055
+        height: 996
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7988e876607344cacbdaa4dcb186bea8
+      internalID: 1692593258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_11
+      rect:
+        serializedVersion: 2
+        x: 7755
+        y: 4452
+        width: 876
+        height: 996
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0b4126cb101840a8a1b92d70c9f52f1
+      internalID: 2052491644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_12
+      rect:
+        serializedVersion: 2
+        x: 8700
+        y: 5287
+        width: 12
+        height: 23
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f1409ee6bbdf547e1a51e23a8f2c1748
+      internalID: 72427885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_13
+      rect:
+        serializedVersion: 2
+        x: 10141
+        y: 4452
+        width: 956
+        height: 996
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e58a38013b42b437b9aa9a39e7d75d49
+      internalID: 841778076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_14
+      rect:
+        serializedVersion: 2
+        x: 8660
+        y: 5195
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f4534aa1e749d456f9e228e5720ae409
+      internalID: 1937728553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_15
+      rect:
+        serializedVersion: 2
+        x: 5341
+        y: 5074
+        width: 12
+        height: 17
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aac457057794f42ff9f15fc3b1984fc6
+      internalID: 1995415405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_16
+      rect:
+        serializedVersion: 2
+        x: 8752
+        y: 5045
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1c945656f2d7e4e399eea6486268d597
+      internalID: 1845655969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_17
+      rect:
+        serializedVersion: 2
+        x: 1544
+        y: 4752
+        width: 6
+        height: 5
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5617c552d4b25469991707981b11b71f
+      internalID: 1343404816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_18
+      rect:
+        serializedVersion: 2
+        x: 3999
+        y: 4527
+        width: 5
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d0f0210d5adc463190b6c7b06d20c9d
+      internalID: 1451787081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_19
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 4458
+        width: 23
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff3426dbd01c8492a996bd97f5e3555d
+      internalID: 495166355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_20
+      rect:
+        serializedVersion: 2
+        x: 755
+        y: 3358
+        width: 847
+        height: 996
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fc99e8c26b2404d81936cb9551b6e8a0
+      internalID: 761216949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_28
+      rect:
+        serializedVersion: 2
+        x: 9939
+        y: 3369
+        width: 766
+        height: 1000
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 548c5534171a2433c97e8b157595f9dd
+      internalID: -19755669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_29
+      rect:
+        serializedVersion: 2
+        x: 3134
+        y: 3364
+        width: 795
+        height: 1011
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4116c65fa7eb847e68b77b1fd1fa0fcc
+      internalID: 1269872253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_30
+      rect:
+        serializedVersion: 2
+        x: 5481
+        y: 3364
+        width: 700
+        height: 977
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7b9b75c06fdd4527909f70d401f31de
+      internalID: 1164798849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_31
+      rect:
+        serializedVersion: 2
+        x: 6292
+        y: 3640
+        width: 11
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f54f97b7fbe9c4da0aca497057212b74
+      internalID: -1060718887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_32
+      rect:
+        serializedVersion: 2
+        x: 7644
+        y: 3369
+        width: 693
+        height: 992
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f4503331d17147e38a2daf0426e30c7
+      internalID: -1539283942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_36
+      rect:
+        serializedVersion: 2
+        x: 2783
+        y: 2281
+        width: 853
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d66de81f49cf044f18abb9d691c45681
+      internalID: -1052597119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_37
+      rect:
+        serializedVersion: 2
+        x: 5139
+        y: 2281
+        width: 859
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ed97b6182f3d43679db35eb27ab1bc7
+      internalID: -1768286584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_38
+      rect:
+        serializedVersion: 2
+        x: 7502
+        y: 2281
+        width: 852
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: da7f012dbc95b4dc89065bf20c3a1cf2
+      internalID: -819759654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_39
+      rect:
+        serializedVersion: 2
+        x: 9858
+        y: 2281
+        width: 865
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f214a28c19044048aea79b3eeb3c329
+      internalID: 1594408834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_41
+      rect:
+        serializedVersion: 2
+        x: 645
+        y: 2275
+        width: 614
+        height: 942
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0918f7e031a294c589fee79d8598d413
+      internalID: 383459243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_42
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 1186
+        width: 858
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f8a4fb802654465eaa63c6fdd192293
+      internalID: -888317124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SS_Transformation_43
+      rect:
+        serializedVersion: 2
+        x: 2777
+        y: 1186
+        width: 864
+        height: 720
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e2a020329ee74845869cafaf541cb24
+      internalID: -60000932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 258fead9fba15450a82068cb28022b86
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      SS_Transformation_0: -1224701321
+      SS_Transformation_1: 2072122196
+      SS_Transformation_10: 1692593258
+      SS_Transformation_11: 2052491644
+      SS_Transformation_12: 72427885
+      SS_Transformation_13: 841778076
+      SS_Transformation_14: 1937728553
+      SS_Transformation_15: 1995415405
+      SS_Transformation_16: 1845655969
+      SS_Transformation_17: 1343404816
+      SS_Transformation_18: 1451787081
+      SS_Transformation_19: 495166355
+      SS_Transformation_2: 1677670165
+      SS_Transformation_20: 761216949
+      SS_Transformation_21: -766616600
+      SS_Transformation_22: 938134419
+      SS_Transformation_23: 1325655433
+      SS_Transformation_24: -245833885
+      SS_Transformation_25: 1126443882
+      SS_Transformation_26: 1672802073
+      SS_Transformation_27: 1886765154
+      SS_Transformation_28: -19755669
+      SS_Transformation_29: 1269872253
+      SS_Transformation_3: 371796764
+      SS_Transformation_30: 1164798849
+      SS_Transformation_31: -1060718887
+      SS_Transformation_32: -1539283942
+      SS_Transformation_33: 615436859
+      SS_Transformation_34: 596791502
+      SS_Transformation_35: 628198177
+      SS_Transformation_36: -1052597119
+      SS_Transformation_37: -1768286584
+      SS_Transformation_38: -819759654
+      SS_Transformation_39: 1594408834
+      SS_Transformation_4: -1871207749
+      SS_Transformation_40: 303649903
+      SS_Transformation_41: 383459243
+      SS_Transformation_42: -888317124
+      SS_Transformation_43: -60000932
+      SS_Transformation_5: -1455851919
+      SS_Transformation_6: 1748515922
+      SS_Transformation_7: -938464947
+      SS_Transformation_8: -298460555
+      SS_Transformation_9: 1903600890
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

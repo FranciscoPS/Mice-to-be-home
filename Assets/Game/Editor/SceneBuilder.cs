@@ -271,6 +271,11 @@ namespace MiceToBeHome.EditorTools
             capsule.center = new Vector3(0f, 0.5f, 0f);
 
             AddBillboard(template.transform, "Visual", artwork, tint, true, visualSize);
+            GameObject visual = template.transform.Find("Visual").gameObject;
+            var animator = visual.AddComponent<SpriteAnimator>();
+            animator.EditorSeedClips(isCat
+                ? new[] { CharacterAnim.Idle, CharacterAnim.Run }
+                : new[] { CharacterAnim.Idle, CharacterAnim.Run, CharacterAnim.Transform });
 
             if (isCat)
             {

@@ -14,8 +14,10 @@ namespace MiceToBeHome
 
         private Rigidbody body;
         private SpriteRenderer visual;
+        private SpriteAnimator animator;
         private BalanceSettings balance;
         private bool active;
+        private bool transforming;
         private float invincibleTimer;
         private float knockbackTimer;
         private Vector3 knockbackVelocity;
@@ -24,7 +26,37 @@ namespace MiceToBeHome
         {
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
+            animator = GetComponentInChildren<SpriteAnimator>();
             ActorPhysics.ApplyTo(GetComponent<Collider>());
+        }
+
+        /// <summary>Plays the girl -> mouse transform clip in place, then invokes <paramref name="onDone"/>.</summary>
+        public void BeginIntro(Action onDone)
+        {
+            transforming = true;
+            active = false;
+            invincibleTimer = 0f;
+            knockbackTimer = 0f;
+            if (body != null)
+            {
+                body.linearVelocity = Vector3.zero;
+            }
+            SetAlpha(1f);
+
+            if (animator != null && animator.Has(CharacterAnim.Transform))
+            {
+                animator.Play(CharacterAnim.Transform, () => EndIntro(onDone));
+            }
+            else
+            {
+                EndIntro(onDone);
+            }
+        }
+
+        private void EndIntro(Action onDone)
+        {
+            transforming = false;
+            onDone?.Invoke();
         }
 
         public void Initialize(BalanceSettings settings)
@@ -78,6 +110,17 @@ namespace MiceToBeHome
 
         private void Update()
         {
+            if (transforming)
+            {
+                Keyboard keyboard = Keyboard.current;
+                if (animator != null && keyboard != null &&
+                    (keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame))
+                {
+                    animator.Complete();
+                }
+                return;
+            }
+
             if (invincibleTimer > 0f)
             {
                 invincibleTimer -= Time.deltaTime;
@@ -100,6 +143,7 @@ namespace MiceToBeHome
             {
                 knockbackTimer -= Time.fixedDeltaTime;
                 body.linearVelocity = knockbackVelocity;
+                UpdateLocomotion(knockbackVelocity);
                 return;
             }
 
@@ -107,6 +151,16 @@ namespace MiceToBeHome
             body.linearVelocity = move * balance.mouseSpeed;
 
             RepairTrapsUnderfoot();
+            UpdateLocomotion(body.linearVelocity);
+        }
+
+        private void UpdateLocomotion(Vector3 velocity)
+        {
+            if (animator == null)
+            {
+                return;
+            }
+            animator.Play(velocity.sqrMagnitude > 0.04f ? CharacterAnim.Run : CharacterAnim.Idle);
         }
 
         private void RepairTrapsUnderfoot()

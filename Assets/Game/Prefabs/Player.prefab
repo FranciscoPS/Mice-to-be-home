@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8546143596992998791
+--- !u!1 &2178191290254393283
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,10 +8,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8919212529403497401}
-  - component: {fileID: 4463348786066440510}
-  - component: {fileID: 8532892242637698046}
-  - component: {fileID: 2332672052261279067}
+  - component: {fileID: 5045249417737295702}
+  - component: {fileID: 2190563287496756700}
+  - component: {fileID: 6178279887292106196}
+  - component: {fileID: 8771504842396461224}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -19,29 +19,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8919212529403497401
+--- !u!4 &5045249417737295702
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8546143596992998791}
+  m_GameObject: {fileID: 2178191290254393283}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7737568875764147423}
+  - {fileID: 6932892234708213191}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &4463348786066440510
+--- !u!54 &2190563287496756700
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8546143596992998791}
+  m_GameObject: {fileID: 2178191290254393283}
   serializedVersion: 5
   m_Mass: 1
   m_LinearDamping: 0
@@ -62,13 +62,13 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 116
   m_CollisionDetection: 2
---- !u!136 &8532892242637698046
+--- !u!136 &6178279887292106196
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8546143596992998791}
+  m_GameObject: {fileID: 2178191290254393283}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -85,19 +85,19 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
---- !u!114 &2332672052261279067
+--- !u!114 &8771504842396461224
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8546143596992998791}
+  m_GameObject: {fileID: 2178191290254393283}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64d7fda9f5ed1419eb50e664e4b10f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.MousePlayerController
---- !u!1 &9055175511300520622
+--- !u!1 &9001327689978203067
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -105,9 +105,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7737568875764147423}
-  - component: {fileID: 513138340724762013}
-  - component: {fileID: 5109222710407410275}
+  - component: {fileID: 6932892234708213191}
+  - component: {fileID: 5082523218147729545}
+  - component: {fileID: 1160490951572530558}
+  - component: {fileID: 3926412097974734830}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -115,29 +116,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7737568875764147423
+--- !u!4 &6932892234708213191
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9055175511300520622}
+  m_GameObject: {fileID: 9001327689978203067}
   serializedVersion: 2
   m_LocalRotation: {x: 0.46174863, y: 0, z: 0, w: 0.8870109}
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
-  m_LocalScale: {x: 0.26, y: 0.26, z: 0.26}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 8919212529403497401}
+  m_Father: {fileID: 5045249417737295702}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &513138340724762013
+--- !u!212 &5082523218147729545
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9055175511300520622}
+  m_GameObject: {fileID: 9001327689978203067}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -179,26 +180,77 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 5d4bb7830fe2a41ddb27a32f35af2879, type: 3}
+  m_Sprite: {fileID: 1644651256, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 5.25, y: 3.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &5109222710407410275
+--- !u!114 &1160490951572530558
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9055175511300520622}
+  m_GameObject: {fileID: 9001327689978203067}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a7bb8323e0c843878b79b60e9f6017e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.Billboard
   sortingScale: 100
+--- !u!114 &3926412097974734830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9001327689978203067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9c2ac1a8e38b4c6eb58cefe049fb261, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.SpriteAnimator
+  clips:
+  - state: 0
+    frames: []
+    framesPerSecond: 10
+    loop: 1
+  - state: 1
+    frames: []
+    framesPerSecond: 15
+    loop: 1
+  - state: 2
+    frames:
+    - {fileID: 1644651256, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -1312832270, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -2074505073, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 1003552102, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 1523834305, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 1377887041, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -1355206884, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 917509252, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 289992214, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 777759516, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -280169916, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -1703948945, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 855188561, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 2102475502, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 1471619544, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -420578525, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -307201610, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -1423721259, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -733779900, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -1914385930, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -341511728, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -522285615, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -1358661545, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 869244987, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: -664765943, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    - {fileID: 795288242, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+    framesPerSecond: 8
+    loop: 0

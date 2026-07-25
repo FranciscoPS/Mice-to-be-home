@@ -1,0 +1,740 @@
+fileFormatVersion: 2
+guid: 8cb4f9aed21bc4e0891c48212bb68382
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 300
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: AnimacionTransformacion_0
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 585
+        width: 512
+        height: 920
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e26d6392a3192467395b78cbb5abb95d
+      internalID: 1644651256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_1
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 555
+        width: 505
+        height: 899
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 77c1ededa4ee24fd4a6472857acd25ba
+      internalID: -1312832270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_2
+      rect:
+        serializedVersion: 2
+        x: 1618
+        y: 519
+        width: 513
+        height: 899
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5a6df14748314f0bad8e6761e3c767a
+      internalID: -2074505073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_3
+      rect:
+        serializedVersion: 2
+        x: 2395
+        y: 446
+        width: 578
+        height: 899
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12c8dffe323fb4c4ab708d09afd710e8
+      internalID: 1003552102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_4
+      rect:
+        serializedVersion: 2
+        x: 3039
+        y: 373
+        width: 637
+        height: 906
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9deb565415822408eabae7ce3a8d84ce
+      internalID: 1523834305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_5
+      rect:
+        serializedVersion: 2
+        x: 3676
+        y: 322
+        width: 718
+        height: 906
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97564576ffdc4498086a60d0ba273149
+      internalID: 1377887041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_6
+      rect:
+        serializedVersion: 2
+        x: 4321
+        y: 270
+        width: 703
+        height: 906
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a86281fe62c7c4db59ba366b1d716f91
+      internalID: -1355206884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_7
+      rect:
+        serializedVersion: 2
+        x: 5668
+        y: 227
+        width: 396
+        height: 453
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3185fe5f34ee14882ad0d39bac73fd55
+      internalID: 917509252
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_8
+      rect:
+        serializedVersion: 2
+        x: 6342
+        y: 227
+        width: 439
+        height: 460
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bc798ddfa0b164bf296f5a761646ed18
+      internalID: 289992214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_9
+      rect:
+        serializedVersion: 2
+        x: 7016
+        y: 227
+        width: 461
+        height: 540
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 29a75bd2af672435ab7ce2b2efb59ec6
+      internalID: 777759516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_10
+      rect:
+        serializedVersion: 2
+        x: 7697
+        y: 219
+        width: 373
+        height: 475
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4dcf696526a549428ade8e24223884d
+      internalID: -280169916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_14
+      rect:
+        serializedVersion: 2
+        x: 5016
+        y: 227
+        width: 418
+        height: 394
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4b6cdac3a0a494b6e9ba224c74e499e1
+      internalID: -1703948945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_20
+      rect:
+        serializedVersion: 2
+        x: 6115
+        y: 497
+        width: 7
+        height: 7
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6f41588324f684215bf6ae004bea1dd3
+      internalID: 855188561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_21
+      rect:
+        serializedVersion: 2
+        x: 8348
+        y: 227
+        width: 359
+        height: 497
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0eac9bfd9ce848318c873f88be154c6
+      internalID: 2102475502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_22
+      rect:
+        serializedVersion: 2
+        x: 9044
+        y: 227
+        width: 315
+        height: 497
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03517452e86aa452ba6b7bed1ba13aea
+      internalID: 1471619544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_23
+      rect:
+        serializedVersion: 2
+        x: 9723
+        y: 227
+        width: 322
+        height: 433
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d85e19a0d487b479e9ce0c0b1a854944
+      internalID: -420578525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_24
+      rect:
+        serializedVersion: 2
+        x: 10392
+        y: 227
+        width: 315
+        height: 503
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 80d2f15dd9d25420d9fefcb0aca0b133
+      internalID: -307201610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_25
+      rect:
+        serializedVersion: 2
+        x: 11073
+        y: 227
+        width: 315
+        height: 263
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 66211b63a4a0f421e8237fae7057d744
+      internalID: -1423721259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_26
+      rect:
+        serializedVersion: 2
+        x: 11746
+        y: 227
+        width: 315
+        height: 263
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b10bde7360e434bee9a94baeb9ebd9a7
+      internalID: -733779900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_27
+      rect:
+        serializedVersion: 2
+        x: 12420
+        y: 227
+        width: 315
+        height: 263
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26ad6819a047f4aaaac90a0b422a65c7
+      internalID: -1914385930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_28
+      rect:
+        serializedVersion: 2
+        x: 13094
+        y: 227
+        width: 322
+        height: 263
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f46fc88c5c6e2450b943968f14fd3263
+      internalID: -341511728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_29
+      rect:
+        serializedVersion: 2
+        x: 13768
+        y: 227
+        width: 315
+        height: 263
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c191923c557c42078389a02db772990
+      internalID: -522285615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_30
+      rect:
+        serializedVersion: 2
+        x: 14449
+        y: 227
+        width: 315
+        height: 263
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49bf5eb0366964dcdbc712649931e5f3
+      internalID: -1358661545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_31
+      rect:
+        serializedVersion: 2
+        x: 2299
+        y: 153
+        width: 30
+        height: 8
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 814b14db692574286a83bb97b81d4c2c
+      internalID: 869244987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_32
+      rect:
+        serializedVersion: 2
+        x: 2981
+        y: 80
+        width: 22
+        height: 15
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f199b183ced4c4cf1a230e393a89632d
+      internalID: -664765943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AnimacionTransformacion_33
+      rect:
+        serializedVersion: 2
+        x: 3647
+        y: 29
+        width: 29
+        height: 15
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03768927985474b3f811ee4501c1ae8b
+      internalID: 795288242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 6ba3340512e9e4443b015fc9fe0abb2a
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceOnImport
+        value: False
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":690.0,"y":1593.0},"gridSpriteOffset":{"x":251.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      AnimacionTransformacion_0: 1644651256
+      AnimacionTransformacion_1: -1312832270
+      AnimacionTransformacion_10: -280169916
+      AnimacionTransformacion_11: -1426277866
+      AnimacionTransformacion_12: 9068676
+      AnimacionTransformacion_13: -72025334
+      AnimacionTransformacion_14: -1703948945
+      AnimacionTransformacion_15: -1471125546
+      AnimacionTransformacion_16: 1689841879
+      AnimacionTransformacion_17: -1866292163
+      AnimacionTransformacion_18: 1015256146
+      AnimacionTransformacion_19: 495246955
+      AnimacionTransformacion_2: -2074505073
+      AnimacionTransformacion_20: 855188561
+      AnimacionTransformacion_21: 2102475502
+      AnimacionTransformacion_22: 1471619544
+      AnimacionTransformacion_23: -420578525
+      AnimacionTransformacion_24: -307201610
+      AnimacionTransformacion_25: -1423721259
+      AnimacionTransformacion_26: -733779900
+      AnimacionTransformacion_27: -1914385930
+      AnimacionTransformacion_28: -341511728
+      AnimacionTransformacion_29: -522285615
+      AnimacionTransformacion_3: 1003552102
+      AnimacionTransformacion_30: -1358661545
+      AnimacionTransformacion_31: 869244987
+      AnimacionTransformacion_32: -664765943
+      AnimacionTransformacion_33: 795288242
+      AnimacionTransformacion_4: 1523834305
+      AnimacionTransformacion_5: 1377887041
+      AnimacionTransformacion_6: -1355206884
+      AnimacionTransformacion_7: 917509252
+      AnimacionTransformacion_8: 289992214
+      AnimacionTransformacion_9: 777759516
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

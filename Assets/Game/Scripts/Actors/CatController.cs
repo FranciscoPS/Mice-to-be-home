@@ -19,6 +19,7 @@ namespace MiceToBeHome
         private BalanceSettings balance;
         private AudioManager audioManager;
         private GridSystem grid;
+        private SpriteAnimator animator;
 
         private readonly List<Vector2Int> path = new List<Vector2Int>();
         private Vector2Int cachedGoal = new Vector2Int(int.MinValue, int.MinValue);
@@ -49,6 +50,7 @@ namespace MiceToBeHome
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
+            animator = GetComponentInChildren<SpriteAnimator>();
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -116,6 +118,18 @@ namespace MiceToBeHome
                     Chase();
                     break;
             }
+
+            UpdateLocomotion();
+        }
+
+        private void UpdateLocomotion()
+        {
+            if (animator == null)
+            {
+                return;
+            }
+            Vector3 velocity = body != null ? body.linearVelocity : Vector3.zero;
+            animator.Play(velocity.sqrMagnitude > 0.04f ? CharacterAnim.Run : CharacterAnim.Idle);
         }
 
         private void Chase()
