@@ -108,7 +108,6 @@ GameObject:
   - component: {fileID: 6218699172517640771}
   - component: {fileID: 3836587354716456939}
   - component: {fileID: 531384855482144511}
-  - component: {fileID: 3003575848604359827}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -203,24 +202,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.Billboard
   sortingScale: 100
---- !u!114 &3003575848604359827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8460241767743740680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9c2ac1a8e38b4c6eb58cefe049fb261, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.SpriteAnimator
-  clips:
-  - state: 0
-    frames: []
-    framesPerSecond: 10
-    loop: 1
-  - state: 1
-    frames: []
-    framesPerSecond: 10
-    loop: 1
