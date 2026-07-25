@@ -160,6 +160,7 @@ namespace MiceToBeHome
             {
                 return;
             }
+            animator.FaceHorizontal(velocity.x);
             animator.Play(velocity.sqrMagnitude > 0.04f ? CharacterAnim.Run : CharacterAnim.Idle);
         }
 

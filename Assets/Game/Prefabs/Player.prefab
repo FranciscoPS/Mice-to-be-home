@@ -180,7 +180,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1644651256, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
+  m_Sprite: {fileID: -1437725401, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -188,7 +188,7 @@ SpriteRenderer:
   m_Size: {x: 5.25, y: 3.5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1160490951572530558
 MonoBehaviour:
@@ -217,11 +217,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.SpriteAnimator
   clips:
   - state: 0
-    frames: []
+    frames:
+    - {fileID: -1437725401, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 405739936, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 553599891, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: -2104940023, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 912689705, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 1330167131, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 1418029256, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: -1981448310, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: -1299902702, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 616494197, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 733948150, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 1351790731, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 2098338969, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 371169024, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: -1904337952, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
+    - {fileID: 1711001026, guid: 605d92ddfdbce4f6f832b6c80c1c7269, type: 3}
     framesPerSecond: 10
     loop: 1
   - state: 1
-    frames: []
+    frames:
+    - {fileID: -258428411, guid: 3d0900853af2b4f2ea87d9560bf0b7f4, type: 3}
+    - {fileID: -134122851, guid: 3d0900853af2b4f2ea87d9560bf0b7f4, type: 3}
+    - {fileID: -120819160, guid: 3d0900853af2b4f2ea87d9560bf0b7f4, type: 3}
+    - {fileID: 1551454319, guid: 3d0900853af2b4f2ea87d9560bf0b7f4, type: 3}
     framesPerSecond: 15
     loop: 1
   - state: 2
@@ -254,3 +274,5 @@ MonoBehaviour:
     - {fileID: 795288242, guid: 8cb4f9aed21bc4e0891c48212bb68382, type: 3}
     framesPerSecond: 8
     loop: 0
+  flipToFaceDirection: 1
+  artFacesLeft: 0

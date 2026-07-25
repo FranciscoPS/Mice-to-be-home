@@ -36,6 +36,14 @@ namespace MiceToBeHome
         [Tooltip("One entry per animation state. Drag the sliced frames into each clip.")]
         [SerializeField] private Clip[] clips = new Clip[0];
 
+        [Tooltip("Flip horizontally to face the movement direction. Idle keeps the last facing.")]
+        [SerializeField] private bool flipToFaceDirection = true;
+
+        [Tooltip("Enable if the artwork is drawn facing LEFT by default.")]
+        [SerializeField] private bool artFacesLeft = false;
+
+        private const float FacingDeadzone = 0.05f;
+
         private SpriteRenderer spriteRenderer;
         private Clip current;
         private int frameIndex;
@@ -104,6 +112,27 @@ namespace MiceToBeHome
             }
             playing = false;
             InvokeComplete();
+        }
+
+        /// <summary>
+        /// Mirrors the sprite to face horizontal movement. Values inside the deadzone keep the
+        /// current facing, so Idle stays pointed the last way the character moved.
+        /// </summary>
+        public void FaceHorizontal(float directionX)
+        {
+            if (!flipToFaceDirection || spriteRenderer == null)
+            {
+                return;
+            }
+
+            if (directionX > FacingDeadzone)
+            {
+                spriteRenderer.flipX = artFacesLeft;
+            }
+            else if (directionX < -FacingDeadzone)
+            {
+                spriteRenderer.flipX = !artFacesLeft;
+            }
         }
 
         private void Update()

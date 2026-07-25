@@ -129,6 +129,7 @@ namespace MiceToBeHome
                 return;
             }
             Vector3 velocity = body != null ? body.linearVelocity : Vector3.zero;
+            animator.FaceHorizontal(velocity.x);
             animator.Play(velocity.sqrMagnitude > 0.04f ? CharacterAnim.Run : CharacterAnim.Idle);
         }
 
