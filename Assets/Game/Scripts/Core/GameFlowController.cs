@@ -149,17 +149,10 @@ namespace MiceToBeHome
             Vector3 catStart = center + new Vector3(balance.catStartDistance, 0f, 0f);
             cat.gameObject.SetActive(true);
             cat.ResetForChase(catStart);
-            cat.SetActive(false);
 
             cameraController.Follow(player.transform);
             audioManager.PlayChaseMusic();
 
-            // The player transforms in place; the cat waits frozen until the animation finishes.
-            player.BeginIntro(BeginSurvival);
-        }
-
-        private void BeginSurvival()
-        {
             player.SetActive(true);
             cat.SetActive(true);
             surviveCountdown.Begin(balance.surviveSeconds);
