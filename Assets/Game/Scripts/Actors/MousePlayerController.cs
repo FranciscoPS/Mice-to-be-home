@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -23,6 +24,7 @@ namespace MiceToBeHome
         private Vector3 knockbackVelocity;
         private float lastDirectionX = 1f;
         private bool hitReactionActive;
+        private CinemachineImpulseSource impulseSource;
 
         private void Awake()
         {
@@ -30,6 +32,16 @@ namespace MiceToBeHome
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
             ActorPhysics.ApplyTo(GetComponent<Collider>());
+
+            impulseSource = GetComponent<CinemachineImpulseSource>();
+            if (impulseSource == null)
+            {
+                impulseSource = gameObject.AddComponent<CinemachineImpulseSource>();
+                impulseSource.ImpulseDefinition.ImpulseDuration = 0.35f;
+                impulseSource.ImpulseDefinition.ImpulseShape = CinemachineImpulseDefinition.ImpulseShapes.Bump;
+            }
+            // Keep the shake in real time so the hit slow-motion doesn't stretch it out.
+            CinemachineImpulseManager.Instance.IgnoreTimeScale = true;
         }
 
         public void Initialize(BalanceSettings settings)
@@ -77,19 +89,30 @@ namespace MiceToBeHome
 
             knockbackVelocity = away.normalized * balance.mouseKnockback;
             knockbackTimer = 0.25f;
+            ShakeCamera(away.normalized);
             Hit?.Invoke();
             TriggerHitReaction();
             return true;
         }
 
+        private void ShakeCamera(Vector3 direction)
+        {
+            if (impulseSource == null || balance == null || balance.hitShakeForce <= 0f)
+            {
+                return;
+            }
+            impulseSource.GenerateImpulseWithVelocity(direction * balance.hitShakeForce);
+        }
+
         private void TriggerHitReaction()
         {
-            if (!isActiveAndEnabled || balance == null)
+            if (!active || !isActiveAndEnabled || balance == null)
             {
                 return;
             }
 
-            // Skip the slow-mo on the killing blow (game already freezes) or outside play.
+            // No hit-stop outside active play (e.g. the killing blow freezes the player and
+            // plays its own dramatic defeat slow-mo instead).
             if (GameManager.Instance != null && GameManager.Instance.State != GameState.Playing)
             {
                 return;

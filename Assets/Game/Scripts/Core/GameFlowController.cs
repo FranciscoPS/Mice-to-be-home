@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,6 +18,7 @@ namespace MiceToBeHome
         private CameraController cameraController;
         private BalanceSettings balance;
         private AudioManager audioManager;
+        private bool losing;
 
         private readonly Countdown editCountdown = new Countdown();
         private readonly Countdown surviveCountdown = new Countdown();
@@ -124,6 +126,7 @@ namespace MiceToBeHome
         {
             placement.ResetLevel();
             lives.ResetLives();
+            losing = false;
 
             player.gameObject.SetActive(false);
             cat.gameObject.SetActive(false);
@@ -170,6 +173,48 @@ namespace MiceToBeHome
 
         private void HandleSurviveFinished() => GameManager.Instance.Win();
 
-        private void HandleLivesDepleted() => GameManager.Instance.Lose();
+        private void HandleLivesDepleted()
+        {
+            if (losing)
+            {
+                return;
+            }
+            losing = true;
+            StartCoroutine(LoseSequence());
+        }
+
+        private IEnumerator LoseSequence()
+        {
+            // Hold the "caught" tableau (stops movement and any further hits).
+            FreezeActors();
+
+            // Dramatic zoom onto the player (Cinemachine blends CM_LoseZoom in).
+            if (cameraController != null)
+            {
+                cameraController.PlayLoseZoom(player.transform);
+            }
+
+            // Ease time down to a near-stop, Yu-Gi-Oh style. The cubic ease keeps time high
+            // early so the camera blend can play, then plunges into slow motion.
+            float duration = Mathf.Max(0.1f, balance.loseSlowDuration);
+            float minScale = Mathf.Clamp01(balance.loseSlowMinScale);
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                float k = Mathf.Clamp01(t / duration);
+                Time.timeScale = Mathf.Lerp(1f, minScale, k * k * k);
+                yield return null;
+            }
+            Time.timeScale = minScale;
+
+            if (balance.loseHoldSeconds > 0f)
+            {
+                yield return new WaitForSecondsRealtime(balance.loseHoldSeconds);
+            }
+
+            // Trigger the real defeat: GameManager sets timeScale = 0 and shows the defeat screen.
+            GameManager.Instance.Lose();
+        }
     }
 }

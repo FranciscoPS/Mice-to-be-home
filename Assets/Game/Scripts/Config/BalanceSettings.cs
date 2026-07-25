@@ -41,10 +41,20 @@ namespace MiceToBeHome
         [Min(0.5f)] public float catStartDistance = 4.5f;
 
         [Header("Hit feedback")]
-        [Tooltip("Time scale during a hit (1 = normal, lower = slower). The run frame freezes while the world slows.")]
-        [Range(0.01f, 1f)] public float hitSlowScale = 0.15f;
+        [Tooltip("Time scale during a hit (1 = normal, lower = slower / more frozen).")]
+        [Range(0.01f, 1f)] public float hitSlowScale = 0.06f;
         [Tooltip("Real-time seconds the slow-motion lasts on each hit. 0 disables it.")]
-        [Min(0f)] public float hitSlowDuration = 0.15f;
+        [Min(0f)] public float hitSlowDuration = 0.25f;
+        [Tooltip("Camera shake strength when the cat hits you (Cinemachine impulse velocity). 0 disables it.")]
+        [Min(0f)] public float hitShakeForce = 1.5f;
+
+        [Header("Defeat feedback")]
+        [Tooltip("How slow time gets at the climax of a loss (1 = normal, lower = closer to frozen).")]
+        [Range(0.01f, 1f)] public float loseSlowMinScale = 0.05f;
+        [Tooltip("Real-time seconds spent easing time down to the minimum on a loss.")]
+        [Min(0.1f)] public float loseSlowDuration = 1.4f;
+        [Tooltip("Real-time seconds to hold at the slowest point before the defeat screen.")]
+        [Min(0f)] public float loseHoldSeconds = 0.35f;
 
         [Header("Traps")]
         [Min(1)] public int maxTraps = 5;

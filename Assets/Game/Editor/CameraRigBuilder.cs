@@ -155,6 +155,11 @@ namespace MiceToBeHome.EditorTools
                 Object.DestroyImmediate(body);
             }
 
+            if (go.GetComponent<CinemachineImpulseListener>() == null)
+            {
+                go.AddComponent<CinemachineImpulseListener>();
+            }
+
             return vcam;
         }
 
