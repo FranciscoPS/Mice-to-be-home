@@ -12,6 +12,7 @@ namespace MiceToBeHome
         private bool[] furniture;
         private bool[] occupied;
         private Vector3 cornerOrigin;
+        private GameObject cellsRoot;
 
         public Vector3 Center => transform.position;
         public Vector2 WorldSize => new Vector2(Columns * CellSize, Rows * CellSize);
@@ -28,6 +29,24 @@ namespace MiceToBeHome
             cornerOrigin = transform.position - new Vector3(Columns * CellSize * 0.5f, 0f, Rows * CellSize * 0.5f);
 
             MarkFurnitureFromLayout(balance);
+        }
+
+        // Shows/hides the "Cells" edit-guide overlay (a child built by SceneBuilder). Visible
+        // while editing to place traps; hidden during play so only the floor shows.
+        public void SetGridVisible(bool visible)
+        {
+            if (cellsRoot == null)
+            {
+                Transform found = transform.Find("Cells");
+                if (found != null)
+                {
+                    cellsRoot = found.gameObject;
+                }
+            }
+            if (cellsRoot != null)
+            {
+                cellsRoot.SetActive(visible);
+            }
         }
 
         // Furniture blocks a cell whenever the layout has anything other than empty ('.') there.

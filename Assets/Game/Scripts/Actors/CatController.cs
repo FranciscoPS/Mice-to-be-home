@@ -38,12 +38,7 @@ namespace MiceToBeHome
         private Vector3 unstickVelocity;
         private float lastDirectionX = 1f;
         private float footstepTimer;
-
-        [SerializeField] private bool debugLogs = true;
-        private float debugTimer;
-        private bool dbgHadLos;
-        private int dbgPathCount;
-        private Vector2Int dbgNextCell;
+        private float playerOnFurnitureTimer;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -182,6 +177,8 @@ namespace MiceToBeHome
 
         private void Chase()
         {
+            UpdatePlayerFurnitureDwell();
+
             if (TryStun())
             {
                 return;
@@ -194,7 +191,6 @@ namespace MiceToBeHome
                 unstickTimer -= Time.fixedDeltaTime;
                 body.linearVelocity = unstickVelocity;
                 TrackProgress();
-                LogSnapshot("UNSTICK");
                 TryCatch();
                 return;
             }
@@ -226,7 +222,6 @@ namespace MiceToBeHome
                 lastPosition = body.position;
             }
 
-            LogSnapshot("STEER");
             TryCatch();
         }
 
@@ -282,13 +277,6 @@ namespace MiceToBeHome
 
             unstickVelocity = (perpendicular * 0.8f + toPlayer * 0.2f).normalized * currentSpeed;
 
-            if (debugLogs)
-            {
-                Vector2Int cCell = grid != null ? grid.WorldToCell(body.position) : default;
-                Vector2Int pCell = grid != null ? grid.WorldToCell(player.Position) : default;
-                Debug.Log($"[CatDbg] UNSTICK-begin cat={cCell} plr={pCell} pathCount={path.Count} side={side:0.00} dir=({unstickVelocity.x:0.00},{unstickVelocity.z:0.00})");
-            }
-
             repathTimer = 0f;
             path.Clear();
             hasCachedGoal = false;
@@ -309,23 +297,15 @@ namespace MiceToBeHome
             if (!grid.IsWalkable(catCell))
             {
                 path.Clear();
-                dbgHadLos = false;
-                dbgPathCount = 0;
-                Vector2Int escapeCell = NearestWalkable(catCell);
-                dbgNextCell = escapeCell;
-                return grid.CellToWorld(escapeCell);
+                return grid.CellToWorld(NearestWalkable(catCell));
             }
 
             if (catCell == playerCell || grid.HasLineOfSight(catCell, playerCell))
             {
                 path.Clear();
-                dbgHadLos = true;
-                dbgPathCount = 0;
-                dbgNextCell = playerCell;
                 return player.Position;
             }
 
-            dbgHadLos = false;
             Vector2Int goalCell = grid.IsWalkable(playerCell) ? playerCell : NearestWalkable(playerCell);
 
             while (path.Count > 0 && path[0] == catCell)
@@ -348,8 +328,7 @@ namespace MiceToBeHome
 
             if (needsRepath)
             {
-                bool found = GridPathfinder.TryFindPath(grid, catCell, goalCell, path);
-                if (found)
+                if (GridPathfinder.TryFindPath(grid, catCell, goalCell, path))
                 {
                     while (path.Count > 0 && path[0] == catCell)
                     {
@@ -359,14 +338,8 @@ namespace MiceToBeHome
                 cachedGoal = goalCell;
                 hasCachedGoal = true;
                 repathTimer = 1.5f;
-                if (debugLogs)
-                {
-                    Debug.Log($"[CatDbg] REPATH cat={catCell} goal={goalCell} found={found} len={path.Count}");
-                }
             }
 
-            dbgPathCount = path.Count;
-            dbgNextCell = path.Count > 0 ? path[0] : playerCell;
             return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
         }
 
@@ -390,24 +363,6 @@ namespace MiceToBeHome
                 }
             }
             return best;
-        }
-
-        private void LogSnapshot(string mode)
-        {
-            if (!debugLogs)
-            {
-                return;
-            }
-            debugTimer -= Time.fixedDeltaTime;
-            if (debugTimer > 0f)
-            {
-                return;
-            }
-            debugTimer = 0.4f;
-            Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
-            Vector2Int plrCell = grid != null && player != null ? grid.WorldToCell(player.Position) : default;
-            float dist = player != null ? HorizontalDistance(body.position, player.Position) : -1f;
-            Debug.Log($"[CatDbg] {mode} st={state} cat={catCell} plr={plrCell} los={dbgHadLos} path={dbgPathCount} next={dbgNextCell} vel={body.linearVelocity.magnitude:0.00} spd={currentSpeed:0.00} stuck={stuckTimer:0.00} unstick={unstickTimer:0.00} dist={dist:0.00}");
         }
 
         private bool TryStun()
@@ -461,6 +416,18 @@ namespace MiceToBeHome
             return true;
         }
 
+        private void UpdatePlayerFurnitureDwell()
+        {
+            if (grid != null && player != null && !grid.IsWalkable(grid.WorldToCell(player.Position)))
+            {
+                playerOnFurnitureTimer += Time.fixedDeltaTime;
+            }
+            else
+            {
+                playerOnFurnitureTimer = 0f;
+            }
+        }
+
         private void TryCatch()
         {
             if (player.IsInvincible)
@@ -468,7 +435,16 @@ namespace MiceToBeHome
                 return;
             }
 
-            if (HorizontalDistance(body.position, player.Position) <= balance.catchRadius && player.TakeHit(body.position))
+            // The mouse cannot hide by camping ON/behind a furniture piece: once it has been
+            // standing on a blocked cell for a moment (e.g. the thin gap behind the bed where
+            // the cat is physically walled off), the cat pounces across the obstacle.
+            float reach = balance.catchRadius;
+            if (playerOnFurnitureTimer >= 0.4f && grid != null)
+            {
+                reach += grid.CellSize;
+            }
+
+            if (HorizontalDistance(body.position, player.Position) <= reach && player.TakeHit(body.position))
             {
                 currentSpeed = balance.catBaseSpeed;
                 stateTimer = 0.6f;

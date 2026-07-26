@@ -118,6 +118,7 @@ namespace MiceToBeHome
             placement.SetActive(false);
             player.gameObject.SetActive(false);
             cat.gameObject.SetActive(false);
+            grid.SetGridVisible(false);
             cameraController.FrameGrid();
             audioManager.PlayMenuMusic();
         }
@@ -133,6 +134,7 @@ namespace MiceToBeHome
 
             placement.SetActive(true);
             placement.SetTrapsArmed(false);
+            grid.SetGridVisible(true);
             cameraController.FrameGrid();
 
             editCountdown.Begin(balance.editSeconds);
@@ -143,6 +145,7 @@ namespace MiceToBeHome
         {
             placement.SetActive(false);
             placement.SetTrapsArmed(true);
+            grid.SetGridVisible(false);
 
             Vector3 center = grid.Center;
 
