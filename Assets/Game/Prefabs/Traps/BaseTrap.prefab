@@ -390,3 +390,5 @@ MonoBehaviour:
     effectSeconds: 3
     stock: 1
     tint: {r: 1, g: 1, b: 1, a: 1}
+    triggerSound: {fileID: 0}
+  repairAnimationPrefab: {fileID: 0}

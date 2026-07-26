@@ -29,6 +29,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
+      propertyPath: repairAnimationPrefab
+      value: 
+      objectReference: {fileID: 2830240555993577712, guid: 70cc6ffd7d836274d9f147013ea2b204, type: 3}
+    - target: {fileID: 5055476988567656072, guid: 6a7626705c4b644e1b88a7804b41564c, type: 3}
       propertyPath: definition.description
       value: It loves sharpening its claws here.
       objectReference: {fileID: 0}
