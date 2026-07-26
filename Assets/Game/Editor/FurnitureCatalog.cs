@@ -29,12 +29,12 @@ namespace MiceToBeHome.EditorTools
 
         public static readonly FurnitureType[] Types =
         {
-            new FurnitureType { Code = 'C', Name = "Sillon", Width = 1, Sprite = s => s.sillon, Tint = new Color(0.55f, 0.40f, 0.30f) },
+            new FurnitureType { Code = 'C', Name = "Sillon", Width = 2, Sprite = s => s.sillon, Tint = new Color(0.55f, 0.40f, 0.30f) },
             new FurnitureType { Code = 'M', Name = "Maceta", Width = 1, Sprite = s => s.maceta, Tint = new Color(0.35f, 0.60f, 0.35f) },
             new FurnitureType { Code = 'P', Name = "Puff",   Width = 1, Sprite = s => s.puff,   Tint = new Color(0.55f, 0.40f, 0.70f) },
             new FurnitureType { Code = 'T', Name = "Mesita", Width = 1, Sprite = s => s.mesita, Tint = new Color(0.72f, 0.60f, 0.38f) },
             new FurnitureType { Code = 'A', Name = "Cama",   Width = 2, Sprite = s => s.cama,   Tint = new Color(0.40f, 0.52f, 0.78f) },
-            new FurnitureType { Code = 'V', Name = "Tele",   Width = 2, Sprite = s => s.tele,   Tint = new Color(0.32f, 0.32f, 0.36f) },
+            new FurnitureType { Code = 'V', Name = "Tele",   Width = 1, Sprite = s => s.tele,   Tint = new Color(0.32f, 0.32f, 0.36f) },
             new FurnitureType { Code = 'K', Name = "Cocina", Width = 2, Sprite = s => s.cocina, Tint = new Color(0.78f, 0.42f, 0.35f) },
         };
 

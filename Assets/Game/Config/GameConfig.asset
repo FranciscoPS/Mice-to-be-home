@@ -37,12 +37,12 @@ MonoBehaviour:
     gridRows: 6
     cellSize: 2
     furnitureRows:
-    - ...A>...P.
-    - CC........
+    - A>.....P..
     - ..........
+    - C>C>......
     - ........M.
-    - ..C.K>....
-    - T.......V>
+    - .P..M.....
+    - .......M..
     editSeconds: 60
     surviveSeconds: 120
     lives: 3
