@@ -6,7 +6,8 @@ namespace MiceToBeHome
     public enum SpriteShape
     {
         Square,
-        Circle
+        Circle,
+        Cross
     }
 
     public static class PlaceholderFactory
@@ -72,6 +73,13 @@ namespace MiceToBeHome
                         float dist = Mathf.Sqrt((x - center) * (x - center) + (y - center) * (y - center));
                         inside = dist <= radius;
                         edge = dist > radius - 3f && dist <= radius;
+                    }
+                    else if (shape == SpriteShape.Cross)
+                    {
+                        float d = Mathf.Min(Mathf.Abs(x - y), Mathf.Abs(x + y - (TextureSize - 1))) * 0.70710678f;
+                        float half = TextureSize * 0.13f;
+                        inside = d <= half;
+                        edge = inside && d > half - 3f;
                     }
                     else
                     {

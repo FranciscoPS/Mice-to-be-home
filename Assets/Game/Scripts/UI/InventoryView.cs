@@ -13,6 +13,7 @@ namespace MiceToBeHome
             public Button button;
             public CanvasGroup group;
             public TextMeshProUGUI count;
+            public Image highlight;
         }
 
         [SerializeField] private TextMeshProUGUI subtitle = null;
@@ -91,7 +92,28 @@ namespace MiceToBeHome
                 button.onClick.AddListener(() => placement.SelectFromInventory(captured));
             }
 
-            slots.Add(new Slot { prefab = trapPrefab, button = button, group = group, count = count });
+            Image highlight = CreateSelectionHighlight(go.transform);
+
+            slots.Add(new Slot { prefab = trapPrefab, button = button, group = group, count = count, highlight = highlight });
+        }
+
+        // A soft gold overlay behind the icon/text that marks the slot currently being placed.
+        private static Image CreateSelectionHighlight(Transform slotRoot)
+        {
+            var go = new GameObject("SelectedHighlight", typeof(RectTransform), typeof(Image));
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(slotRoot, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            rt.SetAsFirstSibling();
+
+            var image = go.GetComponent<Image>();
+            image.color = new Color(1f, 0.82f, 0.25f, 0.45f);
+            image.raycastTarget = false;
+            image.enabled = false;
+            return image;
         }
 
         private static Image FindImage(Transform root, string childName)
@@ -119,6 +141,7 @@ namespace MiceToBeHome
             }
 
             bool canPlaceMore = placement.PlacedCount < placement.MaxTraps;
+            Trap selectedTrap = placement.SelectedTrap;
             for (int i = 0; i < slots.Count; i++)
             {
                 Slot slot = slots[i];
@@ -136,6 +159,10 @@ namespace MiceToBeHome
                 if (slot.group != null)
                 {
                     slot.group.alpha = usable ? 1f : 0.45f;
+                }
+                if (slot.highlight != null)
+                {
+                    slot.highlight.enabled = slot.prefab == selectedTrap;
                 }
             }
 

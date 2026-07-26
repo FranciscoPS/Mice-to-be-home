@@ -21,6 +21,10 @@ namespace MiceToBeHome
         private readonly Dictionary<Trap, int> stock = new Dictionary<Trap, int>();
 
         private Trap selected;
+        private Sprite selectedSprite;
+        private Color selectedColor = Color.white;
+        private Vector3 selectedScale = Vector3.one;
+        private float selectedLift;
         private int maxTraps = 5;
         private bool carrying;
         private bool active;
@@ -29,6 +33,7 @@ namespace MiceToBeHome
 
         public int MaxTraps => maxTraps;
         public int PlacedCount => placedTraps.Count;
+        public Trap SelectedTrap => carrying ? selected : null;
         public int GetStock(Trap prefab) => prefab != null && stock.TryGetValue(prefab, out int amount) ? amount : 0;
 
         public void Initialize(GridSystem gridSystem, BalanceSettings balanceSettings, Camera camera, Transform placedParent, AudioManager audioManager, IReadOnlyList<Trap> trapPrefabs)
@@ -84,6 +89,8 @@ namespace MiceToBeHome
 
             selected = trapPrefab;
             carrying = true;
+
+            ReadTrapVisual(trapPrefab, out selectedSprite, out selectedColor, out selectedScale, out selectedLift);
         }
 
         public void SetTrapsArmed(bool armed)
@@ -131,24 +138,26 @@ namespace MiceToBeHome
                 {
                     CancelCarry();
                 }
-                else if (!overUI && TryGetMouseCell(out Vector2Int removeCell)
-                    && cellToTrap.TryGetValue(removeCell, out Trap toRemove) && toRemove != null)
-                {
-                    RemoveTrap(toRemove);
-                }
                 return;
             }
 
             if (!carrying)
             {
-                ghost.Hide();
                 hasHoverCell = false;
-                if (!overUI && leftClick && TryGetMouseCell(out Vector2Int hovered))
+                if (!overUI && TryGetMouseCell(out Vector2Int hovered)
+                    && cellToTrap.TryGetValue(hovered, out Trap existing) && existing != null)
                 {
-                    if (cellToTrap.TryGetValue(hovered, out Trap existing) && existing != null)
+                    ReadTrapVisual(existing, out _, out _, out Vector3 exScale, out float exLift);
+                    ghost.ShowRemoval(hovered, grid, exScale, exLift);
+                    if (leftClick)
                     {
-                        PickUp(existing);
+                        RemoveTrap(existing);
+                        ghost.Hide();
                     }
+                }
+                else
+                {
+                    ghost.Hide();
                 }
                 return;
             }
@@ -164,7 +173,7 @@ namespace MiceToBeHome
             footprintBuffer.Add(origin);
             bool valid = grid.CanPlace(footprintBuffer);
             Vector3 center = grid.FootprintCenter(footprintBuffer);
-            ghost.UpdatePreview(footprintBuffer, center, valid, grid);
+            ghost.ShowPlacement(footprintBuffer, center, valid, grid, selectedSprite, selectedColor, selectedScale, selectedLift);
 
             if ((!hasHoverCell || origin != lastHoverCell) && audioManager != null)
             {
@@ -209,7 +218,7 @@ namespace MiceToBeHome
             }
         }
 
-        private Trap DetachTrap(Trap trap)
+        private void RemoveTrap(Trap trap)
         {
             grid.Release(trap.Cells);
             for (int i = 0; i < trap.Cells.Count; i++)
@@ -225,19 +234,7 @@ namespace MiceToBeHome
             }
 
             Destroy(trap.gameObject);
-            return source;
-        }
 
-        private void PickUp(Trap trap)
-        {
-            Trap source = DetachTrap(trap);
-            selected = source;
-            carrying = source != null;
-        }
-
-        private void RemoveTrap(Trap trap)
-        {
-            DetachTrap(trap);
             if (audioManager != null)
             {
                 audioManager.PlayClick();
@@ -252,6 +249,32 @@ namespace MiceToBeHome
             {
                 ghost.Hide();
             }
+        }
+
+        // Reads a trap's on-screen sprite + world scale + height offset straight from its Visual, so the
+        // ghost matches whatever size the prefab was authored/tweaked to (not a hardcoded cell size).
+        private static void ReadTrapVisual(Trap trap, out Sprite sprite, out Color color, out Vector3 worldScale, out float lift)
+        {
+            sprite = null;
+            color = Color.white;
+            worldScale = Vector3.one;
+            lift = 0f;
+            if (trap == null)
+            {
+                return;
+            }
+
+            SpriteRenderer skin = trap.GetComponentInChildren<SpriteRenderer>();
+            if (skin == null)
+            {
+                color = trap.Definition != null ? trap.Definition.tint : Color.white;
+                return;
+            }
+
+            sprite = skin.sprite;
+            color = skin.color;
+            worldScale = skin.transform.lossyScale;
+            lift = skin.transform.localPosition.y;
         }
 
         private bool TryGetMouseCell(out Vector2Int cell)
