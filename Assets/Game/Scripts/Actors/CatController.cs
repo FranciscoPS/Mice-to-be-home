@@ -45,6 +45,8 @@ namespace MiceToBeHome
         private float footstepTimer;
         private float playerOnFurnitureTimer;
         private float corneredTimer;
+        private float loopTimer;
+        private const float BreakoutLoopDelay = 2f;
         private Vector3 breakoutDir;
         private Vector2Int breakoutPlayerCell;
         private bool breakoutLatched;
@@ -114,6 +116,7 @@ namespace MiceToBeHome
             footstepTimer = 0f;
             playerOnFurnitureTimer = 0f;
             corneredTimer = 0f;
+            loopTimer = 0f;
             if (audioManager != null)
             {
                 audioManager.SetCatPurring(false);
@@ -216,11 +219,24 @@ namespace MiceToBeHome
             float speed = currentSpeed;
             bool inRange = grid != null && HorizontalDistance(body.position, player.Position) <= balance.catchRadius + grid.CellSize;
             bool cornered = blockedSteer && inRange && playerOnFurnitureTimer > 0f;
+
+            // Track how long the cat has been LOOPING in place while cornered; only escalate to the
+            // boosted breakout after a sustained window (BreakoutLoopDelay = 2s). Below that, keep the
+            // ordinary steering so normal play and brief snags are untouched.
             if (cornered)
             {
-                // Cornered against a camping player: commit to a LATCHED direction (no per-frame flip
-                // = no jitter / sprite flicker) and drive ABOVE max speed so the cat decisively presses
-                // through the furniture gap toward the mouse instead of vibrating in place.
+                loopTimer += Time.fixedDeltaTime;
+            }
+            else
+            {
+                loopTimer = 0f;
+            }
+
+            if (cornered && loopTimer >= BreakoutLoopDelay)
+            {
+                // Looping too long: commit to a LATCHED direction (no per-frame flip = no jitter) and
+                // drive ABOVE max speed so the cat decisively presses through the furniture gap toward
+                // the mouse instead of vibrating in place.
                 direction = ResolveBreakoutDirection();
                 speed = balance.catMaxSpeed * Mathf.Max(1f, balance.catBreakoutBoost);
                 debugMode = "breakout";
@@ -361,7 +377,10 @@ namespace MiceToBeHome
                 return player.Position;
             }
 
-            while (path.Count > 0 && path[0] == catCell)
+            // Drop waypoints we've already reached (by cell, OR by getting close enough) so a
+            // corner-cut still advances the route instead of dragging the cat back to a cell center.
+            while (path.Count > 0 && (path[0] == catCell
+                || HorizontalDistance(grid.CellToWorld(path[0]), body.position) <= grid.CellSize * 0.5f))
             {
                 path.RemoveAt(0);
             }
@@ -400,7 +419,25 @@ namespace MiceToBeHome
 
             blockedSteer = path.Count == 0;
             debugMode = path.Count > 0 ? "path" : "pathEmpty";
-            return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
+            if (path.Count == 0)
+            {
+                return player.Position;
+            }
+
+            // String-pull: steer at the FURTHEST waypoint we can see in a straight line, not the next
+            // cell center. This is how grid/navmesh games avoid the blocky "wide detour" look - the cat
+            // cuts corners tight and crosses open space straight. HasLineOfSight already refuses
+            // diagonal corner-cuts, so the shortcut never clips a furniture piece.
+            int steerIndex = 0;
+            for (int i = path.Count - 1; i > 0; i--)
+            {
+                if (grid.HasLineOfSight(catCell, path[i]))
+                {
+                    steerIndex = i;
+                    break;
+                }
+            }
+            return grid.CellToWorld(path[steerIndex]);
         }
 
         private Vector3 ResolveBreakoutDirection()
@@ -437,7 +474,7 @@ namespace MiceToBeHome
             Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
             Vector2Int playerCell = grid != null ? grid.WorldToCell(player.Position) : default;
             float dist = HorizontalDistance(body.position, player.Position);
-            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} blocked={blockedSteer} vel={body.linearVelocity.magnitude:0.0}");
+            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} loop={loopTimer:0.00} blocked={blockedSteer} vel={body.linearVelocity.magnitude:0.0}");
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)
