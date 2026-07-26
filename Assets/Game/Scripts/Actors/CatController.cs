@@ -21,8 +21,11 @@ namespace MiceToBeHome
         private BalanceSettings balance;
         private AudioManager audioManager;
         private GridSystem grid;
-        private Collider bodyCollider;
-        private Collider playerCollider;
+
+        // TEMP cat-AI diagnostics (2026-07-27). Set false or remove once the behavior is fixed.
+        private bool debugCat = true;
+        private float debugTimer;
+        private string debugMode = "init";
 
         private readonly List<Vector2Int> path = new List<Vector2Int>();
         private Vector2Int cachedGoal;
@@ -41,6 +44,7 @@ namespace MiceToBeHome
         private float lastDirectionX = 1f;
         private float footstepTimer;
         private float playerOnFurnitureTimer;
+        private float corneredTimer;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -54,15 +58,12 @@ namespace MiceToBeHome
             new Vector2Int(-1, -1)
         };
 
-        private static readonly RaycastHit[] SightHits = new RaycastHit[8];
-
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
-            bodyCollider = GetComponent<Collider>();
-            ActorPhysics.ApplyTo(bodyCollider);
+            ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
         public void Initialize(MousePlayerController target, BalanceSettings settings, AudioManager audio, GridSystem gridSystem)
@@ -71,7 +72,6 @@ namespace MiceToBeHome
             balance = settings;
             audioManager = audio;
             grid = gridSystem;
-            playerCollider = target != null ? target.GetComponent<Collider>() : null;
         }
 
         public void SetActive(bool value)
@@ -108,6 +108,8 @@ namespace MiceToBeHome
             path.Clear();
             hasCachedGoal = false;
             footstepTimer = 0f;
+            playerOnFurnitureTimer = 0f;
+            corneredTimer = 0f;
             if (audioManager != null)
             {
                 audioManager.SetCatPurring(false);
@@ -198,6 +200,8 @@ namespace MiceToBeHome
                 body.linearVelocity = unstickVelocity;
                 TrackProgress();
                 TryCatch();
+                debugMode = "unstick";
+                DebugChase();
                 return;
             }
 
@@ -229,6 +233,7 @@ namespace MiceToBeHome
             }
 
             TryCatch();
+            DebugChase();
         }
 
         private void TrackProgress()
@@ -282,6 +287,10 @@ namespace MiceToBeHome
             }
 
             unstickVelocity = (perpendicular * 0.8f + toPlayer * 0.2f).normalized * currentSpeed;
+            if (debugCat)
+            {
+                Debug.Log($"[CatDbg] BEGIN-UNSTICK sideVal={side:0.00} pathLen={path.Count} dist={HorizontalDistance(body.position, player.Position):0.00}");
+            }
 
             repathTimer = 0f;
             path.Clear();
@@ -292,6 +301,7 @@ namespace MiceToBeHome
         {
             if (grid == null)
             {
+                debugMode = "noGrid";
                 return player.Position;
             }
 
@@ -303,21 +313,29 @@ namespace MiceToBeHome
             if (!grid.IsWalkable(catCell))
             {
                 path.Clear();
+                debugMode = "catOffGrid";
                 return grid.CellToWorld(NearestWalkable(catCell));
             }
 
-            // Prefer a real straight shot: if nothing solid physically blocks the line to the
-            // player, chase directly instead of following the coarse grid path. Furniture colliders
-            // are much smaller than the grid cell they occupy, and the cat shares the mouse's
-            // collider, so this lets the cat cut through the very same gaps the player uses and
-            // stops it from abandoning a near-catch to loop around a cell the grid marks blocked.
-            if (catCell == playerCell || HasPhysicalLineOfSight())
+            bool los = catCell == playerCell || grid.HasLineOfSight(catCell, playerCell);
+            if (los)
             {
                 path.Clear();
+                debugMode = "beeline";
                 return player.Position;
             }
 
             Vector2Int goalCell = grid.IsWalkable(playerCell) ? playerCell : NearestWalkable(playerCell);
+
+            // The best reachable cell toward a player camped on furniture can be the cat's OWN cell.
+            // Pathfinding to yourself returns nothing, which was making the cat repath every frame and
+            // orbit the spot; just press toward the player and let the pounce handle the catch.
+            if (goalCell == catCell)
+            {
+                path.Clear();
+                debugMode = "atGoal";
+                return player.Position;
+            }
 
             while (path.Count > 0 && path[0] == catCell)
             {
@@ -339,7 +357,8 @@ namespace MiceToBeHome
 
             if (needsRepath)
             {
-                if (GridPathfinder.TryFindPath(grid, catCell, goalCell, path))
+                bool found = GridPathfinder.TryFindPath(grid, catCell, goalCell, path);
+                if (found)
                 {
                     while (path.Count > 0 && path[0] == catCell)
                     {
@@ -349,47 +368,33 @@ namespace MiceToBeHome
                 cachedGoal = goalCell;
                 hasCachedGoal = true;
                 repathTimer = 1.5f;
+                if (debugCat)
+                {
+                    Debug.Log($"[CatDbg] REPATH cat={catCell} goal={goalCell} found={found} len={path.Count}");
+                }
             }
 
+            debugMode = path.Count > 0 ? "path" : "pathEmpty";
             return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
         }
 
-        // Real-geometry sight test (not the coarse grid): a straight shot is clear unless a wall or
-        // the actual (small) furniture collider sits between the cat and the mouse. Cast at the cat's
-        // own collider height so it matches what the cat can physically collide with.
-        private bool HasPhysicalLineOfSight()
+        private void DebugChase()
         {
-            if (player == null)
+            if (!debugCat)
             {
-                return false;
+                return;
             }
-
-            Vector3 from = body.position;
-            float y = bodyCollider != null ? bodyCollider.bounds.center.y : from.y;
-            from.y = y;
-            Vector3 to = player.Position;
-            to.y = y;
-
-            Vector3 delta = to - from;
-            float dist = delta.magnitude;
-            if (dist < 0.05f)
+            debugTimer -= Time.fixedDeltaTime;
+            if (debugTimer > 0f)
             {
-                return true;
+                return;
             }
-            Vector3 dir = delta / dist;
+            debugTimer = 0.15f;
 
-            int count = Physics.RaycastNonAlloc(from, dir, SightHits, dist, ~0, QueryTriggerInteraction.Ignore);
-            for (int i = 0; i < count; i++)
-            {
-                Collider hit = SightHits[i].collider;
-                if (hit == null || hit == bodyCollider || hit == playerCollider)
-                {
-                    continue;
-                }
-                // A wall or the solid part of a furniture piece is in the way.
-                return false;
-            }
-            return true;
+            Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
+            Vector2Int playerCell = grid != null ? grid.WorldToCell(player.Position) : default;
+            float dist = HorizontalDistance(body.position, player.Position);
+            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} stuck={stuckTimer:0.00} vel={body.linearVelocity.magnitude:0.0}");
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)
@@ -475,6 +480,20 @@ namespace MiceToBeHome
             {
                 playerOnFurnitureTimer = 0f;
             }
+
+            // How long the cat has sat within pounce range of a camping player without catching.
+            // Independent of displacement, so the cat jittering against furniture cannot reset it
+            // (the old stuckTimer gate kept getting reset, so the pounce never fired).
+            float dwellDist = player != null ? HorizontalDistance(body.position, player.Position) : float.MaxValue;
+            bool inPounceRange = grid != null && dwellDist <= balance.catchRadius + grid.CellSize;
+            if (playerOnFurnitureTimer >= 0.4f && inPounceRange)
+            {
+                corneredTimer += Time.fixedDeltaTime;
+            }
+            else
+            {
+                corneredTimer = 0f;
+            }
         }
 
         private void TryCatch()
@@ -489,8 +508,12 @@ namespace MiceToBeHome
             // i.e. it has closed in but a thin obstacle (like the bed) walls it off. In open
             // pursuit the cat is NOT stuck, so a normal catch still needs real contact
             // (catchRadius); this stops the cat "hitting through open air".
+            // Anti-camp pounce: extend reach once the cat has been stuck within pounce range of a
+            // player camping on/behind furniture for a moment. Gated on corneredTimer (NOT the
+            // displacement stuckTimer, which the cat's jitter kept resetting) so it fires reliably
+            // instead of the cat orbiting a camped mouse forever.
             float reach = balance.catchRadius;
-            if (playerOnFurnitureTimer >= 0.4f && stuckTimer >= 0.25f && grid != null)
+            if (corneredTimer >= 0.6f && grid != null)
             {
                 reach += grid.CellSize;
             }
@@ -500,6 +523,7 @@ namespace MiceToBeHome
                 currentSpeed = balance.catBaseSpeed;
                 stateTimer = 0.6f;
                 state = CatState.Recovering;
+                corneredTimer = 0f;
                 if (audioManager != null)
                 {
                     audioManager.PlayCatAttack();
