@@ -27,7 +27,7 @@ namespace MiceToBeHome
         private Vector3 visualBaseLocalPos;
         private Vector3 visualBaseLocalScale = Vector3.one;
 
-        [SerializeField] private GameObject hitAnimationPrefab = null;
+        [SerializeField] private GameObject hitAnimationPrefab;
         private GameObject hitAnimationInstance;
         private Animator hitAnimator;
         private float lastHitTick = -10f;
@@ -104,7 +104,24 @@ namespace MiceToBeHome
                 yield return null;
             }
 
+            // Restaurar modo de actualización.
             animator.updateMode = prevMode;
+
+            // Forzar que el Animator salga del estado de intro y vuelva al estado por defecto.
+            // Rebind reinicia la máquina de estados a sus valores por defecto; Update(0) aplica el cambio instantáneamente.
+            // Aseguramos también el animator.enabled y la velocidad.
+            try
+            {
+                animator.enabled = true;
+                animator.speed = 1f;
+                animator.Rebind();
+                animator.Update(0f);
+            }
+            catch (Exception)
+            {
+                // Seguridad: si algo va mal con Rebind, no romper el flujo — invocamos el onComplete igualmente.
+            }
+
             onComplete?.Invoke();
         }
 
