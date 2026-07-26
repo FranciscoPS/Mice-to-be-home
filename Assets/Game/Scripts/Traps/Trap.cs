@@ -24,6 +24,7 @@ namespace MiceToBeHome
         private Image repairFill;
         private Transform cameraTransform;
         private Color baseVisualColor = Color.white;
+        private SpriteJuice juice;
         private bool captured;
         private bool armed;
         private bool spent;
@@ -51,6 +52,12 @@ namespace MiceToBeHome
             if (visual != null)
             {
                 baseVisualColor = visual.color;
+                juice = visual.GetComponent<SpriteJuice>();
+                if (juice == null)
+                {
+                    juice = visual.gameObject.AddComponent<SpriteJuice>();
+                }
+                juice.EnableIdleHop(true);
             }
 
             Transform repair = transform.Find("Repair");
@@ -100,6 +107,11 @@ namespace MiceToBeHome
             repairProgress = 0f;
             SetGhost(true);
             UpdateRepairVisual();
+
+            if (juice != null)
+            {
+                juice.Bump(1.2f);
+            }
 
             if (AudioManager.Instance != null)
             {
@@ -176,6 +188,10 @@ namespace MiceToBeHome
                 Color c = baseVisualColor;
                 c.a = ghost ? GhostAlpha : baseVisualColor.a;
                 visual.color = c;
+            }
+            if (juice != null)
+            {
+                juice.EnableIdleHop(!ghost);
             }
             if (repairRoot != null)
             {
