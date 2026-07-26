@@ -45,8 +45,10 @@ namespace MiceToBeHome
         [Range(0.01f, 1f)] public float hitSlowScale = 0.06f;
         [Tooltip("Real-time seconds the slow-motion lasts on each hit. 0 disables it.")]
         [Min(0f)] public float hitSlowDuration = 0.25f;
-        [Tooltip("Camera shake strength when the cat hits you (Cinemachine impulse velocity). 0 disables it.")]
-        [Min(0f)] public float hitShakeForce = 1.5f;
+        [Tooltip("Camera shake strength when the cat hits you (Perlin noise gain). 0 disables it.")]
+        [Min(0f)] public float hitShakeAmplitude = 1.5f;
+        [Tooltip("Real-time seconds the hit camera shake lasts.")]
+        [Min(0f)] public float hitShakeDuration = 0.3f;
 
         [Header("Defeat feedback")]
         [Tooltip("How slow time gets at the climax of a loss (1 = normal, lower = closer to frozen).")]

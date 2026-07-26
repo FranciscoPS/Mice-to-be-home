@@ -155,10 +155,23 @@ namespace MiceToBeHome.EditorTools
                 Object.DestroyImmediate(body);
             }
 
-            if (go.GetComponent<CinemachineImpulseListener>() == null)
+            // Camera shake via Perlin noise (reliable). Muted (AmplitudeGain 0) until a hit pulses it.
+            CinemachineImpulseListener staleListener = go.GetComponent<CinemachineImpulseListener>();
+            if (staleListener != null)
             {
-                go.AddComponent<CinemachineImpulseListener>();
+                Object.DestroyImmediate(staleListener);
             }
+            CinemachineBasicMultiChannelPerlin perlin = go.GetComponent<CinemachineBasicMultiChannelPerlin>();
+            if (perlin == null)
+            {
+                perlin = go.AddComponent<CinemachineBasicMultiChannelPerlin>();
+            }
+            if (perlin.NoiseProfile == null)
+            {
+                perlin.NoiseProfile = AssetDatabase.LoadAssetAtPath<NoiseSettings>("Packages/com.unity.cinemachine/Presets/Noise/6D Shake.asset");
+            }
+            perlin.AmplitudeGain = 0f;
+            perlin.FrequencyGain = 1f;
 
             return vcam;
         }

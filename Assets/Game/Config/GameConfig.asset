@@ -48,6 +48,13 @@ MonoBehaviour:
     catAcceleration: 0.35
     catchRadius: 0.6
     catStartDistance: 4.5
+    hitSlowScale: 0.06
+    hitSlowDuration: 1
+    hitShakeAmplitude: 8
+    hitShakeDuration: 0.3
+    loseSlowMinScale: 0.05
+    loseSlowDuration: 1.4
+    loseHoldSeconds: 0.35
     maxTraps: 5
   audio:
     menuMusic: {fileID: 0}

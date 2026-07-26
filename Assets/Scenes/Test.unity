@@ -1725,6 +1725,7 @@ GameObject:
   - component: {fileID: 594561157}
   - component: {fileID: 594561155}
   - component: {fileID: 594561156}
+  - component: {fileID: 594561158}
   m_Layer: 0
   m_Name: CM_LoseZoom
   m_TagString: Untagged
@@ -1809,6 +1810,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1175982354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &594561158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 594561154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBasicMultiChannelPerlin
+  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
+  PivotOffset: {x: 0, y: 0, z: 0}
+  AmplitudeGain: 0
+  FrequencyGain: 1
+  m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1001 &599574527
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4879,6 +4897,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1403466849}
   - component: {fileID: 1403466848}
+  - component: {fileID: 1403466850}
   m_Layer: 0
   m_Name: CM_Frame
   m_TagString: Untagged
@@ -4944,6 +4963,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1175982354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1403466850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1403466847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBasicMultiChannelPerlin
+  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
+  PivotOffset: {x: 0, y: 0, z: 0}
+  AmplitudeGain: 0
+  FrequencyGain: 1
+  m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1001 &1431095263
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5488,6 +5524,7 @@ GameObject:
   - component: {fileID: 1640519843}
   - component: {fileID: 1640519841}
   - component: {fileID: 1640519842}
+  - component: {fileID: 1640519844}
   m_Layer: 0
   m_Name: CM_Follow
   m_TagString: Untagged
@@ -5572,6 +5609,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1175982354}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1640519844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640519840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineBasicMultiChannelPerlin
+  NoiseProfile: {fileID: 11400000, guid: 69ce8388f6785dd4c8c39915efece2f4, type: 2}
+  PivotOffset: {x: 0, y: 0, z: 0}
+  AmplitudeGain: 0
+  FrequencyGain: 1
+  m_NoiseOffsets: {x: 0, y: 0, z: 0}
 --- !u!1001 &1689809923
 PrefabInstance:
   m_ObjectHideFlags: 0

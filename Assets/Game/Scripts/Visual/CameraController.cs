@@ -1,5 +1,7 @@
-using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
+using UnityEngine;
 
 namespace MiceToBeHome
 {
@@ -24,6 +26,9 @@ namespace MiceToBeHome
 
         [Tooltip("Dramatic close zoom used on defeat.")]
         [SerializeField] private CinemachineCamera loseCamera = null;
+
+        private CinemachineBasicMultiChannelPerlin[] noises;
+        private Coroutine shakeRoutine;
 
         public void Initialize(BalanceSettings balance, Vector3 center)
         {
@@ -68,6 +73,71 @@ namespace MiceToBeHome
                 return;
             }
             cam.Priority = cam == active ? ActivePriority : IdlePriority;
+        }
+
+        /// <summary>Pulses Perlin noise on the virtual cameras for a hit / impact shake.</summary>
+        public void Shake(float amplitude, float duration)
+        {
+            EnsureNoises();
+            if (noises.Length == 0 || amplitude <= 0f || duration <= 0f)
+            {
+                return;
+            }
+            if (shakeRoutine != null)
+            {
+                StopCoroutine(shakeRoutine);
+            }
+            shakeRoutine = StartCoroutine(ShakeRoutine(amplitude, duration));
+        }
+
+        private IEnumerator ShakeRoutine(float amplitude, float duration)
+        {
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                SetNoiseAmplitude(Mathf.Lerp(amplitude, 0f, t / duration));
+                yield return null;
+            }
+            SetNoiseAmplitude(0f);
+            shakeRoutine = null;
+        }
+
+        private void EnsureNoises()
+        {
+            if (noises != null)
+            {
+                return;
+            }
+            var list = new List<CinemachineBasicMultiChannelPerlin>();
+            AddNoise(list, frameCamera);
+            AddNoise(list, followCamera);
+            AddNoise(list, loseCamera);
+            noises = list.ToArray();
+        }
+
+        private static void AddNoise(List<CinemachineBasicMultiChannelPerlin> list, CinemachineCamera cam)
+        {
+            if (cam == null)
+            {
+                return;
+            }
+            var perlin = cam.GetComponent<CinemachineBasicMultiChannelPerlin>();
+            if (perlin != null)
+            {
+                list.Add(perlin);
+            }
+        }
+
+        private void SetNoiseAmplitude(float amplitude)
+        {
+            for (int i = 0; i < noises.Length; i++)
+            {
+                if (noises[i] != null)
+                {
+                    noises[i].AmplitudeGain = amplitude;
+                }
+            }
         }
 
 #if UNITY_EDITOR
