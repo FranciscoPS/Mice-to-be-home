@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MiceToBeHome
@@ -12,11 +13,47 @@ namespace MiceToBeHome
         private AudioSource mouseRunLoop;
         private AudioSource catPurrLoop;
 
+        // Music sequencing: optional intro one-shots then a loop, on ONE shared source polled each
+        // frame. WebGL-safe on purpose - no PlayScheduled/dspTime (those can fire every loop at once).
+        private readonly List<AudioClip> introQueue = new List<AudioClip>();
+        private AudioClip activeLoop;
+        private bool playingIntro;
+        private bool introStartedAudibly;
+        private float introDeadline;
+        private bool bootIntroPlayed;
+
         public float FootstepInterval => bank != null ? bank.footstepInterval : 0.28f;
 
         public void Initialize(AudioBank audioBank)
         {
             bank = audioBank;
+            ApplyVolumes();
+        }
+
+        // Inspector-driven levels: music vs. all SFX (AudioBank.musicVolume / sfxVolume). Refreshed
+        // every frame so the two sliders can be leveled live in Play mode.
+        private void ApplyVolumes()
+        {
+            if (bank == null)
+            {
+                return;
+            }
+            if (music != null)
+            {
+                music.volume = bank.musicVolume;
+            }
+            if (effects != null)
+            {
+                effects.volume = bank.sfxVolume;
+            }
+            if (mouseRunLoop != null)
+            {
+                mouseRunLoop.volume = bank.sfxVolume;
+            }
+            if (catPurrLoop != null)
+            {
+                catPurrLoop.volume = bank.sfxVolume;
+            }
         }
 
         private void Awake()
@@ -51,9 +88,26 @@ namespace MiceToBeHome
             }
         }
 
-        public void PlayMenuMusic() => PlayMusic(bank?.menuMusic);
-        public void PlayEditMusic() => PlayMusic(bank?.editMusic);
-        public void PlayChaseMusic() => PlayMusic(bank?.chaseMusic);
+        public void PlayMenuMusic()
+        {
+            if (bank == null)
+            {
+                return;
+            }
+            // The global intro plays only once, on the very first menu (game start).
+            if (!bootIntroPlayed)
+            {
+                bootIntroPlayed = true;
+                PlayMusicSequence(bank.menuLoop, bank.intro, bank.menuIntro);
+            }
+            else
+            {
+                PlayMusicSequence(bank.menuLoop, bank.menuIntro);
+            }
+        }
+
+        public void PlayEditMusic() => PlayMusicSequence(bank?.placeLoop, bank?.placeIntro);
+        public void PlayChaseMusic() => PlayMusicSequence(bank?.chaseLoop, bank?.chaseIntro);
 
         public void PlayHit() => PlayEffect(bank?.mouseHit);
         public void PlayVictory() => PlayEffect(bank?.victory);
@@ -102,25 +156,82 @@ namespace MiceToBeHome
             src.Play();
         }
 
-        private void PlayMusic(AudioClip clip)
+        // Plays optional one-shot intro clips in order, then loops `loop`. Null clips are skipped.
+        private void PlayMusicSequence(AudioClip loop, params AudioClip[] intros)
         {
             if (music == null)
             {
                 return;
             }
 
-            if (clip == null)
+            // Already on this exact theme - let it keep playing instead of restarting it.
+            if (activeLoop == loop && (playingIntro || music.isPlaying))
+            {
+                return;
+            }
+
+            activeLoop = loop;
+            introQueue.Clear();
+            if (intros != null)
+            {
+                for (int i = 0; i < intros.Length; i++)
+                {
+                    if (intros[i] != null)
+                    {
+                        introQueue.Add(intros[i]);
+                    }
+                }
+            }
+
+            AdvanceMusic();
+        }
+
+        private void Update()
+        {
+            ApplyVolumes();
+
+            if (!playingIntro || music == null)
+            {
+                return;
+            }
+
+            if (music.isPlaying)
+            {
+                introStartedAudibly = true;
+            }
+
+            // Advance once the intro has actually played out (or a safety deadline passes, in case a
+            // browser keeps isPlaying stuck). One source polled one clip at a time can never overlap loops.
+            if ((introStartedAudibly && !music.isPlaying) || Time.unscaledTime >= introDeadline)
+            {
+                AdvanceMusic();
+            }
+        }
+
+        private void AdvanceMusic()
+        {
+            if (introQueue.Count > 0)
+            {
+                AudioClip next = introQueue[0];
+                introQueue.RemoveAt(0);
+                music.loop = false;
+                music.clip = next;
+                music.Play();
+                playingIntro = true;
+                introStartedAudibly = false;
+                introDeadline = Time.unscaledTime + Mathf.Max(0.1f, next.length) + 0.5f;
+                return;
+            }
+
+            playingIntro = false;
+            if (activeLoop == null)
             {
                 music.Stop();
                 return;
             }
 
-            if (music.clip == clip && music.isPlaying)
-            {
-                return;
-            }
-
-            music.clip = clip;
+            music.loop = true;
+            music.clip = activeLoop;
             music.Play();
         }
 

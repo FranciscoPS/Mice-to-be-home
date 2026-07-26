@@ -19,6 +19,7 @@ namespace MiceToBeHome
         private BalanceSettings balance;
         private AudioManager audioManager;
         private bool losing;
+        private Coroutine chaseLeadInRoutine;
 
         private readonly Countdown editCountdown = new Countdown();
         private readonly Countdown surviveCountdown = new Countdown();
@@ -113,6 +114,7 @@ namespace MiceToBeHome
 
         private void EnterMenu()
         {
+            StopChaseLeadIn();
             editCountdown.Stop();
             surviveCountdown.Stop();
             placement.SetActive(false);
@@ -125,6 +127,7 @@ namespace MiceToBeHome
 
         private void StartEditPhase()
         {
+            StopChaseLeadIn();
             placement.ResetLevel();
             lives.ResetLives();
             losing = false;
@@ -143,6 +146,8 @@ namespace MiceToBeHome
 
         private void StartChasePhase()
         {
+            StopChaseLeadIn();
+
             placement.SetActive(false);
             placement.SetTrapsArmed(true);
             grid.SetGridVisible(false);
@@ -157,11 +162,49 @@ namespace MiceToBeHome
             cat.ResetForChase(catStart);
 
             cameraController.Follow(player.transform);
-            audioManager.PlayChaseMusic();
 
+            // The chase intro music starts now, but the mouse and cat stay frozen for a short
+            // lead-in so the intro can play a beat before gameplay actually begins.
+            audioManager.PlayChaseMusic();
+            player.SetActive(false);
+            cat.SetActive(false);
+            OnTimerChanged(balance.surviveSeconds);
+
+            float leadIn = balance != null ? balance.chaseLeadInSeconds : 0f;
+            if (leadIn > 0f)
+            {
+                chaseLeadInRoutine = StartCoroutine(ChaseLeadIn(leadIn));
+            }
+            else
+            {
+                GoLiveChase();
+            }
+        }
+
+        private IEnumerator ChaseLeadIn(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            chaseLeadInRoutine = null;
+            if (GameManager.Instance.State == GameState.Playing)
+            {
+                GoLiveChase();
+            }
+        }
+
+        private void GoLiveChase()
+        {
             player.SetActive(true);
             cat.SetActive(true);
             surviveCountdown.Begin(balance.surviveSeconds);
+        }
+
+        private void StopChaseLeadIn()
+        {
+            if (chaseLeadInRoutine != null)
+            {
+                StopCoroutine(chaseLeadInRoutine);
+                chaseLeadInRoutine = null;
+            }
         }
 
         private void FreezeActors()

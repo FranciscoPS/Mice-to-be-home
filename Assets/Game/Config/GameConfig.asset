@@ -45,6 +45,7 @@ MonoBehaviour:
     - .P.......P
     editSeconds: 60
     surviveSeconds: 120
+    chaseLeadInSeconds: 2
     lives: 3
     invincibleSeconds: 1.5
     mouseSpeed: 5
@@ -63,9 +64,15 @@ MonoBehaviour:
     loseHoldSeconds: 0.35
     maxTraps: 5
   audio:
-    menuMusic: {fileID: 0}
-    editMusic: {fileID: 0}
-    chaseMusic: {fileID: 0}
+    musicVolume: 0.2
+    sfxVolume: 1
+    intro: {fileID: 8300000, guid: 105768d5676734b6f9f438f69062035c, type: 3}
+    menuIntro: {fileID: 8300000, guid: 0975ed9baa64749b18a339266bef4ca1, type: 3}
+    menuLoop: {fileID: 8300000, guid: 37f8ef5133f334ae79276c933666f456, type: 3}
+    placeIntro: {fileID: 8300000, guid: 3fd121f99caeb46d580c7e8ba112b8a8, type: 3}
+    placeLoop: {fileID: 8300000, guid: ae6d29a96541e4e709d3ca2b76cb0b44, type: 3}
+    chaseIntro: {fileID: 8300000, guid: 3d4aa0b1be6ee4926a5696ec738a11e7, type: 3}
+    chaseLoop: {fileID: 8300000, guid: 3d4aa0b1be6ee4926a5696ec738a11e7, type: 3}
     mouseHit: {fileID: 8300000, guid: 61b4298788b0b4905b20492d972fed07, type: 3}
     victory: {fileID: 8300000, guid: 04cd4cf113c144a44928ee77a4b7942c, type: 3}
     defeat: {fileID: 8300000, guid: 86a09ab4f2fc446d49a010e05b7788c0, type: 3}

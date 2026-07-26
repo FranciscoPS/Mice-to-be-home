@@ -6,10 +6,25 @@ namespace MiceToBeHome
     [Serializable]
     public class AudioBank
     {
-        [Header("Music (optional)")]
-        public AudioClip menuMusic;
-        public AudioClip editMusic;
-        public AudioClip chaseMusic;
+        [Header("Volume")]
+        [Range(0f, 1f)] public float musicVolume = 0.6f;
+        [Range(0f, 1f)] public float sfxVolume = 0.8f;
+
+        [Header("Music (optional) - 'intro' clips play once, then the matching loop repeats")]
+        [Tooltip("Global startup sting. Plays once when the game first opens, before the menu music.")]
+        public AudioClip intro;
+        [Tooltip("Menu: plays once when entering the menu, before the menu loop.")]
+        public AudioClip menuIntro;
+        [Tooltip("Menu: loops while sitting in the menu.")]
+        public AudioClip menuLoop;
+        [Tooltip("Placement: plays once when trap placement starts, before the placement loop.")]
+        public AudioClip placeIntro;
+        [Tooltip("Placement: loops while placing traps (the chill section).")]
+        public AudioClip placeLoop;
+        [Tooltip("Chase: the bridge/transition, plays once when the chase starts, before the chase loop.")]
+        public AudioClip chaseIntro;
+        [Tooltip("Chase: loops during the cat chase (the rock section).")]
+        public AudioClip chaseLoop;
 
         [Header("SFX (optional)")]
         public AudioClip mouseHit;

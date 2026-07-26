@@ -24,6 +24,8 @@ namespace MiceToBeHome
         [Header("Timers (seconds)")]
         [Min(1f)] public float editSeconds = 60f;
         [Min(1f)] public float surviveSeconds = 120f;
+        [Tooltip("Lead-in before the chase goes live: the chase intro music plays for this long with the mouse and cat frozen, then gameplay starts.")]
+        [Min(0f)] public float chaseLeadInSeconds = 2f;
 
         [Header("Lives")]
         [Min(1)] public int lives = 3;
