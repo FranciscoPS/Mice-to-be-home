@@ -19,15 +19,17 @@ namespace MiceToBeHome.EditorTools
         [MenuItem("Tools/Mice to be Home/Build Scene")]
         public static void BuildScene()
         {
+            GameObject preservedWalls = null;
             bool hasExisting = Object.FindFirstObjectByType<GameInstaller>() != null;
             if (hasExisting)
             {
                 if (!EditorUtility.DisplayDialog("Mice to be Home",
-                    "This removes the existing Game setup (and any duplicate camera scripts) and rebuilds it. Continue?",
+                    "This removes the existing Game setup (and any duplicate camera scripts) and rebuilds it. Your customized Walls are kept as-is. Continue?",
                     "Rebuild", "Cancel"))
                 {
                     return;
                 }
+                preservedWalls = DetachExistingWalls();
                 ClearExisting();
             }
 
@@ -69,7 +71,17 @@ namespace MiceToBeHome.EditorTools
             SpriteRenderer floor = AddGround(gridGO.transform, "Floor", floorSize, sprites.floor, sprites.floorTint, -10000);
             floor.transform.position = center;
 
-            BuildWalls(gridGO.transform, cols, rows, cell, sprites);
+            if (preservedWalls != null)
+            {
+                // Reuse your hand-tuned Walls instead of regenerating them, so Build Scene
+                // never clobbers custom wall positions/scales/sprites again. worldPositionStays
+                // keeps them exactly where you placed them (Grid sits at world origin).
+                preservedWalls.transform.SetParent(gridGO.transform, true);
+            }
+            else
+            {
+                BuildWalls(gridGO.transform, cols, rows, cell, sprites);
+            }
 
             var cellsParent = NewChild(gridGO.transform, "Cells").transform;
             for (int r = 0; r < rows; r++)
@@ -156,6 +168,22 @@ namespace MiceToBeHome.EditorTools
                     Object.DestroyImmediate(installer.gameObject);
                 }
             }
+        }
+
+        // Pull the user's customized "Walls" object out of the Game hierarchy (keeping its world
+        // transform) so ClearExisting doesn't destroy it; BuildScene re-parents it to the new Grid.
+        // Returns null when there is no existing Walls yet (first build) so defaults get created.
+        private static GameObject DetachExistingWalls()
+        {
+            GameInstaller installer = Object.FindFirstObjectByType<GameInstaller>();
+            Transform grid = installer != null ? installer.transform.Find("Grid") : null;
+            Transform walls = grid != null ? grid.Find("Walls") : null;
+            if (walls == null)
+            {
+                return null;
+            }
+            walls.SetParent(null, true);
+            return walls.gameObject;
         }
 
         private static void EnsurePrefabFolder()

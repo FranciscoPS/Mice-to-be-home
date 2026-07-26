@@ -35,6 +35,8 @@ namespace MiceToBeHome
             audioManager.Initialize(config.Audio);
             player.Initialize(balance);
             cat.Initialize(player, balance, audioManager, grid);
+            EnsureBumpEmitter(player.gameObject);
+            EnsureBumpEmitter(cat.gameObject);
             cameraController.Initialize(balance, grid.Center);
             placement.Initialize(grid, balance, mainCamera, trapParent, audioManager, config.Traps);
             lives.Initialize(player, balance.lives, audioManager);
@@ -60,6 +62,14 @@ namespace MiceToBeHome
             };
 
             GameManager.Instance.Emit();
+        }
+
+        private static void EnsureBumpEmitter(GameObject actor)
+        {
+            if (actor.GetComponent<BumpEmitter>() == null)
+            {
+                actor.AddComponent<BumpEmitter>();
+            }
         }
     }
 }
