@@ -1,57 +1,79 @@
-using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace MiceToBeHome
 {
     public class UIManager : MonoBehaviour
     {
-        private HudView hud;
-        private TooltipView tooltip;
-        private GameObject hudGroup;
-        private GameObject menuPanel;
-        private GameObject pausePanel;
-        private GameObject victoryPanel;
-        private GameObject defeatPanel;
+        [SerializeField] private HudView hud = null;
+        [SerializeField] private TooltipView tooltip = null;
+        [SerializeField] private GameObject hudGroup = null;
+        [SerializeField] private GameObject menuPanel = null;
+        [SerializeField] private GameObject pausePanel = null;
+        [SerializeField] private GameObject victoryPanel = null;
+        [SerializeField] private GameObject defeatPanel = null;
+
+        [SerializeField] private Button menuPlayButton = null;
+        [SerializeField] private Button menuQuitButton = null;
+        [SerializeField] private Button pauseResumeButton = null;
+        [SerializeField] private Button pauseRestartButton = null;
+        [SerializeField] private Button pauseMenuButton = null;
+        [SerializeField] private Button victoryPrimaryButton = null;
+        [SerializeField] private Button victoryMenuButton = null;
+        [SerializeField] private Button defeatPrimaryButton = null;
+        [SerializeField] private Button defeatMenuButton = null;
 
         public void Initialize(GameConfig config, PlacementController placement, GameFlowController flow, LivesSystem lives)
         {
-            Canvas canvas = UIFactory.CreateCanvas("GameCanvas");
-            canvas.transform.SetParent(transform, false);
+            if (tooltip != null)
+            {
+                tooltip.Initialize();
+            }
+            if (hud != null)
+            {
+                hud.Initialize(config.Traps, placement, tooltip);
+            }
 
-            var tooltipObject = new GameObject("Tooltip", typeof(RectTransform));
-            tooltipObject.transform.SetParent(canvas.transform, false);
-            UIFactory.Stretch(tooltipObject.GetComponent<RectTransform>());
-            tooltip = tooltipObject.AddComponent<TooltipView>();
-            tooltip.Build(canvas);
+            Wire(menuPlayButton, GameManager.Instance.NewGame);
+            Wire(menuQuitButton, GameManager.Instance.QuitGame);
+#if UNITY_WEBGL
+            if (menuQuitButton != null)
+            {
+                menuQuitButton.gameObject.SetActive(false);
+            }
+#endif
+            Wire(pauseResumeButton, GameManager.Instance.TogglePause);
+            Wire(pauseRestartButton, GameManager.Instance.Restart);
+            Wire(pauseMenuButton, GameManager.Instance.ReturnToMenu);
+            Wire(victoryPrimaryButton, GameManager.Instance.Restart);
+            Wire(victoryMenuButton, GameManager.Instance.ReturnToMenu);
+            Wire(defeatPrimaryButton, GameManager.Instance.Restart);
+            Wire(defeatMenuButton, GameManager.Instance.ReturnToMenu);
 
-            hudGroup = UIFactory.CreateGroup(canvas.transform, "HUD");
-            hud = hudGroup.AddComponent<HudView>();
-            hud.Build(hudGroup.transform, config.Traps, placement, tooltip);
-
-            menuPanel = BuildMenu(canvas.transform);
-            pausePanel = BuildPause(canvas.transform);
-            victoryPanel = BuildEndScreen(canvas.transform, "VictoryPanel", "YOU SURVIVED",
-                "You turned back into a human. Miauricio goes hungry tonight.", new Color(0.09f, 0.16f, 0.10f, 0.9f),
-                "PLAY AGAIN", GameManager.Instance.Restart);
-            defeatPanel = BuildEndScreen(canvas.transform, "DefeatPanel", "YOU GOT CAUGHT",
-                "Miauricio turned you into his midnight snack.", new Color(0.18f, 0.07f, 0.07f, 0.9f),
-                "RETRY", GameManager.Instance.Restart);
-
-            tooltipObject.transform.SetAsLastSibling();
-
-            hud.StartButton.onClick.AddListener(GameManager.Instance.BeginChase);
-            hud.PauseButton.onClick.AddListener(GameManager.Instance.TogglePause);
+            if (hud != null)
+            {
+                Wire(hud.StartButton, GameManager.Instance.BeginChase);
+                Wire(hud.PauseButton, GameManager.Instance.TogglePause);
+                flow.TimerChanged += hud.SetTimer;
+                lives.Changed += hud.SetLives;
+            }
 
             GameManager.Instance.StateChanged += ShowState;
-            flow.TimerChanged += hud.SetTimer;
             flow.PhaseChanged += OnPhase;
-            lives.Changed += hud.SetLives;
+        }
+
+        private static void Wire(Button button, UnityAction action)
+        {
+            if (button != null)
+            {
+                button.onClick.AddListener(action);
+            }
         }
 
         private void OnPhase(GameState state)
         {
-            if (state == GameState.Editing || state == GameState.Playing)
+            if (hud != null && (state == GameState.Editing || state == GameState.Playing))
             {
                 hud.SetPhase(state);
             }
@@ -59,103 +81,26 @@ namespace MiceToBeHome
 
         private void ShowState(GameState state)
         {
-            menuPanel.SetActive(state == GameState.MainMenu);
-            hudGroup.SetActive(state == GameState.Editing || state == GameState.Playing || state == GameState.Paused);
-            pausePanel.SetActive(state == GameState.Paused);
-            victoryPanel.SetActive(state == GameState.Victory);
-            defeatPanel.SetActive(state == GameState.Defeat);
-        }
-
-        private GameObject BuildMenu(Transform parent)
-        {
-            var panel = UIFactory.CreatePanel(parent, "MenuPanel", new Color(0.06f, 0.06f, 0.10f, 0.86f));
-
-            var title = UIFactory.CreateText(panel.transform, "Title", "MICE TO BE HOME", 78f,
-                TextAlignmentOptions.Center, Color.white);
-            UIFactory.Anchor(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 250f), new Vector2(1100f, 120f));
-
-            var subtitle = UIFactory.CreateText(panel.transform, "Subtitle",
-                "Place traps, turn into a mouse, and escape Miauricio.", 30f,
-                TextAlignmentOptions.Center, new Color(0.85f, 0.85f, 0.9f));
-            UIFactory.Anchor(subtitle.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 165f), new Vector2(1000f, 60f));
-
-            var play = UIFactory.CreateButton(panel.transform, "PlayButton", "PLAY", new Color(0.85f, 0.35f, 0.45f),
-                Color.white, 38f, out _);
-            UIFactory.Anchor((RectTransform)play.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, 40f), new Vector2(420f, 96f));
-            play.onClick.AddListener(GameManager.Instance.NewGame);
-
-#if !UNITY_WEBGL
-            var quit = UIFactory.CreateButton(panel.transform, "QuitButton", "QUIT", new Color(0.25f, 0.25f, 0.32f),
-                Color.white, 32f, out _);
-            UIFactory.Anchor((RectTransform)quit.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, -70f), new Vector2(360f, 80f));
-            quit.onClick.AddListener(GameManager.Instance.QuitGame);
-#endif
-
-            var controls = UIFactory.CreateText(panel.transform, "Controls",
-                "Edit: click to place traps (max 5).    Chase: WASD to move, stand on a faded trap to repair it.    Esc: pause.", 22f,
-                TextAlignmentOptions.Center, new Color(0.75f, 0.75f, 0.82f));
-            UIFactory.Anchor(controls.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0f, 60f), new Vector2(1300f, 40f));
-
-            panel.gameObject.SetActive(false);
-            return panel.gameObject;
-        }
-
-        private GameObject BuildPause(Transform parent)
-        {
-            var panel = UIFactory.CreatePanel(parent, "PausePanel", new Color(0.03f, 0.03f, 0.05f, 0.78f));
-
-            var title = UIFactory.CreateText(panel.transform, "Title", "PAUSED", 70f, TextAlignmentOptions.Center, Color.white);
-            UIFactory.Anchor(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 220f), new Vector2(800f, 110f));
-
-            var resume = MakeMenuButton(panel.transform, "Resume", "RESUME", 90f, new Color(0.3f, 0.55f, 0.4f));
-            resume.onClick.AddListener(GameManager.Instance.TogglePause);
-
-            var restart = MakeMenuButton(panel.transform, "Restart", "RESTART", -14f, new Color(0.3f, 0.32f, 0.4f));
-            restart.onClick.AddListener(GameManager.Instance.Restart);
-
-            var menu = MakeMenuButton(panel.transform, "Menu", "MAIN MENU", -118f, new Color(0.3f, 0.32f, 0.4f));
-            menu.onClick.AddListener(GameManager.Instance.ReturnToMenu);
-
-            panel.gameObject.SetActive(false);
-            return panel.gameObject;
-        }
-
-        private GameObject BuildEndScreen(Transform parent, string name, string title, string message, Color background,
-            string primaryLabel, System.Action primaryAction)
-        {
-            var panel = UIFactory.CreatePanel(parent, name, background);
-
-            var titleText = UIFactory.CreateText(panel.transform, "Title", title, 80f, TextAlignmentOptions.Center, Color.white);
-            UIFactory.Anchor(titleText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 230f), new Vector2(1100f, 120f));
-
-            var messageText = UIFactory.CreateText(panel.transform, "Message", message, 30f,
-                TextAlignmentOptions.Center, new Color(0.9f, 0.9f, 0.92f));
-            UIFactory.Anchor(messageText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 140f), new Vector2(1000f, 60f));
-
-            var primary = MakeMenuButton(panel.transform, "Primary", primaryLabel, 20f, new Color(0.85f, 0.35f, 0.45f));
-            primary.onClick.AddListener(() => primaryAction());
-
-            var menu = MakeMenuButton(panel.transform, "Menu", "MAIN MENU", -84f, new Color(0.3f, 0.32f, 0.4f));
-            menu.onClick.AddListener(GameManager.Instance.ReturnToMenu);
-
-            panel.gameObject.SetActive(false);
-            return panel.gameObject;
-        }
-
-        private Button MakeMenuButton(Transform parent, string name, string label, float y, Color background)
-        {
-            var button = UIFactory.CreateButton(parent, name, label, background, Color.white, 34f, out _);
-            UIFactory.Anchor((RectTransform)button.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, y), new Vector2(420f, 92f));
-            return button;
+            if (menuPanel != null)
+            {
+                menuPanel.SetActive(state == GameState.MainMenu);
+            }
+            if (hudGroup != null)
+            {
+                hudGroup.SetActive(state == GameState.Editing || state == GameState.Playing || state == GameState.Paused);
+            }
+            if (pausePanel != null)
+            {
+                pausePanel.SetActive(state == GameState.Paused);
+            }
+            if (victoryPanel != null)
+            {
+                victoryPanel.SetActive(state == GameState.Victory);
+            }
+            if (defeatPanel != null)
+            {
+                defeatPanel.SetActive(state == GameState.Defeat);
+            }
         }
     }
 }

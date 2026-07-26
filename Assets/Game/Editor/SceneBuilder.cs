@@ -59,7 +59,7 @@ namespace MiceToBeHome.EditorTools
             var placement = NewChild(root.transform, "Placement").AddComponent<PlacementController>();
             var lives = NewChild(root.transform, "Lives").AddComponent<LivesSystem>();
             var flow = NewChild(root.transform, "GameFlow").AddComponent<GameFlowController>();
-            var ui = NewChild(root.transform, "UI").AddComponent<UIManager>();
+            UIManager ui = UIBuilder.EnsureUI();
             var trapParent = NewChild(root.transform, "Traps").transform;
 
             var gridGO = NewChild(root.transform, "Grid");

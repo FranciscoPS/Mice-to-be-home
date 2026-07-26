@@ -39,7 +39,19 @@ namespace MiceToBeHome
             placement.Initialize(grid, balance, mainCamera, trapParent, audioManager, config.Traps);
             lives.Initialize(player, balance.lives, audioManager);
             flow.Initialize(grid, placement, player, cat, lives, cameraController, balance, audioManager);
-            ui.Initialize(config, placement, flow, lives);
+
+            if (ui == null)
+            {
+                ui = FindFirstObjectByType<UIManager>();
+            }
+            if (ui != null)
+            {
+                ui.Initialize(config, placement, flow, lives);
+            }
+            else
+            {
+                Debug.LogError("[Mice to be Home] No UIManager in the scene. Run Tools > Mice to be Home > Build UI.");
+            }
 
             player.Hit += () =>
             {

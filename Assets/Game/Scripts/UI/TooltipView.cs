@@ -6,30 +6,23 @@ namespace MiceToBeHome
 {
     public class TooltipView : MonoBehaviour
     {
-        private RectTransform panel;
-        private TextMeshProUGUI label;
+        [SerializeField] private RectTransform panel = null;
+        [SerializeField] private TextMeshProUGUI label = null;
         private RectTransform canvasRect;
 
-        public void Build(Canvas canvas)
+        public void Initialize()
         {
-            canvasRect = canvas.GetComponent<RectTransform>();
-
-            var image = UIFactory.CreatePanel(transform, "TooltipPanel", new Color(0.05f, 0.05f, 0.08f, 0.92f));
-            panel = image.rectTransform;
-            UIFactory.Anchor(panel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f),
-                Vector2.zero, new Vector2(360f, 150f));
-
-            label = UIFactory.CreateText(panel, "Text", string.Empty, 24f, TextAlignmentOptions.TopLeft, Color.white);
-            UIFactory.Stretch(label.rectTransform);
-            label.rectTransform.offsetMin = new Vector2(14f, 14f);
-            label.rectTransform.offsetMax = new Vector2(-14f, -14f);
-
+            Canvas canvas = GetComponentInParent<Canvas>();
+            canvasRect = canvas != null ? canvas.GetComponent<RectTransform>() : null;
             Hide();
         }
 
         public void Show(string message)
         {
-            label.text = message;
+            if (label != null)
+            {
+                label.text = message;
+            }
             gameObject.SetActive(true);
             UpdatePosition();
         }
@@ -49,7 +42,7 @@ namespace MiceToBeHome
 
         private void UpdatePosition()
         {
-            if (Mouse.current == null || canvasRect == null)
+            if (Mouse.current == null || canvasRect == null || panel == null)
             {
                 return;
             }
