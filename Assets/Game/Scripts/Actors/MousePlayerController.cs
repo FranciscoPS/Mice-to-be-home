@@ -17,6 +17,7 @@ namespace MiceToBeHome
         private SpriteRenderer visual;
         private Animator animator;
         private BalanceSettings balance;
+        private GridSystem grid;
         private bool active;
         private float invincibleTimer;
         private float knockbackTimer;
@@ -33,9 +34,10 @@ namespace MiceToBeHome
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
-        public void Initialize(BalanceSettings settings)
+        public void Initialize(BalanceSettings settings, GridSystem gridSystem)
         {
             balance = settings;
+            grid = gridSystem;
         }
 
         public void SetActive(bool value)
@@ -172,7 +174,7 @@ namespace MiceToBeHome
             if (knockbackTimer > 0f)
             {
                 knockbackTimer -= Time.fixedDeltaTime;
-                body.linearVelocity = knockbackVelocity;
+                body.linearVelocity = BlockFurniture(knockbackVelocity);
                 // Mantener la animación de correr durante el golpe (no idle).
                 if (animator != null)
                 {
@@ -186,7 +188,7 @@ namespace MiceToBeHome
             }
 
             Vector3 move = ReadDirection();
-            body.linearVelocity = move * balance.mouseSpeed;
+            body.linearVelocity = BlockFurniture(move * balance.mouseSpeed);
 
             // Actualizar animación según si hay movimiento
             if (animator != null)
@@ -206,6 +208,33 @@ namespace MiceToBeHome
 
             RepairTrapsUnderfoot();
             UpdateFootsteps(move.sqrMagnitude > 0f);
+        }
+
+        // Stop the mouse from parking its center inside a furniture cell (e.g. perching in
+        // the thin strip behind the bed where the cat cannot legally path). Per-axis so the
+        // player still slides along the furniture edge; arena walls stay handled by physics.
+        private Vector3 BlockFurniture(Vector3 velocity)
+        {
+            if (grid == null || velocity.sqrMagnitude < 0.0001f)
+            {
+                return velocity;
+            }
+
+            float look = velocity.magnitude * Time.fixedDeltaTime + grid.CellSize * 0.1f;
+            Vector3 pos = body.position;
+
+            if (velocity.x != 0f &&
+                grid.IsFurniture(grid.WorldToCell(pos + new Vector3(Mathf.Sign(velocity.x) * look, 0f, 0f))))
+            {
+                velocity.x = 0f;
+            }
+            if (velocity.z != 0f &&
+                grid.IsFurniture(grid.WorldToCell(pos + new Vector3(0f, 0f, Mathf.Sign(velocity.z) * look))))
+            {
+                velocity.z = 0f;
+            }
+
+            return velocity;
         }
 
         private void UpdateFootsteps(bool moving)

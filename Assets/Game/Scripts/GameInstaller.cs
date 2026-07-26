@@ -33,7 +33,7 @@ namespace MiceToBeHome
 
             grid.Initialize(balance);
             audioManager.Initialize(config.Audio);
-            player.Initialize(balance);
+            player.Initialize(balance, grid);
             cat.Initialize(player, balance, audioManager, grid);
             cameraController.Initialize(balance, grid.Center);
             placement.Initialize(grid, balance, mainCamera, trapParent, audioManager, config.Traps);

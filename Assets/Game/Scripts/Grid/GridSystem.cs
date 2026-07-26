@@ -94,12 +94,26 @@ namespace MiceToBeHome
                 }
 
                 int doubled = 2 * err;
-                if (doubled > -dy)
+                bool stepX = doubled > -dy;
+                bool stepY = doubled < dx;
+
+                // On a diagonal step, refuse to let the sight line slip through the
+                // corner between two obstacles (the same rule the pathfinder uses).
+                // Without this the cat "sees" the player past a furniture corner and
+                // drives straight into the collider, jamming behind wide pieces like
+                // the bed while the player jukes left/right.
+                if (stepX && stepY &&
+                    (!IsWalkable(new Vector2Int(x0 + sx, y0)) || !IsWalkable(new Vector2Int(x0, y0 + sy))))
+                {
+                    return false;
+                }
+
+                if (stepX)
                 {
                     err -= dy;
                     x0 += sx;
                 }
-                if (doubled < dx)
+                if (stepY)
                 {
                     err += dx;
                     y0 += sy;

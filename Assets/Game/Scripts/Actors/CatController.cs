@@ -39,6 +39,12 @@ namespace MiceToBeHome
         private float lastDirectionX = 1f;
         private float footstepTimer;
 
+        [SerializeField] private bool debugLogs = true;
+        private float debugTimer;
+        private bool dbgHadLos;
+        private int dbgPathCount;
+        private Vector2Int dbgNextCell;
+
         private static readonly Vector2Int[] NeighborOffsets =
         {
             new Vector2Int(1, 0),
@@ -188,6 +194,7 @@ namespace MiceToBeHome
                 unstickTimer -= Time.fixedDeltaTime;
                 body.linearVelocity = unstickVelocity;
                 TrackProgress();
+                LogSnapshot("UNSTICK");
                 TryCatch();
                 return;
             }
@@ -219,6 +226,7 @@ namespace MiceToBeHome
                 lastPosition = body.position;
             }
 
+            LogSnapshot("STEER");
             TryCatch();
         }
 
@@ -256,12 +264,30 @@ namespace MiceToBeHome
             toPlayer.Normalize();
 
             Vector3 perpendicular = new Vector3(-toPlayer.z, 0f, toPlayer.x);
-            if (Random.value < 0.5f)
+
+            // Slip toward the side the current route heads around the obstacle so the
+            // cat keeps circling the same way instead of dithering in place (which let
+            // the player camp behind wide furniture). Fall back to a random side.
+            float side = 0f;
+            if (grid != null && path.Count > 0)
+            {
+                Vector3 toWaypoint = grid.CellToWorld(path[0]) - body.position;
+                toWaypoint.y = 0f;
+                side = Vector3.Dot(toWaypoint, perpendicular);
+            }
+            if (side < 0f || (Mathf.Abs(side) < 0.0001f && Random.value < 0.5f))
             {
                 perpendicular = -perpendicular;
             }
 
             unstickVelocity = (perpendicular * 0.8f + toPlayer * 0.2f).normalized * currentSpeed;
+
+            if (debugLogs)
+            {
+                Vector2Int cCell = grid != null ? grid.WorldToCell(body.position) : default;
+                Vector2Int pCell = grid != null ? grid.WorldToCell(player.Position) : default;
+                Debug.Log($"[CatDbg] UNSTICK-begin cat={cCell} plr={pCell} pathCount={path.Count} side={side:0.00} dir=({unstickVelocity.x:0.00},{unstickVelocity.z:0.00})");
+            }
 
             repathTimer = 0f;
             path.Clear();
@@ -278,12 +304,28 @@ namespace MiceToBeHome
             Vector2Int catCell = grid.WorldToCell(body.position);
             Vector2Int playerCell = grid.WorldToCell(player.Position);
 
+            // If the cat itself ended up on a blocked cell (e.g. shoved onto furniture),
+            // the pathfinder can't route from here — head to the nearest open cell first.
+            if (!grid.IsWalkable(catCell))
+            {
+                path.Clear();
+                dbgHadLos = false;
+                dbgPathCount = 0;
+                Vector2Int escapeCell = NearestWalkable(catCell);
+                dbgNextCell = escapeCell;
+                return grid.CellToWorld(escapeCell);
+            }
+
             if (catCell == playerCell || grid.HasLineOfSight(catCell, playerCell))
             {
                 path.Clear();
+                dbgHadLos = true;
+                dbgPathCount = 0;
+                dbgNextCell = playerCell;
                 return player.Position;
             }
 
+            dbgHadLos = false;
             Vector2Int goalCell = grid.IsWalkable(playerCell) ? playerCell : NearestWalkable(playerCell);
 
             while (path.Count > 0 && path[0] == catCell)
@@ -306,7 +348,8 @@ namespace MiceToBeHome
 
             if (needsRepath)
             {
-                if (GridPathfinder.TryFindPath(grid, catCell, goalCell, path))
+                bool found = GridPathfinder.TryFindPath(grid, catCell, goalCell, path);
+                if (found)
                 {
                     while (path.Count > 0 && path[0] == catCell)
                     {
@@ -316,8 +359,14 @@ namespace MiceToBeHome
                 cachedGoal = goalCell;
                 hasCachedGoal = true;
                 repathTimer = 1.5f;
+                if (debugLogs)
+                {
+                    Debug.Log($"[CatDbg] REPATH cat={catCell} goal={goalCell} found={found} len={path.Count}");
+                }
             }
 
+            dbgPathCount = path.Count;
+            dbgNextCell = path.Count > 0 ? path[0] : playerCell;
             return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
         }
 
@@ -341,6 +390,24 @@ namespace MiceToBeHome
                 }
             }
             return best;
+        }
+
+        private void LogSnapshot(string mode)
+        {
+            if (!debugLogs)
+            {
+                return;
+            }
+            debugTimer -= Time.fixedDeltaTime;
+            if (debugTimer > 0f)
+            {
+                return;
+            }
+            debugTimer = 0.4f;
+            Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
+            Vector2Int plrCell = grid != null && player != null ? grid.WorldToCell(player.Position) : default;
+            float dist = player != null ? HorizontalDistance(body.position, player.Position) : -1f;
+            Debug.Log($"[CatDbg] {mode} st={state} cat={catCell} plr={plrCell} los={dbgHadLos} path={dbgPathCount} next={dbgNextCell} vel={body.linearVelocity.magnitude:0.00} spd={currentSpeed:0.00} stuck={stuckTimer:0.00} unstick={unstickTimer:0.00} dist={dist:0.00}");
         }
 
         private bool TryStun()
