@@ -635,6 +635,13 @@ namespace MiceToBeHome
                 stateTimer = 0.6f;
                 state = CatState.Recovering;
                 corneredTimer = 0f;
+
+                if (animator != null)
+                {
+                    animator.SetBool("IsMoving", false);
+                    animator.SetTrigger("IsAttacking");
+                }
+
                 if (audioManager != null)
                 {
                     audioManager.PlayCatAttack();

@@ -38,11 +38,11 @@ MonoBehaviour:
     cellSize: 2
     furnitureRows:
     - ..........
-    - .C>.MM..P.
+    - .C>.M.M.P.
     - ........T.
-    - ..V.PT....
-    - .....P.K>.
-    - .A>.......
+    - ..V..T....
+    - .......K>.
+    - .A>..P....
     editSeconds: 60
     surviveSeconds: 120
     chaseLeadInSeconds: 2
@@ -55,6 +55,7 @@ MonoBehaviour:
     catAcceleration: 0.35
     catchRadius: 0.6
     catStartDistance: 4.5
+    catBreakoutBoost: 1.5
     hitSlowScale: 0.06
     hitSlowDuration: 1
     hitShakeAmplitude: 8
