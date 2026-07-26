@@ -7,50 +7,24 @@ namespace MiceToBeHome
 {
     public class HudView : MonoBehaviour
     {
-        public Button StartButton { get; private set; }
-        public Button PauseButton { get; private set; }
+        [SerializeField] private Button startButton = null;
+        [SerializeField] private Button pauseButton = null;
+        [SerializeField] private TextMeshProUGUI timerText = null;
+        [SerializeField] private TextMeshProUGUI phaseText = null;
+        [SerializeField] private TextMeshProUGUI livesText = null;
+        [SerializeField] private TextMeshProUGUI hintText = null;
+        [SerializeField] private GameObject inventoryRoot = null;
+        [SerializeField] private InventoryView inventory = null;
 
-        private TextMeshProUGUI timerText;
-        private TextMeshProUGUI phaseText;
-        private TextMeshProUGUI livesText;
-        private TextMeshProUGUI hintText;
-        private GameObject inventoryRoot;
+        public Button StartButton => startButton;
+        public Button PauseButton => pauseButton;
 
-        public void Build(Transform parent, IReadOnlyList<Trap> traps, PlacementController placement, TooltipView tooltip)
+        public void Initialize(IReadOnlyList<Trap> traps, PlacementController placement, TooltipView tooltip)
         {
-            timerText = UIFactory.CreateText(parent, "Timer", "02:00", 74f, TextAlignmentOptions.Center, Color.white);
-            UIFactory.Anchor(timerText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -18f), new Vector2(360f, 90f));
-
-            phaseText = UIFactory.CreateText(parent, "Phase", "", 30f, TextAlignmentOptions.Center, new Color(1f, 0.92f, 0.6f));
-            UIFactory.Anchor(phaseText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -104f), new Vector2(560f, 40f));
-
-            livesText = UIFactory.CreateText(parent, "Lives", "Lives: 3", 34f, TextAlignmentOptions.Right, Color.white);
-            UIFactory.Anchor(livesText.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f),
-                new Vector2(-28f, -22f), new Vector2(320f, 46f));
-
-            PauseButton = UIFactory.CreateButton(parent, "PauseButton", "II", new Color(0.2f, 0.2f, 0.28f, 0.9f),
-                Color.white, 30f, out _);
-            UIFactory.Anchor(((RectTransform)PauseButton.transform), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(28f, -22f), new Vector2(70f, 70f));
-
-            hintText = UIFactory.CreateText(parent, "Hint",
-                "Click: pick up & place a trap   -   Right click: cancel", 22f,
-                TextAlignmentOptions.Center, new Color(0.9f, 0.9f, 0.95f));
-            UIFactory.Anchor(hintText.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0f, 40f), new Vector2(900f, 40f));
-
-            StartButton = UIFactory.CreateButton(parent, "StartButton", "START   (midnight)",
-                new Color(0.85f, 0.35f, 0.45f, 1f), Color.white, 34f, out _);
-            UIFactory.Anchor(((RectTransform)StartButton.transform), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f), new Vector2(0f, 108f), new Vector2(420f, 84f));
-
-            var inventory = new GameObject("Inventory", typeof(RectTransform));
-            inventory.transform.SetParent(parent, false);
-            UIFactory.Stretch(inventory.GetComponent<RectTransform>());
-            inventoryRoot = inventory;
-            inventory.AddComponent<InventoryView>().Build(inventory.transform, traps, placement, tooltip);
+            if (inventory != null)
+            {
+                inventory.Initialize(traps, placement, tooltip);
+            }
         }
 
         public void SetTimer(float seconds)

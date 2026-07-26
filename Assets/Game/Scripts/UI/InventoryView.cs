@@ -15,100 +15,95 @@ namespace MiceToBeHome
             public TextMeshProUGUI count;
         }
 
+        [SerializeField] private TextMeshProUGUI subtitle = null;
+        [SerializeField] private Transform slotsContainer = null;
+        [SerializeField] private GameObject slotTemplate = null;
+
         private PlacementController placement;
-        private TextMeshProUGUI subtitle;
         private readonly List<Slot> slots = new List<Slot>();
 
-        public void Build(Transform parent, IReadOnlyList<Trap> traps, PlacementController placement, TooltipView tooltip)
+        public void Initialize(IReadOnlyList<Trap> traps, PlacementController placement, TooltipView tooltip)
         {
             this.placement = placement;
+            slots.Clear();
 
-            var panel = UIFactory.CreatePanel(parent, "InventoryPanel", new Color(0.12f, 0.10f, 0.16f, 0.92f));
-            UIFactory.Anchor(panel.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f),
-                Vector2.zero, new Vector2(330f, 0f));
-
-            var header = UIFactory.CreateText(panel.transform, "Header", "INVENTORY", 30f, TextAlignmentOptions.Center, Color.white);
-            UIFactory.Anchor(header.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -12f), new Vector2(0f, 52f));
-
-            subtitle = UIFactory.CreateText(panel.transform, "Subtitle", string.Empty, 18f,
-                TextAlignmentOptions.Center, new Color(0.8f, 0.8f, 0.85f));
-            UIFactory.Anchor(subtitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -60f), new Vector2(0f, 26f));
-
-            var container = new GameObject("Slots", typeof(RectTransform));
-            container.transform.SetParent(panel.transform, false);
-            UIFactory.Anchor(container.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(1f, 1f),
-                new Vector2(0.5f, 1f), new Vector2(0f, -92f), new Vector2(0f, 0f));
-
-            var layout = container.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(12, 12, 6, 6);
-            layout.spacing = 8f;
-            layout.childAlignment = TextAnchor.UpperCenter;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
-            var fitter = container.AddComponent<ContentSizeFitter>();
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            if (slotTemplate == null || slotsContainer == null)
+            {
+                return;
+            }
 
             for (int i = 0; i < traps.Count; i++)
             {
-                CreateSlot(container.transform, traps[i], tooltip);
+                CreateSlot(traps[i], tooltip);
             }
 
+            // The authored template is only a style reference; hide it once real slots exist.
+            slotTemplate.SetActive(false);
             Refresh();
         }
 
-        private void CreateSlot(Transform parent, Trap trapPrefab, TooltipView tooltip)
+        private void CreateSlot(Trap trapPrefab, TooltipView tooltip)
         {
             TrapDefinition definition = trapPrefab.Definition;
-            var go = new GameObject("Slot_" + definition.displayName, typeof(RectTransform));
-            go.transform.SetParent(parent, false);
 
-            var group = go.AddComponent<CanvasGroup>();
+            GameObject go = Instantiate(slotTemplate, slotsContainer);
+            go.name = "Slot_" + definition.displayName;
+            go.SetActive(true);
 
-            var background = go.AddComponent<Image>();
-            background.color = new Color(0.18f, 0.16f, 0.24f, 1f);
-
-            var button = go.AddComponent<Button>();
-            button.targetGraphic = background;
-            var colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(0.78f, 0.82f, 0.95f);
-            colors.pressedColor = new Color(0.6f, 0.65f, 0.8f);
-            colors.disabledColor = new Color(0.6f, 0.6f, 0.65f);
-            button.colors = colors;
-
-            var element = go.AddComponent<LayoutElement>();
-            element.minHeight = 84f;
-            element.preferredHeight = 84f;
+            var group = go.GetComponent<CanvasGroup>();
+            var button = go.GetComponent<Button>();
 
             SpriteRenderer skin = trapPrefab.GetComponentInChildren<SpriteRenderer>();
             Sprite iconSprite = skin != null ? skin.sprite : null;
             Color iconColor = skin != null ? skin.color : definition.tint;
-            var icon = UIFactory.CreateIcon(go.transform, "Icon", iconSprite, iconColor);
-            UIFactory.Anchor(icon.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
-                new Vector2(12f, 0f), new Vector2(56f, 56f));
+            Image icon = FindImage(go.transform, "Icon");
+            if (icon != null)
+            {
+                if (iconSprite != null)
+                {
+                    icon.sprite = iconSprite;
+                }
+                icon.color = iconColor;
+            }
 
-            string body = $"{definition.displayName}\n<size=16><color=#C8C8D0>Stuns {definition.effectSeconds:0.##}s</color></size>";
-            var text = UIFactory.CreateText(go.transform, "Info", body, 20f, TextAlignmentOptions.Left, Color.white);
-            UIFactory.Stretch(text.rectTransform);
-            text.rectTransform.offsetMin = new Vector2(78f, 6f);
-            text.rectTransform.offsetMax = new Vector2(-42f, -6f);
+            TextMeshProUGUI info = FindText(go.transform, "Info");
+            if (info != null)
+            {
+                info.text = $"{definition.displayName}\n<size=16><color=#C8C8D0>Stuns {definition.effectSeconds:0.##}s</color></size>";
+            }
 
-            var count = UIFactory.CreateText(go.transform, "Count", string.Empty, 26f, TextAlignmentOptions.Right, Color.white);
-            UIFactory.Anchor(count.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
-                new Vector2(-14f, 0f), new Vector2(48f, 44f));
+            TextMeshProUGUI count = FindText(go.transform, "Count");
+            if (count != null)
+            {
+                count.text = string.Empty;
+            }
 
-            var trigger = go.AddComponent<TooltipTrigger>();
+            var trigger = go.GetComponent<TooltipTrigger>();
+            if (trigger == null)
+            {
+                trigger = go.AddComponent<TooltipTrigger>();
+            }
             trigger.Setup(tooltip, BuildTooltip(definition));
 
             Trap captured = trapPrefab;
-            button.onClick.AddListener(() => placement.SelectFromInventory(captured));
+            if (button != null)
+            {
+                button.onClick.AddListener(() => placement.SelectFromInventory(captured));
+            }
 
             slots.Add(new Slot { prefab = trapPrefab, button = button, group = group, count = count });
+        }
+
+        private static Image FindImage(Transform root, string childName)
+        {
+            Transform t = root.Find(childName);
+            return t != null ? t.GetComponent<Image>() : null;
+        }
+
+        private static TextMeshProUGUI FindText(Transform root, string childName)
+        {
+            Transform t = root.Find(childName);
+            return t != null ? t.GetComponent<TextMeshProUGUI>() : null;
         }
 
         private void Update()
@@ -128,11 +123,20 @@ namespace MiceToBeHome
             {
                 Slot slot = slots[i];
                 int remaining = placement.GetStock(slot.prefab);
-                slot.count.text = "x" + remaining;
-
                 bool usable = remaining > 0 && canPlaceMore;
-                slot.button.interactable = usable;
-                slot.group.alpha = usable ? 1f : 0.45f;
+
+                if (slot.count != null)
+                {
+                    slot.count.text = "x" + remaining;
+                }
+                if (slot.button != null)
+                {
+                    slot.button.interactable = usable;
+                }
+                if (slot.group != null)
+                {
+                    slot.group.alpha = usable ? 1f : 0.45f;
+                }
             }
 
             if (subtitle != null)
