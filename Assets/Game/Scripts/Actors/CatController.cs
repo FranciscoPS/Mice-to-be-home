@@ -11,7 +11,8 @@ namespace MiceToBeHome
             Idle,
             Chasing,
             Stunned,
-            Recovering
+            Recovering,
+            Jumping
         }
 
         private Rigidbody body;
@@ -51,6 +52,10 @@ namespace MiceToBeHome
         private Vector2Int breakoutPlayerCell;
         private bool breakoutLatched;
         private bool blockedSteer;
+        private Vector3 visualBaseLocalPos;
+        private float jumpTimer;
+        private Vector3 jumpStart;
+        private Vector3 jumpTarget;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -69,6 +74,10 @@ namespace MiceToBeHome
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
+            if (visual != null)
+            {
+                visualBaseLocalPos = visual.transform.localPosition;
+            }
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -88,6 +97,14 @@ namespace MiceToBeHome
                 if (body != null)
                 {
                     body.linearVelocity = Vector3.zero;
+                }
+                if (animator != null)
+                {
+                    animator.speed = 1f;
+                }
+                if (visual != null)
+                {
+                    visual.transform.localPosition = visualBaseLocalPos;
                 }
                 if (audioManager != null)
                 {
@@ -117,6 +134,15 @@ namespace MiceToBeHome
             playerOnFurnitureTimer = 0f;
             corneredTimer = 0f;
             loopTimer = 0f;
+            jumpTimer = 0f;
+            if (visual != null)
+            {
+                visual.transform.localPosition = visualBaseLocalPos;
+            }
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
             if (audioManager != null)
             {
                 audioManager.SetCatPurring(false);
@@ -155,6 +181,9 @@ namespace MiceToBeHome
                     break;
                 case CatState.Chasing:
                     Chase();
+                    break;
+                case CatState.Jumping:
+                    UpdateJump();
                     break;
             }
 
@@ -196,6 +225,12 @@ namespace MiceToBeHome
 
             if (TryStun())
             {
+                return;
+            }
+
+            if (ShouldJump())
+            {
+                BeginJump();
                 return;
             }
 
@@ -592,13 +627,9 @@ namespace MiceToBeHome
             // player camping on/behind furniture for a moment. Gated on corneredTimer (NOT the
             // displacement stuckTimer, which the cat's jitter kept resetting) so it fires reliably
             // instead of the cat orbiting a camped mouse forever.
-            float reach = balance.catchRadius;
-            if (corneredTimer >= 0.6f && grid != null)
-            {
-                reach += grid.CellSize;
-            }
-
-            if (HorizontalDistance(body.position, player.Position) <= reach && player.TakeHit(body.position))
+            // Catch on REAL contact only now (the old extend-reach pounce hit from too far); the
+            // anti-camp is the visible, dodgeable leap (BeginJump) instead.
+            if (HorizontalDistance(body.position, player.Position) <= balance.catchRadius && player.TakeHit(body.position))
             {
                 currentSpeed = balance.catBaseSpeed;
                 stateTimer = 0.6f;
@@ -608,6 +639,106 @@ namespace MiceToBeHome
                 {
                     audioManager.PlayCatAttack();
                 }
+            }
+        }
+
+        private bool ShouldJump()
+        {
+            if (grid == null || player == null)
+            {
+                return false;
+            }
+            // Leap only when the mouse has been CAMPING on/behind furniture long enough (a normal
+            // chase would have caught it by contact well before this) and it is within leap range.
+            if (playerOnFurnitureTimer < balance.catJumpAfterSeconds)
+            {
+                return false;
+            }
+            float dist = HorizontalDistance(body.position, player.Position);
+            return dist <= balance.catchRadius + grid.CellSize * 1.5f;
+        }
+
+        private void BeginJump()
+        {
+            state = CatState.Jumping;
+            jumpTimer = 0f;
+            jumpStart = body.position;
+            jumpTarget = player.Position;
+            jumpTarget.y = jumpStart.y;
+            body.linearVelocity = Vector3.zero;
+
+            float dx = jumpTarget.x - jumpStart.x;
+            if (Mathf.Abs(dx) > 0.001f)
+            {
+                lastDirectionX = dx;
+                if (visual != null)
+                {
+                    visual.flipX = dx < 0f;
+                }
+            }
+
+            // Freeze the animation frame so the flat sprite reads as a leaping pose in mid-air.
+            if (animator != null)
+            {
+                animator.speed = 0f;
+            }
+            if (audioManager != null)
+            {
+                audioManager.PlayCatAttack();
+            }
+            if (debugCat)
+            {
+                Debug.Log($"[CatDbg] JUMP start={jumpStart} target={jumpTarget} dist={HorizontalDistance(jumpStart, jumpTarget):0.00}");
+            }
+        }
+
+        private void UpdateJump()
+        {
+            jumpTimer += Time.fixedDeltaTime;
+            float duration = Mathf.Max(0.15f, balance.catJumpDuration);
+            float t = Mathf.Clamp01(jumpTimer / duration);
+
+            // Root slides across (X/Z free, Y frozen); setting position DIRECTLY teleports it so it
+            // passes OVER the furniture collider instead of being blocked at ground level.
+            Vector3 pos = Vector3.Lerp(jumpStart, jumpTarget, t);
+            pos.y = jumpStart.y;
+            body.position = pos;
+            body.linearVelocity = Vector3.zero;
+
+            // The visible arc lives on the Visual child (the Billboard only drives rotation/sorting).
+            if (visual != null)
+            {
+                float arc = 4f * Mathf.Max(0f, balance.catJumpHeight) * t * (1f - t);
+                visual.transform.localPosition = visualBaseLocalPos + Vector3.up * arc;
+            }
+
+            if (t >= 1f)
+            {
+                EndJump();
+            }
+        }
+
+        private void EndJump()
+        {
+            if (visual != null)
+            {
+                visual.transform.localPosition = visualBaseLocalPos;
+            }
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
+            currentSpeed = balance.catBaseSpeed;
+            playerOnFurnitureTimer = 0f;
+            corneredTimer = 0f;
+
+            // Land: catch only if the mouse is still here (it could have dodged during the leap).
+            TryCatch();
+
+            if (state == CatState.Jumping)
+            {
+                stateTimer = 0.35f;
+                state = CatState.Recovering;
             }
         }
 
