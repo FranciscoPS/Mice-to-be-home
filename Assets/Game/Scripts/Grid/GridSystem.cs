@@ -27,18 +27,25 @@ namespace MiceToBeHome
 
             cornerOrigin = transform.position - new Vector3(Columns * CellSize * 0.5f, 0f, Rows * CellSize * 0.5f);
 
-            MarkFurnitureFromScene();
+            MarkFurnitureFromLayout(balance);
         }
 
-        private void MarkFurnitureFromScene()
+        // Furniture blocks a cell whenever the layout has anything other than empty ('.') there.
+        // This covers every furniture type and the '>' continuation of a 1x2 piece, so 2-cell
+        // obstacles block BOTH cells. Layout row 0 is the far/top row, so gridRow = Rows - 1 - i.
+        private void MarkFurnitureFromLayout(BalanceSettings balance)
         {
-            FurniturePiece[] pieces = FindObjectsByType<FurniturePiece>(FindObjectsSortMode.None);
-            for (int i = 0; i < pieces.Length; i++)
+            for (int i = 0; i < Rows; i++)
             {
-                Vector2Int cell = WorldToCell(pieces[i].transform.position);
-                if (IsInside(cell))
+                string line = balance.GetFurnitureRow(i);
+                int gridRow = Rows - 1 - i;
+                for (int c = 0; c < Columns && c < line.Length; c++)
                 {
-                    furniture[Index(cell.x, cell.y)] = true;
+                    char ch = line[c];
+                    if (ch != '.' && ch != ' ')
+                    {
+                        furniture[Index(c, gridRow)] = true;
+                    }
                 }
             }
         }

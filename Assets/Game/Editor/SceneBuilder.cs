@@ -47,7 +47,7 @@ namespace MiceToBeHome.EditorTools
             float cell = Mathf.Max(0.1f, balance.cellSize);
             Vector3 center = Vector3.zero;
 
-            GameObject furniturePrefab = BuildFurniturePrefab(sprites, cell);
+            Dictionary<char, GameObject> furniturePrefabs = BuildFurniturePrefabs(sprites, cell);
             GameObject cellPrefab = BuildCellPrefab(sprites, cell);
             GameObject playerPrefab = BuildActorPrefab("Player", sprites.mouse, sprites.mouseTint, cell, cell * 0.5f, false);
             GameObject catPrefab = BuildActorPrefab("Cat", sprites.cat, sprites.catTint, cell, cell * 0.62f, true);
@@ -89,11 +89,23 @@ namespace MiceToBeHome.EditorTools
                 int gridRow = rows - 1 - i;
                 for (int c = 0; c < cols && c < line.Length; c++)
                 {
-                    if (line[c] == 'X' || line[c] == 'x')
+                    char ch = FurnitureCatalog.Normalize(line[c]);
+                    if (!FurnitureCatalog.TryGet(ch, out FurnitureType type))
                     {
-                        var piece = (GameObject)PrefabUtility.InstantiatePrefab(furniturePrefab, furnitureParent);
-                        piece.transform.position = GridSystem.CellToWorld(center, cols, rows, cell, c, gridRow);
+                        continue;
                     }
+                    if (type.Width >= 2 && c + type.Width > cols)
+                    {
+                        continue;
+                    }
+                    if (!furniturePrefabs.TryGetValue(type.Code, out GameObject furniturePrefab) || furniturePrefab == null)
+                    {
+                        continue;
+                    }
+
+                    var piece = (GameObject)PrefabUtility.InstantiatePrefab(furniturePrefab, furnitureParent);
+                    Vector3 anchor = GridSystem.CellToWorld(center, cols, rows, cell, c, gridRow);
+                    piece.transform.position = anchor + new Vector3((type.Width - 1) * 0.5f * cell, 0f, 0f);
                 }
             }
 
@@ -125,35 +137,6 @@ namespace MiceToBeHome.EditorTools
             Selection.activeObject = root;
             EditorGUIUtility.PingObject(root);
             Debug.Log("[Mice to be Home] Scene built. Reusable prefabs live in Assets/Game/Prefabs. Press Play.");
-        }
-
-        [MenuItem("Tools/Mice to be Home/Add Furniture Piece")]
-        public static void AddFurniturePiece()
-        {
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + "/Furniture.prefab");
-            if (prefab == null)
-            {
-                EditorUtility.DisplayDialog("Mice to be Home", "Build the scene first (Tools > Mice to be Home > Build Scene).", "OK");
-                return;
-            }
-
-            Transform parent = null;
-            var installer = Object.FindFirstObjectByType<GameInstaller>();
-            if (installer != null)
-            {
-                var grid = installer.GetComponentInChildren<GridSystem>();
-                if (grid != null)
-                {
-                    Transform furniture = grid.transform.Find("Furniture");
-                    parent = furniture != null ? furniture : grid.transform;
-                }
-            }
-
-            var piece = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
-            piece.transform.position = Vector3.zero;
-            Undo.RegisterCreatedObjectUndo(piece, "Add Furniture Piece");
-            Selection.activeObject = piece;
-            EditorGUIUtility.PingObject(piece);
         }
 
         [MenuItem("Tools/Mice to be Home/Clear Scene")]
@@ -207,21 +190,42 @@ namespace MiceToBeHome.EditorTools
             return config;
         }
 
-        private static GameObject BuildFurniturePrefab(SpriteLibrary sprites, float cell)
+        private static Dictionary<char, GameObject> BuildFurniturePrefabs(SpriteLibrary sprites, float cell)
         {
-            string path = PrefabFolder + "/Furniture.prefab";
+            var map = new Dictionary<char, GameObject>();
+            for (int i = 0; i < FurnitureCatalog.Types.Length; i++)
+            {
+                FurnitureType type = FurnitureCatalog.Types[i];
+                map[type.Code] = BuildFurniturePrefab(sprites, cell, type);
+            }
+            return map;
+        }
+
+        private static GameObject BuildFurniturePrefab(SpriteLibrary sprites, float cell, FurnitureType type)
+        {
+            string path = PrefabFolder + "/Furniture_" + type.Name + ".prefab";
             GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (existing != null)
             {
                 return existing;
             }
 
-            var template = new GameObject("Furniture");
+            var template = new GameObject("Furniture_" + type.Name);
             template.AddComponent<FurniturePiece>();
             var box = template.AddComponent<BoxCollider>();
             box.center = new Vector3(0f, 0.5f, 0f);
-            box.size = new Vector3(cell * 0.45f, 1f, cell * 0.45f);
-            AddBillboard(template.transform, "Visual", sprites.furniture, sprites.furnitureTint, false, cell * 0.72f);
+            if (type.Width >= 2)
+            {
+                // One long collider spanning both cells horizontally, no gap.
+                box.size = new Vector3(cell * 1.9f, 1f, cell * 0.45f);
+            }
+            else
+            {
+                box.size = new Vector3(cell * 0.45f, 1f, cell * 0.45f);
+            }
+
+            float visualSize = type.Width >= 2 ? cell * 1.3f : cell * 0.72f;
+            AddBillboard(template.transform, "Visual", type.Sprite(sprites), sprites.furnitureTint, false, visualSize);
             return SavePrefab(template, path);
         }
 

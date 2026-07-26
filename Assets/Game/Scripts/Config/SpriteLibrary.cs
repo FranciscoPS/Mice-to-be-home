@@ -14,8 +14,17 @@ namespace MiceToBeHome
         public Sprite cat;
         public Color catTint = new Color(0.95f, 0.55f, 0.3f);
 
-        [Header("Furniture / obstacles")]
-        public Sprite furniture;
+        [Header("Furniture / obstacles (1x1)")]
+        public Sprite sillon;
+        public Sprite maceta;
+        public Sprite puff;
+        public Sprite mesita;
+
+        [Header("Furniture / obstacles (1x2 horizontal)")]
+        public Sprite cama;
+        public Sprite tele;
+        public Sprite cocina;
+
         public Color furnitureTint = new Color(0.4f, 0.45f, 0.55f);
 
         [Header("Room floor")]
