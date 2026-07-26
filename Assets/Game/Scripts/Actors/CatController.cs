@@ -11,7 +11,8 @@ namespace MiceToBeHome
             Idle,
             Chasing,
             Stunned,
-            Recovering
+            Recovering,
+            Jumping
         }
 
         private Rigidbody body;
@@ -45,10 +46,16 @@ namespace MiceToBeHome
         private float footstepTimer;
         private float playerOnFurnitureTimer;
         private float corneredTimer;
+        private float loopTimer;
+        private const float BreakoutLoopDelay = 2f;
         private Vector3 breakoutDir;
         private Vector2Int breakoutPlayerCell;
         private bool breakoutLatched;
         private bool blockedSteer;
+        private Vector3 visualBaseLocalPos;
+        private float jumpTimer;
+        private Vector3 jumpStart;
+        private Vector3 jumpTarget;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -67,6 +74,10 @@ namespace MiceToBeHome
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
+            if (visual != null)
+            {
+                visualBaseLocalPos = visual.transform.localPosition;
+            }
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -86,6 +97,14 @@ namespace MiceToBeHome
                 if (body != null)
                 {
                     body.linearVelocity = Vector3.zero;
+                }
+                if (animator != null)
+                {
+                    animator.speed = 1f;
+                }
+                if (visual != null)
+                {
+                    visual.transform.localPosition = visualBaseLocalPos;
                 }
                 if (audioManager != null)
                 {
@@ -114,6 +133,16 @@ namespace MiceToBeHome
             footstepTimer = 0f;
             playerOnFurnitureTimer = 0f;
             corneredTimer = 0f;
+            loopTimer = 0f;
+            jumpTimer = 0f;
+            if (visual != null)
+            {
+                visual.transform.localPosition = visualBaseLocalPos;
+            }
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
             if (audioManager != null)
             {
                 audioManager.SetCatPurring(false);
@@ -152,6 +181,9 @@ namespace MiceToBeHome
                     break;
                 case CatState.Chasing:
                     Chase();
+                    break;
+                case CatState.Jumping:
+                    UpdateJump();
                     break;
             }
 
@@ -196,6 +228,12 @@ namespace MiceToBeHome
                 return;
             }
 
+            if (ShouldJump())
+            {
+                BeginJump();
+                return;
+            }
+
             currentSpeed = Mathf.Min(balance.catMaxSpeed, currentSpeed + balance.catAcceleration * Time.fixedDeltaTime);
 
             if (unstickTimer > 0f)
@@ -216,11 +254,24 @@ namespace MiceToBeHome
             float speed = currentSpeed;
             bool inRange = grid != null && HorizontalDistance(body.position, player.Position) <= balance.catchRadius + grid.CellSize;
             bool cornered = blockedSteer && inRange && playerOnFurnitureTimer > 0f;
+
+            // Track how long the cat has been LOOPING in place while cornered; only escalate to the
+            // boosted breakout after a sustained window (BreakoutLoopDelay = 2s). Below that, keep the
+            // ordinary steering so normal play and brief snags are untouched.
             if (cornered)
             {
-                // Cornered against a camping player: commit to a LATCHED direction (no per-frame flip
-                // = no jitter / sprite flicker) and drive ABOVE max speed so the cat decisively presses
-                // through the furniture gap toward the mouse instead of vibrating in place.
+                loopTimer += Time.fixedDeltaTime;
+            }
+            else
+            {
+                loopTimer = 0f;
+            }
+
+            if (cornered && loopTimer >= BreakoutLoopDelay)
+            {
+                // Looping too long: commit to a LATCHED direction (no per-frame flip = no jitter) and
+                // drive ABOVE max speed so the cat decisively presses through the furniture gap toward
+                // the mouse instead of vibrating in place.
                 direction = ResolveBreakoutDirection();
                 speed = balance.catMaxSpeed * Mathf.Max(1f, balance.catBreakoutBoost);
                 debugMode = "breakout";
@@ -361,7 +412,10 @@ namespace MiceToBeHome
                 return player.Position;
             }
 
-            while (path.Count > 0 && path[0] == catCell)
+            // Drop waypoints we've already reached (by cell, OR by getting close enough) so a
+            // corner-cut still advances the route instead of dragging the cat back to a cell center.
+            while (path.Count > 0 && (path[0] == catCell
+                || HorizontalDistance(grid.CellToWorld(path[0]), body.position) <= grid.CellSize * 0.5f))
             {
                 path.RemoveAt(0);
             }
@@ -400,7 +454,25 @@ namespace MiceToBeHome
 
             blockedSteer = path.Count == 0;
             debugMode = path.Count > 0 ? "path" : "pathEmpty";
-            return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
+            if (path.Count == 0)
+            {
+                return player.Position;
+            }
+
+            // String-pull: steer at the FURTHEST waypoint we can see in a straight line, not the next
+            // cell center. This is how grid/navmesh games avoid the blocky "wide detour" look - the cat
+            // cuts corners tight and crosses open space straight. HasLineOfSight already refuses
+            // diagonal corner-cuts, so the shortcut never clips a furniture piece.
+            int steerIndex = 0;
+            for (int i = path.Count - 1; i > 0; i--)
+            {
+                if (grid.HasLineOfSight(catCell, path[i]))
+                {
+                    steerIndex = i;
+                    break;
+                }
+            }
+            return grid.CellToWorld(path[steerIndex]);
         }
 
         private Vector3 ResolveBreakoutDirection()
@@ -437,7 +509,7 @@ namespace MiceToBeHome
             Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
             Vector2Int playerCell = grid != null ? grid.WorldToCell(player.Position) : default;
             float dist = HorizontalDistance(body.position, player.Position);
-            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} blocked={blockedSteer} vel={body.linearVelocity.magnitude:0.0}");
+            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} loop={loopTimer:0.00} blocked={blockedSteer} vel={body.linearVelocity.magnitude:0.0}");
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)
@@ -555,13 +627,9 @@ namespace MiceToBeHome
             // player camping on/behind furniture for a moment. Gated on corneredTimer (NOT the
             // displacement stuckTimer, which the cat's jitter kept resetting) so it fires reliably
             // instead of the cat orbiting a camped mouse forever.
-            float reach = balance.catchRadius;
-            if (corneredTimer >= 0.6f && grid != null)
-            {
-                reach += grid.CellSize;
-            }
-
-            if (HorizontalDistance(body.position, player.Position) <= reach && player.TakeHit(body.position))
+            // Catch on REAL contact only now (the old extend-reach pounce hit from too far); the
+            // anti-camp is the visible, dodgeable leap (BeginJump) instead.
+            if (HorizontalDistance(body.position, player.Position) <= balance.catchRadius && player.TakeHit(body.position))
             {
                 currentSpeed = balance.catBaseSpeed;
                 stateTimer = 0.6f;
@@ -578,6 +646,106 @@ namespace MiceToBeHome
                 {
                     audioManager.PlayCatAttack();
                 }
+            }
+        }
+
+        private bool ShouldJump()
+        {
+            if (grid == null || player == null)
+            {
+                return false;
+            }
+            // Leap only when the mouse has been CAMPING on/behind furniture long enough (a normal
+            // chase would have caught it by contact well before this) and it is within leap range.
+            if (playerOnFurnitureTimer < balance.catJumpAfterSeconds)
+            {
+                return false;
+            }
+            float dist = HorizontalDistance(body.position, player.Position);
+            return dist <= balance.catchRadius + grid.CellSize * 1.5f;
+        }
+
+        private void BeginJump()
+        {
+            state = CatState.Jumping;
+            jumpTimer = 0f;
+            jumpStart = body.position;
+            jumpTarget = player.Position;
+            jumpTarget.y = jumpStart.y;
+            body.linearVelocity = Vector3.zero;
+
+            float dx = jumpTarget.x - jumpStart.x;
+            if (Mathf.Abs(dx) > 0.001f)
+            {
+                lastDirectionX = dx;
+                if (visual != null)
+                {
+                    visual.flipX = dx < 0f;
+                }
+            }
+
+            // Freeze the animation frame so the flat sprite reads as a leaping pose in mid-air.
+            if (animator != null)
+            {
+                animator.speed = 0f;
+            }
+            if (audioManager != null)
+            {
+                audioManager.PlayCatAttack();
+            }
+            if (debugCat)
+            {
+                Debug.Log($"[CatDbg] JUMP start={jumpStart} target={jumpTarget} dist={HorizontalDistance(jumpStart, jumpTarget):0.00}");
+            }
+        }
+
+        private void UpdateJump()
+        {
+            jumpTimer += Time.fixedDeltaTime;
+            float duration = Mathf.Max(0.15f, balance.catJumpDuration);
+            float t = Mathf.Clamp01(jumpTimer / duration);
+
+            // Root slides across (X/Z free, Y frozen); setting position DIRECTLY teleports it so it
+            // passes OVER the furniture collider instead of being blocked at ground level.
+            Vector3 pos = Vector3.Lerp(jumpStart, jumpTarget, t);
+            pos.y = jumpStart.y;
+            body.position = pos;
+            body.linearVelocity = Vector3.zero;
+
+            // The visible arc lives on the Visual child (the Billboard only drives rotation/sorting).
+            if (visual != null)
+            {
+                float arc = 4f * Mathf.Max(0f, balance.catJumpHeight) * t * (1f - t);
+                visual.transform.localPosition = visualBaseLocalPos + Vector3.up * arc;
+            }
+
+            if (t >= 1f)
+            {
+                EndJump();
+            }
+        }
+
+        private void EndJump()
+        {
+            if (visual != null)
+            {
+                visual.transform.localPosition = visualBaseLocalPos;
+            }
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
+            currentSpeed = balance.catBaseSpeed;
+            playerOnFurnitureTimer = 0f;
+            corneredTimer = 0f;
+
+            // Land: catch only if the mouse is still here (it could have dodged during the leap).
+            TryCatch();
+
+            if (state == CatState.Jumping)
+            {
+                stateTimer = 0.35f;
+                state = CatState.Recovering;
             }
         }
 
