@@ -25,6 +25,11 @@ namespace MiceToBeHome
         private bool hitReactionActive;
         private float footstepTimer;
 
+        [SerializeField] private GameObject hitAnimationPrefab;
+        private GameObject hitAnimationInstance;
+        private Animator hitAnimator;
+        private float lastHitTick = -10f;
+
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
@@ -84,6 +89,11 @@ namespace MiceToBeHome
             knockbackTimer = 0.25f;
             Hit?.Invoke();
             TriggerHitReaction();
+
+            // Play hit VFX/animation like traps' repair animation
+            lastHitTick = Time.time;
+            EnsureHitAnimationInstance();
+
             return true;
         }
 
@@ -159,6 +169,12 @@ namespace MiceToBeHome
             else
             {
                 SetAlpha(1f);
+            }
+
+            // If hit animation exists but no recent hit tick, remove it (player moved away / hit finished)
+            if (hitAnimationInstance != null && Time.time - lastHitTick > 0.5f)
+            {
+                DestroyHitAnimationImmediate();
             }
         }
 
@@ -278,6 +294,76 @@ namespace MiceToBeHome
             Color color = visual.color;
             color.a = alpha;
             visual.color = color;
+        }
+
+        // --- Hit animation helpers (mimic trap repair animation behavior) ---------
+
+        private void EnsureHitAnimationInstance()
+        {
+            if (hitAnimationPrefab == null || hitAnimationInstance != null)
+            {
+                return;
+            }
+
+            hitAnimationInstance = Instantiate(hitAnimationPrefab, transform);
+            // Place the VFX above the player similar to trap repair placement.
+            hitAnimationInstance.transform.localPosition = new Vector3(0f, 0.6f, 0f);
+            // Rotate to face camera if it's a world-space canvas / billboard.
+            if (Camera.main != null)
+            {
+                hitAnimationInstance.transform.rotation = Camera.main.transform.rotation;
+            }
+
+            hitAnimator = hitAnimationInstance.GetComponent<Animator>();
+            hitAnimationInstance.SetActive(true);
+
+            // If animator has clips, play the first immediately and destroy after its length.
+            if (hitAnimator != null && hitAnimator.runtimeAnimatorController != null)
+            {
+                var clips = hitAnimator.runtimeAnimatorController.animationClips;
+                if (clips != null && clips.Length > 0)
+                {
+                    string clipName = clips[0].name;
+                    float clipLen = clips[0].length;
+                    hitAnimator.Play(clipName, -1, 0f);
+                    StartCoroutine(PlayThenDestroy(hitAnimationInstance, clipLen));
+                    return;
+                }
+            }
+
+            // Fallback: destroy after a short default time.
+            StartCoroutine(PlayThenDestroy(hitAnimationInstance, 0.6f));
+        }
+
+        private void DestroyHitAnimationImmediate()
+        {
+            if (hitAnimationInstance == null)
+            {
+                return;
+            }
+
+            Destroy(hitAnimationInstance);
+            hitAnimationInstance = null;
+            hitAnimator = null;
+        }
+
+        private IEnumerator PlayThenDestroy(GameObject animObj, float delay)
+        {
+            if (delay > 0f)
+            {
+                yield return new WaitForSeconds(delay);
+            }
+
+            if (animObj != null)
+            {
+                Destroy(animObj);
+            }
+
+            if (animObj == hitAnimationInstance)
+            {
+                hitAnimationInstance = null;
+                hitAnimator = null;
+            }
         }
     }
 }
