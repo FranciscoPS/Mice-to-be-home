@@ -43,6 +43,9 @@ namespace MiceToBeHome
             lives.Depleted += HandleLivesDepleted;
 
             GameManager.Instance.StateChanged += ConfigureState;
+
+            // Suscribirse a la petición de empezar la persecución (trigger desde UI).
+            GameManager.Instance.BeginChaseRequested += OnBeginChaseRequested;
         }
 
         private void Update()
@@ -215,7 +218,67 @@ namespace MiceToBeHome
 
         private void OnTimerChanged(float remaining) => TimerChanged?.Invoke(remaining);
 
-        private void HandleEditFinished() => GameManager.Instance.BeginChase();
+        // Cuando la edición termina (tiempo) reproducir la animación y luego comenzar la persecución.
+        private void HandleEditFinished()
+        {
+            StartIntroSequence();
+        }
+
+        // Cuando UI pide comenzar (botón START), manejar la petición para reproducir la intro si estamos en Editing.
+        private void OnBeginChaseRequested()
+        {
+            StartIntroSequence();
+        }
+
+        private void StartIntroSequence()
+        {
+            if (player == null)
+            {
+                GameManager.Instance.BeginChase();
+                return;
+            }
+
+            // Si no estamos en Editing, proceder directamente.
+            if (GameManager.Instance.State != GameState.Editing)
+            {
+                GameManager.Instance.BeginChase();
+                return;
+            }
+
+            // Ejecutar animación del jugador conectada desde Any State y esperar a que termine.
+            StartCoroutine(PlayIntroThenBegin());
+        }
+
+        private IEnumerator PlayIntroThenBegin()
+        {
+            // Preparar jugador para que el Animator pueda reproducir la animación:
+            Vector3 center = grid != null ? grid.Center : Vector3.zero;
+            player.gameObject.SetActive(true);
+            player.Teleport(center);
+            // Mantener congelado durante la intro (evita que el jugador se mueva)
+            player.SetActive(false);
+
+            // Asegurar que la cámara enfoque al jugador para la intro.
+            if (cameraController != null)
+            {
+                cameraController.Follow(player.transform);
+            }
+
+            bool finished = false;
+            player.PlayStartAnimation(() => finished = true);
+
+            // Esperar hasta que la animación acabe.
+            while (!finished)
+            {
+                yield return null;
+            }
+
+            // Asegurarse de que seguimos en Editing (no se haya cambiado manualmente el estado).
+            if (GameManager.Instance.State == GameState.Editing)
+            {
+                GameManager.Instance.BeginChase();
+            }
+        }
 
         private void HandleSurviveFinished() => GameManager.Instance.Win();
 

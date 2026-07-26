@@ -98,6 +98,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MiceToBeHome.MousePlayerController
   hitAnimationPrefab: {fileID: 7451389908106313938, guid: e1037c0ee6f7ba841abca491a05b37d0, type: 3}
+  startTrigger: startTrigger
+  startStateName: TransAnim
 --- !u!1 &9001327689978203067
 GameObject:
   m_ObjectHideFlags: 0

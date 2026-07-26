@@ -53,7 +53,9 @@ namespace MiceToBeHome
 
             if (hud != null)
             {
-                Wire(hud.StartButton, GameManager.Instance.BeginChase);
+                // Cambiado: el StartButton ahora pide "RequestBeginChase" para que GameFlowController
+                // pueda reproducir la animación antes de hacer BeginChase.
+                Wire(hud.StartButton, GameManager.Instance.RequestBeginChase);
                 Wire(hud.PauseButton, GameManager.Instance.TogglePause);
                 flow.TimerChanged += hud.SetTimer;
                 lives.Changed += hud.SetLives;
