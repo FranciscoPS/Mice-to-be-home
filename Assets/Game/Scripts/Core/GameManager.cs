@@ -8,6 +8,10 @@ namespace MiceToBeHome
         public GameState State { get; private set; } = GameState.MainMenu;
         public GameState PreviousState { get; private set; } = GameState.MainMenu;
 
+        // True only while unpausing (Resume). Restart also transitions out of Paused, so the flow
+        // controller must not rely on PreviousState == Paused to tell resume and restart apart.
+        public bool Resuming { get; private set; }
+
         public event Action<GameState> StateChanged;
 
         public bool IsPlaying => State == GameState.Playing;
@@ -31,7 +35,9 @@ namespace MiceToBeHome
             }
             else if (State == GameState.Paused)
             {
+                Resuming = true;
                 SetState(PreviousState);
+                Resuming = false;
             }
         }
 

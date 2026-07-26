@@ -37,7 +37,7 @@ MonoBehaviour:
     gridRows: 6
     cellSize: 2
     furnitureRows:
-    - A>...M.M..
+    - A>...M..K>
     - ...P......
     - .C>.......
     - M..M....M.

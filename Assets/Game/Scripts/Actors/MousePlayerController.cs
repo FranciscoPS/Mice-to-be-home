@@ -24,12 +24,19 @@ namespace MiceToBeHome
         private float lastDirectionX = 1f;
         private bool hitReactionActive;
         private float footstepTimer;
+        private Vector3 visualBaseLocalPos;
+        private Vector3 visualBaseLocalScale = Vector3.one;
 
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
+            if (visual != null)
+            {
+                visualBaseLocalPos = visual.transform.localPosition;
+                visualBaseLocalScale = visual.transform.localScale;
+            }
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -52,6 +59,11 @@ namespace MiceToBeHome
             {
                 AudioManager.Instance.SetMouseRunning(false);
             }
+            if (value)
+            {
+                StopAllCoroutines();
+                RestoreVisual();
+            }
         }
 
         public void Teleport(Vector3 position)
@@ -62,6 +74,109 @@ namespace MiceToBeHome
                 body.linearVelocity = Vector3.zero;
             }
             transform.position = position;
+        }
+
+        // Paper Mario style death: the flat sprite spins on its own vertical axis while tipping
+        // forward until it lies flat on the floor ("bread slice" flop). Runs on unscaled time so it
+        // stays crisp through the defeat slow-mo.
+        public void PlayDeath()
+        {
+            active = false;
+            if (body != null)
+            {
+                body.linearVelocity = Vector3.zero;
+            }
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.SetMouseRunning(false);
+            }
+            if (visual == null)
+            {
+                return;
+            }
+            if (animator != null)
+            {
+                animator.enabled = false;
+            }
+            Billboard billboard = visual.GetComponent<Billboard>();
+            if (billboard != null)
+            {
+                billboard.enabled = false;
+            }
+            StopAllCoroutines();
+            StartCoroutine(DeathFlop(visual.transform));
+        }
+
+        // Paper Mario style death, cranked way up: the flat sprite is launched into the air,
+        // whirls several times on its own axis while stretching tall, then slams down and
+        // squashes into a flat "pancake" with an overshoot past flat. Runs on unscaled time so
+        // it stays crisp through the defeat slow-mo.
+        private IEnumerator DeathFlop(Transform vis)
+        {
+            Vector3 basePos = visualBaseLocalPos;
+            Vector3 baseScale = visualBaseLocalScale;
+            Quaternion startRot = vis.rotation;
+
+            const float duration = 1.05f;
+            const float spinTurns = 5f;
+            const float hopHeight = 1.6f;
+
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                float k = Mathf.Clamp01(t / duration);
+
+                // Whirl fast at first, then ease out as it settles.
+                float spinEase = 1f - (1f - k) * (1f - k);
+                float spin = spinTurns * 360f * spinEase;
+
+                // Tip past flat then settle back (back ease-out overshoot).
+                float b = k - 1f;
+                const float s = 2.4f;
+                float overshoot = b * b * ((s + 1f) * b + s) + 1f;
+                float fall = 90f * overshoot;
+
+                // Launch up and slam down within the first 80% of the flop.
+                float flight = Mathf.Clamp01(k / 0.8f);
+                float airborne = Mathf.Sin(flight * Mathf.PI);
+                float hop = airborne * hopHeight;
+
+                // Stretch tall while airborne, squash flat on landing.
+                float landed = Mathf.Clamp01((k - 0.8f) / 0.2f);
+                float sx = baseScale.x * (1f - 0.30f * airborne + 0.25f * landed);
+                float sy = baseScale.y * (1f + 0.55f * airborne - 0.35f * landed);
+
+                vis.localPosition = basePos + new Vector3(0f, hop, 0f);
+                vis.localScale = new Vector3(sx, sy, baseScale.z);
+                vis.rotation = startRot * Quaternion.Euler(fall, spin, 0f);
+                yield return null;
+            }
+
+            // Rest flat on the floor as a squashed pancake.
+            vis.localPosition = basePos;
+            vis.localScale = new Vector3(baseScale.x * 1.25f, baseScale.y * 0.65f, baseScale.z);
+            vis.rotation = startRot * Quaternion.Euler(90f, spinTurns * 360f, 0f);
+        }
+
+        private void RestoreVisual()
+        {
+            if (visual != null)
+            {
+                Billboard billboard = visual.GetComponent<Billboard>();
+                if (billboard != null)
+                {
+                    billboard.enabled = true;
+                }
+                visual.transform.localPosition = visualBaseLocalPos;
+                visual.transform.localScale = visualBaseLocalScale;
+                visual.transform.localRotation = Quaternion.identity;
+            }
+            if (animator != null)
+            {
+                animator.enabled = true;
+                animator.speed = 1f;
+            }
         }
 
         public bool TakeHit(Vector3 attackerPosition)

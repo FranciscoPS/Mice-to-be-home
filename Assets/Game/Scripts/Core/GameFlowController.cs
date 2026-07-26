@@ -79,7 +79,7 @@ namespace MiceToBeHome
 
         private void ConfigureState(GameState state)
         {
-            bool resuming = GameManager.Instance.PreviousState == GameState.Paused;
+            bool resuming = GameManager.Instance.Resuming;
 
             switch (state)
             {
@@ -190,6 +190,7 @@ namespace MiceToBeHome
         {
             // Hold the "caught" tableau (stops movement and any further hits).
             FreezeActors();
+            player.PlayDeath();
 
             // Dramatic zoom onto the player (Cinemachine blends CM_LoseZoom in).
             if (cameraController != null)

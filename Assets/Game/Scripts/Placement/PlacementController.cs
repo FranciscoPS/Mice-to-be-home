@@ -127,7 +127,15 @@ namespace MiceToBeHome
 
             if (rightClick)
             {
-                CancelCarry();
+                if (carrying)
+                {
+                    CancelCarry();
+                }
+                else if (!overUI && TryGetMouseCell(out Vector2Int removeCell)
+                    && cellToTrap.TryGetValue(removeCell, out Trap toRemove) && toRemove != null)
+                {
+                    RemoveTrap(toRemove);
+                }
                 return;
             }
 
@@ -201,7 +209,7 @@ namespace MiceToBeHome
             }
         }
 
-        private void PickUp(Trap trap)
+        private Trap DetachTrap(Trap trap)
         {
             grid.Release(trap.Cells);
             for (int i = 0; i < trap.Cells.Count; i++)
@@ -217,9 +225,23 @@ namespace MiceToBeHome
             }
 
             Destroy(trap.gameObject);
+            return source;
+        }
 
+        private void PickUp(Trap trap)
+        {
+            Trap source = DetachTrap(trap);
             selected = source;
             carrying = source != null;
+        }
+
+        private void RemoveTrap(Trap trap)
+        {
+            DetachTrap(trap);
+            if (audioManager != null)
+            {
+                audioManager.PlayClick();
+            }
         }
 
         private void CancelCarry()
