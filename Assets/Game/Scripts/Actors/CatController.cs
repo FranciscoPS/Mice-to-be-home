@@ -435,11 +435,13 @@ namespace MiceToBeHome
                 return;
             }
 
-            // The mouse cannot hide by camping ON/behind a furniture piece: once it has been
-            // standing on a blocked cell for a moment (e.g. the thin gap behind the bed where
-            // the cat is physically walled off), the cat pounces across the obstacle.
+            // Anti-camp pounce: extend the reach ONLY when the mouse is dwelling on/behind a
+            // furniture piece AND the cat is physically wedged against it (stuckTimer > 0) —
+            // i.e. it has closed in but a thin obstacle (like the bed) walls it off. In open
+            // pursuit the cat is NOT stuck, so a normal catch still needs real contact
+            // (catchRadius); this stops the cat "hitting through open air".
             float reach = balance.catchRadius;
-            if (playerOnFurnitureTimer >= 0.4f && grid != null)
+            if (playerOnFurnitureTimer >= 0.4f && stuckTimer >= 0.25f && grid != null)
             {
                 reach += grid.CellSize;
             }
