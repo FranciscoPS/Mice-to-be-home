@@ -21,6 +21,8 @@ namespace MiceToBeHome
         private BalanceSettings balance;
         private AudioManager audioManager;
         private GridSystem grid;
+        private Collider bodyCollider;
+        private Collider playerCollider;
 
         private readonly List<Vector2Int> path = new List<Vector2Int>();
         private Vector2Int cachedGoal;
@@ -52,12 +54,15 @@ namespace MiceToBeHome
             new Vector2Int(-1, -1)
         };
 
+        private static readonly RaycastHit[] SightHits = new RaycastHit[8];
+
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
-            ActorPhysics.ApplyTo(GetComponent<Collider>());
+            bodyCollider = GetComponent<Collider>();
+            ActorPhysics.ApplyTo(bodyCollider);
         }
 
         public void Initialize(MousePlayerController target, BalanceSettings settings, AudioManager audio, GridSystem gridSystem)
@@ -66,6 +71,7 @@ namespace MiceToBeHome
             balance = settings;
             audioManager = audio;
             grid = gridSystem;
+            playerCollider = target != null ? target.GetComponent<Collider>() : null;
         }
 
         public void SetActive(bool value)
@@ -300,7 +306,12 @@ namespace MiceToBeHome
                 return grid.CellToWorld(NearestWalkable(catCell));
             }
 
-            if (catCell == playerCell || grid.HasLineOfSight(catCell, playerCell))
+            // Prefer a real straight shot: if nothing solid physically blocks the line to the
+            // player, chase directly instead of following the coarse grid path. Furniture colliders
+            // are much smaller than the grid cell they occupy, and the cat shares the mouse's
+            // collider, so this lets the cat cut through the very same gaps the player uses and
+            // stops it from abandoning a near-catch to loop around a cell the grid marks blocked.
+            if (catCell == playerCell || HasPhysicalLineOfSight())
             {
                 path.Clear();
                 return player.Position;
@@ -341,6 +352,44 @@ namespace MiceToBeHome
             }
 
             return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
+        }
+
+        // Real-geometry sight test (not the coarse grid): a straight shot is clear unless a wall or
+        // the actual (small) furniture collider sits between the cat and the mouse. Cast at the cat's
+        // own collider height so it matches what the cat can physically collide with.
+        private bool HasPhysicalLineOfSight()
+        {
+            if (player == null)
+            {
+                return false;
+            }
+
+            Vector3 from = body.position;
+            float y = bodyCollider != null ? bodyCollider.bounds.center.y : from.y;
+            from.y = y;
+            Vector3 to = player.Position;
+            to.y = y;
+
+            Vector3 delta = to - from;
+            float dist = delta.magnitude;
+            if (dist < 0.05f)
+            {
+                return true;
+            }
+            Vector3 dir = delta / dist;
+
+            int count = Physics.RaycastNonAlloc(from, dir, SightHits, dist, ~0, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+            {
+                Collider hit = SightHits[i].collider;
+                if (hit == null || hit == bodyCollider || hit == playerCollider)
+                {
+                    continue;
+                }
+                // A wall or the solid part of a furniture piece is in the way.
+                return false;
+            }
+            return true;
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)

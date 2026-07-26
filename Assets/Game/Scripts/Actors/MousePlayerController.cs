@@ -27,7 +27,7 @@ namespace MiceToBeHome
         private Vector3 visualBaseLocalPos;
         private Vector3 visualBaseLocalScale = Vector3.one;
 
-        [SerializeField] private GameObject hitAnimationPrefab;
+        [SerializeField] private GameObject hitAnimationPrefab = null;
         private GameObject hitAnimationInstance;
         private Animator hitAnimator;
         private float lastHitTick = -10f;
