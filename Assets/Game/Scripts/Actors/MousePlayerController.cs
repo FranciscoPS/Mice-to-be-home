@@ -32,6 +32,11 @@ namespace MiceToBeHome
         private Animator hitAnimator;
         private float lastHitTick = -10f;
 
+        // Nombre del Trigger en el Animator que dispara la animación de inicio (Any State -> State)
+        [SerializeField] private string startTrigger = "StartIntro";
+        // Nombre exacto del estado (State) al que transiciona desde Any State; usado para detectar finalización.
+        [SerializeField] private string startStateName = "MouseIntro";
+
         private void Awake()
         {
             body = GetComponent<Rigidbody>();
@@ -48,6 +53,59 @@ namespace MiceToBeHome
         public void Initialize(BalanceSettings settings)
         {
             balance = settings;
+        }
+
+        // Reproducir la animación de inicio conectada desde Any State usando el trigger configurado.
+        // Llama onComplete al terminar (o inmediatamente si falta configuración).
+        public void PlayStartAnimation(Action onComplete)
+        {
+            if (animator == null || string.IsNullOrEmpty(startTrigger) || string.IsNullOrEmpty(startStateName))
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            StartCoroutine(PlayStartAnimationCoroutine(startTrigger, startStateName, onComplete));
+        }
+
+        private IEnumerator PlayStartAnimationCoroutine(string trigger, string stateName, Action onComplete)
+        {
+            // Asegurar que la animación avance en tiempo no escalado para robustez frente a slow-mo.
+            AnimatorUpdateMode prevMode = animator.updateMode;
+            animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+
+            // Disparar el trigger desde Any State.
+            animator.ResetTrigger(trigger);
+            animator.SetTrigger(trigger);
+
+            // Esperar a que la animación entre y termine (normalizedTime >= 1).
+            float timeout = 5f; // tiempo máximo de espera real
+            float timer = 0f;
+
+            // Primero esperar a que el Animator entre en el estado objetivo.
+            while (true)
+            {
+                var info = animator.GetCurrentAnimatorStateInfo(0);
+                if (info.IsName(stateName))
+                {
+                    // Esperar a que termine la reproducción del clip (una pasada).
+                    while (info.normalizedTime < 1f)
+                    {
+                        yield return null;
+                        info = animator.GetCurrentAnimatorStateInfo(0);
+                        timer += Time.unscaledDeltaTime;
+                        if (timer > timeout) break;
+                    }
+                    break;
+                }
+
+                timer += Time.unscaledDeltaTime;
+                if (timer > timeout) break;
+                yield return null;
+            }
+
+            animator.updateMode = prevMode;
+            onComplete?.Invoke();
         }
 
         public void SetActive(bool value)

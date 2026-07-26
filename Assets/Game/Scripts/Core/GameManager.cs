@@ -14,6 +14,9 @@ namespace MiceToBeHome
 
         public event Action<GameState> StateChanged;
 
+        // Evento para que otros controladores (GameFlowController) manejen la petición de empezar la persecución
+        public event Action BeginChaseRequested;
+
         public bool IsPlaying => State == GameState.Playing;
         public bool IsEditing => State == GameState.Editing;
 
@@ -24,6 +27,15 @@ namespace MiceToBeHome
             if (State == GameState.Editing)
             {
                 SetState(GameState.Playing);
+            }
+        }
+
+        // Llamar desde UI para pedir empezar la persecución pero delegar la decisión/animación a quien escuche BeginChaseRequested.
+        public void RequestBeginChase()
+        {
+            if (State == GameState.Editing)
+            {
+                BeginChaseRequested?.Invoke();
             }
         }
 
