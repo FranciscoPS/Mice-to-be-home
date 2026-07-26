@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ namespace MiceToBeHome
         private const float GhostAlpha = 0.3f;
 
         [SerializeField] private TrapDefinition definition = new TrapDefinition();
+        [SerializeField] private GameObject repairAnimationPrefab;
 
         public TrapDefinition Definition => definition;
         public Trap SourcePrefab { get; set; }
@@ -29,6 +31,11 @@ namespace MiceToBeHome
         private bool armed;
         private bool spent;
         private float repairProgress;
+
+        // New animation instance state
+        private GameObject repairAnimationInstance;
+        private Animator repairAnimator;
+        private float lastRepairTick = -10f;
 
         private void Awake()
         {
@@ -127,9 +134,39 @@ namespace MiceToBeHome
                 return;
             }
 
+            // Mark last tick so we know player is actively repairing.
+            lastRepairTick = Time.time;
+            EnsureAnimationInstance();
+
             repairProgress += deltaTime;
             if (repairProgress >= definition.effectSeconds)
             {
+                // Play completion animation (if animator present) and let it finish, then remove.
+                if (repairAnimationInstance != null)
+                {
+                    if (repairAnimator != null && repairAnimator.runtimeAnimatorController != null)
+                    {
+                        var clips = repairAnimator.runtimeAnimatorController.animationClips;
+                        if (clips != null && clips.Length > 0)
+                        {
+                            // Play first clip from start and destroy after its length.
+                            string clipName = clips[0].name;
+                            float clipLen = clips[0].length;
+                            repairAnimator.Play(clipName, -1, 0f);
+                            StartCoroutine(PlayThenDestroy(repairAnimationInstance, clipLen));
+                            // Don't null the instance here; coroutine will cleanup.
+                        }
+                        else
+                        {
+                            DestroyAnimationInstanceImmediate();
+                        }
+                    }
+                    else
+                    {
+                        DestroyAnimationInstanceImmediate();
+                    }
+                }
+
                 spent = false;
                 repairProgress = 0f;
                 SetGhost(false);
@@ -157,6 +194,12 @@ namespace MiceToBeHome
             {
                 UpdateRepairVisual();
             }
+
+            // If we have an animation but no recent repair tick, player left — remove the animation.
+            if (repairAnimationInstance != null && Time.time - lastRepairTick > 0.25f)
+            {
+                DestroyAnimationInstanceImmediate();
+            }
         }
 
         private void UpdateRepairVisual()
@@ -178,6 +221,10 @@ namespace MiceToBeHome
             if (cameraTransform != null)
             {
                 repairRoot.transform.rotation = cameraTransform.rotation;
+                if (repairAnimationInstance != null)
+                {
+                    repairAnimationInstance.transform.rotation = cameraTransform.rotation;
+                }
             }
         }
 
@@ -209,5 +256,61 @@ namespace MiceToBeHome
             definition = value;
         }
 #endif
+
+        // --- Animation helper methods ------------------------------------------------
+
+        private void EnsureAnimationInstance()
+        {
+            Debug.Log("Intentando crear animación");
+
+            if (repairAnimationPrefab == null)
+            {
+                Debug.Log("Prefab NULL");
+                return;
+            }
+
+            if (repairAnimationInstance != null)
+            {
+                Debug.Log("Ya existe");
+                return;
+            }
+
+            repairAnimationInstance =
+                Instantiate(repairAnimationPrefab, transform);
+            Debug.Log("Instanciado: " + repairAnimationInstance.name);
+
+            Debug.Log("Animación creada");
+        }
+
+        private void DestroyAnimationInstanceImmediate()
+        {
+            if (repairAnimationInstance == null)
+            {
+                return;
+            }
+
+            Destroy(repairAnimationInstance);
+            repairAnimationInstance = null;
+            repairAnimator = null;
+        }
+
+        private IEnumerator PlayThenDestroy(GameObject animObj, float delay)
+        {
+            if (delay > 0f)
+            {
+                yield return new WaitForSeconds(delay);
+            }
+
+            if (animObj != null)
+            {
+                Destroy(animObj);
+            }
+
+            if (animObj == repairAnimationInstance)
+            {
+                repairAnimationInstance = null;
+                repairAnimator = null;
+            }
+        }
     }
 }
