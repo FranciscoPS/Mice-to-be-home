@@ -37,6 +37,7 @@ namespace MiceToBeHome
         private float unstickTimer;
         private Vector3 unstickVelocity;
         private float lastDirectionX = 1f;
+        private float footstepTimer;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -69,9 +70,16 @@ namespace MiceToBeHome
         public void SetActive(bool value)
         {
             active = value;
-            if (!value && body != null)
+            if (!value)
             {
-                body.linearVelocity = Vector3.zero;
+                if (body != null)
+                {
+                    body.linearVelocity = Vector3.zero;
+                }
+                if (audioManager != null)
+                {
+                    audioManager.SetCatPurring(false);
+                }
             }
         }
 
@@ -92,6 +100,11 @@ namespace MiceToBeHome
             unstickTimer = 0f;
             path.Clear();
             hasCachedGoal = false;
+            footstepTimer = 0f;
+            if (audioManager != null)
+            {
+                audioManager.SetCatPurring(false);
+            }
         }
 
         private void FixedUpdate()
@@ -110,6 +123,10 @@ namespace MiceToBeHome
                     {
                         Debug.Log("[Cat] No longer stunned - resuming the chase!");
                         state = CatState.Chasing;
+                        if (audioManager != null)
+                        {
+                            audioManager.SetCatPurring(false);
+                        }
                     }
                     break;
                 case CatState.Recovering:
@@ -130,6 +147,30 @@ namespace MiceToBeHome
             if (animator != null)
             {
                 animator.SetBool("IsMoving", state != CatState.Stunned);
+            }
+
+            UpdateFootsteps();
+        }
+
+        private void UpdateFootsteps()
+        {
+            if (audioManager == null)
+            {
+                return;
+            }
+            bool moving = state == CatState.Chasing && body.linearVelocity.sqrMagnitude > 0.04f;
+            if (moving)
+            {
+                footstepTimer -= Time.fixedDeltaTime;
+                if (footstepTimer <= 0f)
+                {
+                    audioManager.PlayCatFootstep();
+                    footstepTimer = audioManager.FootstepInterval;
+                }
+            }
+            else
+            {
+                footstepTimer = 0f;
             }
         }
 
@@ -347,7 +388,8 @@ namespace MiceToBeHome
 
             if (audioManager != null)
             {
-                audioManager.PlayDistract();
+                audioManager.PlayCatTrapped();
+                audioManager.SetCatPurring(true);
             }
             return true;
         }
@@ -364,6 +406,10 @@ namespace MiceToBeHome
                 currentSpeed = balance.catBaseSpeed;
                 stateTimer = 0.6f;
                 state = CatState.Recovering;
+                if (audioManager != null)
+                {
+                    audioManager.PlayCatAttack();
+                }
             }
         }
 

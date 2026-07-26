@@ -24,6 +24,8 @@ namespace MiceToBeHome
         private int maxTraps = 5;
         private bool carrying;
         private bool active;
+        private Vector2Int lastHoverCell;
+        private bool hasHoverCell;
 
         public int MaxTraps => maxTraps;
         public int PlacedCount => placedTraps.Count;
@@ -132,6 +134,7 @@ namespace MiceToBeHome
             if (!carrying)
             {
                 ghost.Hide();
+                hasHoverCell = false;
                 if (!overUI && leftClick && TryGetMouseCell(out Vector2Int hovered))
                 {
                     if (cellToTrap.TryGetValue(hovered, out Trap existing) && existing != null)
@@ -145,6 +148,7 @@ namespace MiceToBeHome
             if (overUI || !TryGetMouseCell(out Vector2Int origin))
             {
                 ghost.Hide();
+                hasHoverCell = false;
                 return;
             }
 
@@ -153,6 +157,13 @@ namespace MiceToBeHome
             bool valid = grid.CanPlace(footprintBuffer);
             Vector3 center = grid.FootprintCenter(footprintBuffer);
             ghost.UpdatePreview(footprintBuffer, center, valid, grid);
+
+            if ((!hasHoverCell || origin != lastHoverCell) && audioManager != null)
+            {
+                audioManager.PlayHover();
+            }
+            lastHoverCell = origin;
+            hasHoverCell = true;
 
             if (leftClick && valid)
             {
@@ -181,7 +192,7 @@ namespace MiceToBeHome
 
             if (audioManager != null)
             {
-                audioManager.PlayPlace();
+                audioManager.PlayClick();
             }
 
             if (GetStock(selected) <= 0 || placedTraps.Count >= maxTraps)

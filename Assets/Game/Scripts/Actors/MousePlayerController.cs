@@ -23,6 +23,7 @@ namespace MiceToBeHome
         private Vector3 knockbackVelocity;
         private float lastDirectionX = 1f;
         private bool hitReactionActive;
+        private float footstepTimer;
 
         private void Awake()
         {
@@ -47,6 +48,10 @@ namespace MiceToBeHome
                 body.linearVelocity = Vector3.zero;
             }
             SetAlpha(1f);
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.SetMouseRunning(false);
+            }
         }
 
         public void Teleport(Vector3 position)
@@ -173,6 +178,10 @@ namespace MiceToBeHome
                 {
                     animator.SetBool("IsMoving", true);
                 }
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.SetMouseRunning(false);
+                }
                 return;
             }
 
@@ -196,6 +205,31 @@ namespace MiceToBeHome
             }
 
             RepairTrapsUnderfoot();
+            UpdateFootsteps(move.sqrMagnitude > 0f);
+        }
+
+        private void UpdateFootsteps(bool moving)
+        {
+            AudioManager audio = AudioManager.Instance;
+            if (audio == null)
+            {
+                return;
+            }
+
+            audio.SetMouseRunning(moving);
+            if (moving)
+            {
+                footstepTimer -= Time.fixedDeltaTime;
+                if (footstepTimer <= 0f)
+                {
+                    audio.PlayMouseFootstep();
+                    footstepTimer = audio.FootstepInterval;
+                }
+            }
+            else
+            {
+                footstepTimer = 0f;
+            }
         }
 
         private void RepairTrapsUnderfoot()

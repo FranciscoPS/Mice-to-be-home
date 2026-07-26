@@ -66,12 +66,23 @@ MonoBehaviour:
     menuMusic: {fileID: 0}
     editMusic: {fileID: 0}
     chaseMusic: {fileID: 0}
-    placeTrap: {fileID: 0}
-    rotateTrap: {fileID: 0}
-    catDistracted: {fileID: 0}
-    mouseHit: {fileID: 0}
-    victory: {fileID: 0}
-    defeat: {fileID: 0}
+    mouseHit: {fileID: 8300000, guid: 61b4298788b0b4905b20492d972fed07, type: 3}
+    victory: {fileID: 8300000, guid: 04cd4cf113c144a44928ee77a4b7942c, type: 3}
+    defeat: {fileID: 8300000, guid: 86a09ab4f2fc446d49a010e05b7788c0, type: 3}
+    uiHover: {fileID: 8300000, guid: 2a7d46b5eef7e49eba8c812ae27e0c4e, type: 3}
+    uiClick: {fileID: 8300000, guid: 4a909bd7c27214115a968498845736fb, type: 3}
+    mouseRun: {fileID: 8300000, guid: a29e9608908644a62bc6e1ff2428633f, type: 3}
+    mouseFootstep: {fileID: 8300000, guid: 1dca85cf8a0c74e1fa9a757a4a8791ba, type: 3}
+    catFootstep: {fileID: 8300000, guid: 3842cfe76b4ac40279a59c6ff1e1dd3e, type: 3}
+    catPurr: {fileID: 8300000, guid: cc37b295111d14e9c85ccaf28e0f81c5, type: 3}
+    catAttack:
+    - {fileID: 8300000, guid: a689aa79c63a3415195081a0fe8c004c, type: 3}
+    - {fileID: 8300000, guid: 1cc138fd7fd634ad9b85902571caf958, type: 3}
+    - {fileID: 8300000, guid: 34c26aebeaae642efa3f7c0b596a4a72, type: 3}
+    catTrapped:
+    - {fileID: 8300000, guid: a47fcf893aa4243d480244c5571c32b7, type: 3}
+    - {fileID: 8300000, guid: 50f27223bf127469a86b5d69546f58ef, type: 3}
+    footstepInterval: 0.28
   trapPrefabs:
   - {fileID: 6057645688644259183, guid: cb3b2fd849e68495cb9f831c8ef57fbf, type: 3}
   - {fileID: 6094170036717752252, guid: b252053b92758464f82a9e14da9a375c, type: 3}

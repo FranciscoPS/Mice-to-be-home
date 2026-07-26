@@ -41,7 +41,11 @@ namespace MiceToBeHome
             flow.Initialize(grid, placement, player, cat, lives, cameraController, balance, audioManager);
             ui.Initialize(config, placement, flow, lives);
 
-            player.Hit += () => cameraController.Shake(balance.hitShakeAmplitude, balance.hitShakeDuration);
+            player.Hit += () =>
+            {
+                cameraController.Shake(balance.hitShakeAmplitude, balance.hitShakeDuration);
+                audioManager.PlayHit();
+            };
 
             GameManager.Instance.Emit();
         }

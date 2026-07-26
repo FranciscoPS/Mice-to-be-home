@@ -87,6 +87,7 @@ namespace MiceToBeHome
             colors.fadeDuration = 0.08f;
             button.colors = colors;
             button.targetGraphic = image;
+            go.AddComponent<UISound>();
 
             labelText = CreateText(go.transform, "Label", label, fontSize, TextAlignmentOptions.Center, labelColor);
             Stretch(labelText.rectTransform);
