@@ -636,6 +636,10 @@ namespace MiceToBeHome
                 state = CatState.Recovering;
                 corneredTimer = 0f;
 
+                // Face the mouse for the swipe (attackAnim = true because the attack sprites are
+                // mirrored vs. the run sprites, so this uses the opposite flip).
+                FacePlayer(true);
+
                 if (animator != null)
                 {
                     animator.SetBool("IsMoving", false);
@@ -674,15 +678,8 @@ namespace MiceToBeHome
             jumpTarget.y = jumpStart.y;
             body.linearVelocity = Vector3.zero;
 
-            float dx = jumpTarget.x - jumpStart.x;
-            if (Mathf.Abs(dx) > 0.001f)
-            {
-                lastDirectionX = dx;
-                if (visual != null)
-                {
-                    visual.flipX = dx < 0f;
-                }
-            }
+            // Face the mouse before leaping (same convention as the swipe).
+            FacePlayer();
 
             // Freeze the animation frame so the flat sprite reads as a leaping pose in mid-air.
             if (animator != null)
@@ -747,6 +744,24 @@ namespace MiceToBeHome
                 stateTimer = 0.35f;
                 state = CatState.Recovering;
             }
+        }
+
+        private void FacePlayer(bool attackAnim = false)
+        {
+            if (visual == null || player == null)
+            {
+                return;
+            }
+            float dx = player.Position.x - body.position.x;
+            if (Mathf.Abs(dx) <= 0.001f)
+            {
+                return;
+            }
+            lastDirectionX = dx;
+            // Run sprites face RIGHT at flipX == false and follow the movement flip in Chase. The
+            // ATTACK sprites are authored MIRRORED relative to the run ones, so the swipe needs the
+            // OPPOSITE flip to still point straight at the mouse.
+            visual.flipX = attackAnim ? dx >= 0f : dx < 0f;
         }
 
         private static float HorizontalDistance(Vector3 a, Vector3 b)

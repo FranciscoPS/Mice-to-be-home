@@ -45,7 +45,7 @@ namespace MiceToBeHome
         [Min(1f)] public float catBreakoutBoost = 1.5f;
         [Header("Cat leap (anti-camp)")]
         [Tooltip("Seconds the mouse must camp on/behind furniture before the cat leaps over it.")]
-        [Min(0.1f)] public float catJumpAfterSeconds = 2f;
+        [Min(0.1f)] public float catJumpAfterSeconds = 1f;
         [Tooltip("Seconds the leap takes. Higher = slower = easier for the mouse to dodge.")]
         [Min(0.15f)] public float catJumpDuration = 0.6f;
         [Tooltip("Visual arc height of the leap (units). Set it above the furniture height so the cat looks like it clears the piece.")]
