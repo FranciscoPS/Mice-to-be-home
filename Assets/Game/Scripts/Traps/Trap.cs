@@ -11,7 +11,7 @@ namespace MiceToBeHome
         private const float GhostAlpha = 0.3f;
 
         [SerializeField] private TrapDefinition definition = new TrapDefinition();
-        [SerializeField] private GameObject repairAnimationPrefab;
+        [SerializeField] private GameObject repairAnimationPrefab = null;
 
         public TrapDefinition Definition => definition;
         public Trap SourcePrefab { get; set; }
@@ -195,7 +195,7 @@ namespace MiceToBeHome
                 UpdateRepairVisual();
             }
 
-            // If we have an animation but no recent repair tick, player left — remove the animation.
+            // If we have an animation but no recent repair tick, player left ï¿½ remove the animation.
             if (repairAnimationInstance != null && Time.time - lastRepairTick > 0.25f)
             {
                 DestroyAnimationInstanceImmediate();
@@ -261,7 +261,7 @@ namespace MiceToBeHome
 
         private void EnsureAnimationInstance()
         {
-            Debug.Log("Intentando crear animación");
+            Debug.Log("Intentando crear animaciï¿½n");
 
             if (repairAnimationPrefab == null)
             {
@@ -279,7 +279,7 @@ namespace MiceToBeHome
                 Instantiate(repairAnimationPrefab, transform);
             Debug.Log("Instanciado: " + repairAnimationInstance.name);
 
-            Debug.Log("Animación creada");
+            Debug.Log("Animaciï¿½n creada");
         }
 
         private void DestroyAnimationInstanceImmediate()

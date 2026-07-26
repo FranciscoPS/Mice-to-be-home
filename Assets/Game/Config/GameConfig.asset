@@ -37,12 +37,12 @@ MonoBehaviour:
     gridRows: 6
     cellSize: 2
     furnitureRows:
-    - A>...M..K>
-    - ...P......
-    - .C>.......
-    - M..M....M.
-    - .....V....
-    - .P.......P
+    - ..........
+    - .C>.M.M.P.
+    - ........T.
+    - ..V..T....
+    - .......K>.
+    - .A>..P....
     editSeconds: 60
     surviveSeconds: 120
     chaseLeadInSeconds: 2
@@ -55,6 +55,7 @@ MonoBehaviour:
     catAcceleration: 0.35
     catchRadius: 0.6
     catStartDistance: 4.5
+    catBreakoutBoost: 1.5
     hitSlowScale: 0.06
     hitSlowDuration: 1
     hitShakeAmplitude: 8

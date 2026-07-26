@@ -11,7 +11,8 @@ namespace MiceToBeHome
             Idle,
             Chasing,
             Stunned,
-            Recovering
+            Recovering,
+            Jumping
         }
 
         private Rigidbody body;
@@ -21,6 +22,11 @@ namespace MiceToBeHome
         private BalanceSettings balance;
         private AudioManager audioManager;
         private GridSystem grid;
+
+        // TEMP cat-AI diagnostics (2026-07-27). Set false or remove once the behavior is fixed.
+        private bool debugCat = true;
+        private float debugTimer;
+        private string debugMode = "init";
 
         private readonly List<Vector2Int> path = new List<Vector2Int>();
         private Vector2Int cachedGoal;
@@ -39,6 +45,17 @@ namespace MiceToBeHome
         private float lastDirectionX = 1f;
         private float footstepTimer;
         private float playerOnFurnitureTimer;
+        private float corneredTimer;
+        private float loopTimer;
+        private const float BreakoutLoopDelay = 2f;
+        private Vector3 breakoutDir;
+        private Vector2Int breakoutPlayerCell;
+        private bool breakoutLatched;
+        private bool blockedSteer;
+        private Vector3 visualBaseLocalPos;
+        private float jumpTimer;
+        private Vector3 jumpStart;
+        private Vector3 jumpTarget;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -57,6 +74,10 @@ namespace MiceToBeHome
             body = GetComponent<Rigidbody>();
             visual = GetComponentInChildren<SpriteRenderer>();
             animator = GetComponentInChildren<Animator>();
+            if (visual != null)
+            {
+                visualBaseLocalPos = visual.transform.localPosition;
+            }
             ActorPhysics.ApplyTo(GetComponent<Collider>());
         }
 
@@ -76,6 +97,14 @@ namespace MiceToBeHome
                 if (body != null)
                 {
                     body.linearVelocity = Vector3.zero;
+                }
+                if (animator != null)
+                {
+                    animator.speed = 1f;
+                }
+                if (visual != null)
+                {
+                    visual.transform.localPosition = visualBaseLocalPos;
                 }
                 if (audioManager != null)
                 {
@@ -102,6 +131,18 @@ namespace MiceToBeHome
             path.Clear();
             hasCachedGoal = false;
             footstepTimer = 0f;
+            playerOnFurnitureTimer = 0f;
+            corneredTimer = 0f;
+            loopTimer = 0f;
+            jumpTimer = 0f;
+            if (visual != null)
+            {
+                visual.transform.localPosition = visualBaseLocalPos;
+            }
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
             if (audioManager != null)
             {
                 audioManager.SetCatPurring(false);
@@ -140,6 +181,9 @@ namespace MiceToBeHome
                     break;
                 case CatState.Chasing:
                     Chase();
+                    break;
+                case CatState.Jumping:
+                    UpdateJump();
                     break;
             }
 
@@ -184,6 +228,12 @@ namespace MiceToBeHome
                 return;
             }
 
+            if (ShouldJump())
+            {
+                BeginJump();
+                return;
+            }
+
             currentSpeed = Mathf.Min(balance.catMaxSpeed, currentSpeed + balance.catAcceleration * Time.fixedDeltaTime);
 
             if (unstickTimer > 0f)
@@ -192,6 +242,8 @@ namespace MiceToBeHome
                 body.linearVelocity = unstickVelocity;
                 TrackProgress();
                 TryCatch();
+                debugMode = "unstick";
+                DebugChase();
                 return;
             }
 
@@ -199,7 +251,37 @@ namespace MiceToBeHome
             Vector3 direction = target - body.position;
             direction.y = 0f;
 
-            Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
+            float speed = currentSpeed;
+            bool inRange = grid != null && HorizontalDistance(body.position, player.Position) <= balance.catchRadius + grid.CellSize;
+            bool cornered = blockedSteer && inRange && playerOnFurnitureTimer > 0f;
+
+            // Track how long the cat has been LOOPING in place while cornered; only escalate to the
+            // boosted breakout after a sustained window (BreakoutLoopDelay = 2s). Below that, keep the
+            // ordinary steering so normal play and brief snags are untouched.
+            if (cornered)
+            {
+                loopTimer += Time.fixedDeltaTime;
+            }
+            else
+            {
+                loopTimer = 0f;
+            }
+
+            if (cornered && loopTimer >= BreakoutLoopDelay)
+            {
+                // Looping too long: commit to a LATCHED direction (no per-frame flip = no jitter) and
+                // drive ABOVE max speed so the cat decisively presses through the furniture gap toward
+                // the mouse instead of vibrating in place.
+                direction = ResolveBreakoutDirection();
+                speed = balance.catMaxSpeed * Mathf.Max(1f, balance.catBreakoutBoost);
+                debugMode = "breakout";
+            }
+            else
+            {
+                breakoutLatched = false;
+            }
+
+            Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * speed : Vector3.zero;
             body.linearVelocity = velocity;
 
             // Flipear sprite según dirección horizontal
@@ -223,6 +305,7 @@ namespace MiceToBeHome
             }
 
             TryCatch();
+            DebugChase();
         }
 
         private void TrackProgress()
@@ -276,6 +359,10 @@ namespace MiceToBeHome
             }
 
             unstickVelocity = (perpendicular * 0.8f + toPlayer * 0.2f).normalized * currentSpeed;
+            if (debugCat)
+            {
+                Debug.Log($"[CatDbg] BEGIN-UNSTICK sideVal={side:0.00} pathLen={path.Count} dist={HorizontalDistance(body.position, player.Position):0.00}");
+            }
 
             repathTimer = 0f;
             path.Clear();
@@ -284,8 +371,10 @@ namespace MiceToBeHome
 
         private Vector3 ResolveSteerTarget()
         {
+            blockedSteer = false;
             if (grid == null)
             {
+                debugMode = "noGrid";
                 return player.Position;
             }
 
@@ -297,18 +386,36 @@ namespace MiceToBeHome
             if (!grid.IsWalkable(catCell))
             {
                 path.Clear();
+                debugMode = "catOffGrid";
+                blockedSteer = true;
                 return grid.CellToWorld(NearestWalkable(catCell));
             }
 
-            if (catCell == playerCell || grid.HasLineOfSight(catCell, playerCell))
+            bool los = catCell == playerCell || grid.HasLineOfSight(catCell, playerCell);
+            if (los)
             {
                 path.Clear();
+                debugMode = "beeline";
                 return player.Position;
             }
 
             Vector2Int goalCell = grid.IsWalkable(playerCell) ? playerCell : NearestWalkable(playerCell);
 
-            while (path.Count > 0 && path[0] == catCell)
+            // The best reachable cell toward a player camped on furniture can be the cat's OWN cell.
+            // Pathfinding to yourself returns nothing, which was making the cat repath every frame and
+            // orbit the spot; just press toward the player and let the pounce handle the catch.
+            if (goalCell == catCell)
+            {
+                path.Clear();
+                debugMode = "atGoal";
+                blockedSteer = true;
+                return player.Position;
+            }
+
+            // Drop waypoints we've already reached (by cell, OR by getting close enough) so a
+            // corner-cut still advances the route instead of dragging the cat back to a cell center.
+            while (path.Count > 0 && (path[0] == catCell
+                || HorizontalDistance(grid.CellToWorld(path[0]), body.position) <= grid.CellSize * 0.5f))
             {
                 path.RemoveAt(0);
             }
@@ -328,7 +435,8 @@ namespace MiceToBeHome
 
             if (needsRepath)
             {
-                if (GridPathfinder.TryFindPath(grid, catCell, goalCell, path))
+                bool found = GridPathfinder.TryFindPath(grid, catCell, goalCell, path);
+                if (found)
                 {
                     while (path.Count > 0 && path[0] == catCell)
                     {
@@ -338,9 +446,70 @@ namespace MiceToBeHome
                 cachedGoal = goalCell;
                 hasCachedGoal = true;
                 repathTimer = 1.5f;
+                if (debugCat)
+                {
+                    Debug.Log($"[CatDbg] REPATH cat={catCell} goal={goalCell} found={found} len={path.Count}");
+                }
             }
 
-            return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
+            blockedSteer = path.Count == 0;
+            debugMode = path.Count > 0 ? "path" : "pathEmpty";
+            if (path.Count == 0)
+            {
+                return player.Position;
+            }
+
+            // String-pull: steer at the FURTHEST waypoint we can see in a straight line, not the next
+            // cell center. This is how grid/navmesh games avoid the blocky "wide detour" look - the cat
+            // cuts corners tight and crosses open space straight. HasLineOfSight already refuses
+            // diagonal corner-cuts, so the shortcut never clips a furniture piece.
+            int steerIndex = 0;
+            for (int i = path.Count - 1; i > 0; i--)
+            {
+                if (grid.HasLineOfSight(catCell, path[i]))
+                {
+                    steerIndex = i;
+                    break;
+                }
+            }
+            return grid.CellToWorld(path[steerIndex]);
+        }
+
+        private Vector3 ResolveBreakoutDirection()
+        {
+            Vector2Int pc = grid != null ? grid.WorldToCell(player.Position) : default;
+            if (!breakoutLatched || pc != breakoutPlayerCell)
+            {
+                Vector3 toPlayer = player.Position - body.position;
+                toPlayer.y = 0f;
+                if (toPlayer.sqrMagnitude < 0.0001f)
+                {
+                    toPlayer = new Vector3(lastDirectionX, 0f, 0f);
+                }
+                breakoutDir = toPlayer.normalized;
+                breakoutPlayerCell = pc;
+                breakoutLatched = true;
+            }
+            return breakoutDir;
+        }
+
+        private void DebugChase()
+        {
+            if (!debugCat)
+            {
+                return;
+            }
+            debugTimer -= Time.fixedDeltaTime;
+            if (debugTimer > 0f)
+            {
+                return;
+            }
+            debugTimer = 0.15f;
+
+            Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
+            Vector2Int playerCell = grid != null ? grid.WorldToCell(player.Position) : default;
+            float dist = HorizontalDistance(body.position, player.Position);
+            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} loop={loopTimer:0.00} blocked={blockedSteer} vel={body.linearVelocity.magnitude:0.0}");
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)
@@ -426,6 +595,20 @@ namespace MiceToBeHome
             {
                 playerOnFurnitureTimer = 0f;
             }
+
+            // How long the cat has sat within pounce range of a camping player without catching.
+            // Independent of displacement, so the cat jittering against furniture cannot reset it
+            // (the old stuckTimer gate kept getting reset, so the pounce never fired).
+            float dwellDist = player != null ? HorizontalDistance(body.position, player.Position) : float.MaxValue;
+            bool inPounceRange = grid != null && dwellDist <= balance.catchRadius + grid.CellSize;
+            if (playerOnFurnitureTimer >= 0.4f && inPounceRange)
+            {
+                corneredTimer += Time.fixedDeltaTime;
+            }
+            else
+            {
+                corneredTimer = 0f;
+            }
         }
 
         private void TryCatch()
@@ -440,22 +623,145 @@ namespace MiceToBeHome
             // i.e. it has closed in but a thin obstacle (like the bed) walls it off. In open
             // pursuit the cat is NOT stuck, so a normal catch still needs real contact
             // (catchRadius); this stops the cat "hitting through open air".
-            float reach = balance.catchRadius;
-            if (playerOnFurnitureTimer >= 0.4f && stuckTimer >= 0.25f && grid != null)
-            {
-                reach += grid.CellSize;
-            }
-
-            if (HorizontalDistance(body.position, player.Position) <= reach && player.TakeHit(body.position))
+            // Anti-camp pounce: extend reach once the cat has been stuck within pounce range of a
+            // player camping on/behind furniture for a moment. Gated on corneredTimer (NOT the
+            // displacement stuckTimer, which the cat's jitter kept resetting) so it fires reliably
+            // instead of the cat orbiting a camped mouse forever.
+            // Catch on REAL contact only now (the old extend-reach pounce hit from too far); the
+            // anti-camp is the visible, dodgeable leap (BeginJump) instead.
+            if (HorizontalDistance(body.position, player.Position) <= balance.catchRadius && player.TakeHit(body.position))
             {
                 currentSpeed = balance.catBaseSpeed;
                 stateTimer = 0.6f;
                 state = CatState.Recovering;
+                corneredTimer = 0f;
+
+                // Face the mouse for the swipe (attackAnim = true because the attack sprites are
+                // mirrored vs. the run sprites, so this uses the opposite flip).
+                FacePlayer(true);
+
+                if (animator != null)
+                {
+                    animator.SetBool("IsMoving", false);
+                    animator.SetTrigger("IsAttacking");
+                }
+
                 if (audioManager != null)
                 {
                     audioManager.PlayCatAttack();
                 }
             }
+        }
+
+        private bool ShouldJump()
+        {
+            if (grid == null || player == null)
+            {
+                return false;
+            }
+            // Leap only when the mouse has been CAMPING on/behind furniture long enough (a normal
+            // chase would have caught it by contact well before this) and it is within leap range.
+            if (playerOnFurnitureTimer < balance.catJumpAfterSeconds)
+            {
+                return false;
+            }
+            float dist = HorizontalDistance(body.position, player.Position);
+            return dist <= balance.catchRadius + grid.CellSize * 1.5f;
+        }
+
+        private void BeginJump()
+        {
+            state = CatState.Jumping;
+            jumpTimer = 0f;
+            jumpStart = body.position;
+            jumpTarget = player.Position;
+            jumpTarget.y = jumpStart.y;
+            body.linearVelocity = Vector3.zero;
+
+            // Face the mouse before leaping (same convention as the swipe).
+            FacePlayer();
+
+            // Freeze the animation frame so the flat sprite reads as a leaping pose in mid-air.
+            if (animator != null)
+            {
+                animator.speed = 0f;
+            }
+            if (audioManager != null)
+            {
+                audioManager.PlayCatAttack();
+            }
+            if (debugCat)
+            {
+                Debug.Log($"[CatDbg] JUMP start={jumpStart} target={jumpTarget} dist={HorizontalDistance(jumpStart, jumpTarget):0.00}");
+            }
+        }
+
+        private void UpdateJump()
+        {
+            jumpTimer += Time.fixedDeltaTime;
+            float duration = Mathf.Max(0.15f, balance.catJumpDuration);
+            float t = Mathf.Clamp01(jumpTimer / duration);
+
+            // Root slides across (X/Z free, Y frozen); setting position DIRECTLY teleports it so it
+            // passes OVER the furniture collider instead of being blocked at ground level.
+            Vector3 pos = Vector3.Lerp(jumpStart, jumpTarget, t);
+            pos.y = jumpStart.y;
+            body.position = pos;
+            body.linearVelocity = Vector3.zero;
+
+            // The visible arc lives on the Visual child (the Billboard only drives rotation/sorting).
+            if (visual != null)
+            {
+                float arc = 4f * Mathf.Max(0f, balance.catJumpHeight) * t * (1f - t);
+                visual.transform.localPosition = visualBaseLocalPos + Vector3.up * arc;
+            }
+
+            if (t >= 1f)
+            {
+                EndJump();
+            }
+        }
+
+        private void EndJump()
+        {
+            if (visual != null)
+            {
+                visual.transform.localPosition = visualBaseLocalPos;
+            }
+            if (animator != null)
+            {
+                animator.speed = 1f;
+            }
+            currentSpeed = balance.catBaseSpeed;
+            playerOnFurnitureTimer = 0f;
+            corneredTimer = 0f;
+
+            // Land: catch only if the mouse is still here (it could have dodged during the leap).
+            TryCatch();
+
+            if (state == CatState.Jumping)
+            {
+                stateTimer = 0.35f;
+                state = CatState.Recovering;
+            }
+        }
+
+        private void FacePlayer(bool attackAnim = false)
+        {
+            if (visual == null || player == null)
+            {
+                return;
+            }
+            float dx = player.Position.x - body.position.x;
+            if (Mathf.Abs(dx) <= 0.001f)
+            {
+                return;
+            }
+            lastDirectionX = dx;
+            // Run sprites face RIGHT at flipX == false and follow the movement flip in Chase. The
+            // ATTACK sprites are authored MIRRORED relative to the run ones, so the swipe needs the
+            // OPPOSITE flip to still point straight at the mouse.
+            visual.flipX = attackAnim ? dx >= 0f : dx < 0f;
         }
 
         private static float HorizontalDistance(Vector3 a, Vector3 b)
