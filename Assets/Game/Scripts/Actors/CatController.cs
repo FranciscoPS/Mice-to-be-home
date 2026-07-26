@@ -45,6 +45,10 @@ namespace MiceToBeHome
         private float footstepTimer;
         private float playerOnFurnitureTimer;
         private float corneredTimer;
+        private Vector3 breakoutDir;
+        private Vector2Int breakoutPlayerCell;
+        private bool breakoutLatched;
+        private bool blockedSteer;
 
         private static readonly Vector2Int[] NeighborOffsets =
         {
@@ -209,7 +213,24 @@ namespace MiceToBeHome
             Vector3 direction = target - body.position;
             direction.y = 0f;
 
-            Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * currentSpeed : Vector3.zero;
+            float speed = currentSpeed;
+            bool inRange = grid != null && HorizontalDistance(body.position, player.Position) <= balance.catchRadius + grid.CellSize;
+            bool cornered = blockedSteer && inRange && playerOnFurnitureTimer > 0f;
+            if (cornered)
+            {
+                // Cornered against a camping player: commit to a LATCHED direction (no per-frame flip
+                // = no jitter / sprite flicker) and drive ABOVE max speed so the cat decisively presses
+                // through the furniture gap toward the mouse instead of vibrating in place.
+                direction = ResolveBreakoutDirection();
+                speed = balance.catMaxSpeed * Mathf.Max(1f, balance.catBreakoutBoost);
+                debugMode = "breakout";
+            }
+            else
+            {
+                breakoutLatched = false;
+            }
+
+            Vector3 velocity = direction.sqrMagnitude > 0.0004f ? direction.normalized * speed : Vector3.zero;
             body.linearVelocity = velocity;
 
             // Flipear sprite según dirección horizontal
@@ -299,6 +320,7 @@ namespace MiceToBeHome
 
         private Vector3 ResolveSteerTarget()
         {
+            blockedSteer = false;
             if (grid == null)
             {
                 debugMode = "noGrid";
@@ -314,6 +336,7 @@ namespace MiceToBeHome
             {
                 path.Clear();
                 debugMode = "catOffGrid";
+                blockedSteer = true;
                 return grid.CellToWorld(NearestWalkable(catCell));
             }
 
@@ -334,6 +357,7 @@ namespace MiceToBeHome
             {
                 path.Clear();
                 debugMode = "atGoal";
+                blockedSteer = true;
                 return player.Position;
             }
 
@@ -374,8 +398,27 @@ namespace MiceToBeHome
                 }
             }
 
+            blockedSteer = path.Count == 0;
             debugMode = path.Count > 0 ? "path" : "pathEmpty";
             return path.Count > 0 ? grid.CellToWorld(path[0]) : player.Position;
+        }
+
+        private Vector3 ResolveBreakoutDirection()
+        {
+            Vector2Int pc = grid != null ? grid.WorldToCell(player.Position) : default;
+            if (!breakoutLatched || pc != breakoutPlayerCell)
+            {
+                Vector3 toPlayer = player.Position - body.position;
+                toPlayer.y = 0f;
+                if (toPlayer.sqrMagnitude < 0.0001f)
+                {
+                    toPlayer = new Vector3(lastDirectionX, 0f, 0f);
+                }
+                breakoutDir = toPlayer.normalized;
+                breakoutPlayerCell = pc;
+                breakoutLatched = true;
+            }
+            return breakoutDir;
         }
 
         private void DebugChase()
@@ -394,7 +437,7 @@ namespace MiceToBeHome
             Vector2Int catCell = grid != null ? grid.WorldToCell(body.position) : default;
             Vector2Int playerCell = grid != null ? grid.WorldToCell(player.Position) : default;
             float dist = HorizontalDistance(body.position, player.Position);
-            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} stuck={stuckTimer:0.00} vel={body.linearVelocity.magnitude:0.0}");
+            Debug.Log($"[CatDbg] mode={debugMode} state={state} cat={catCell} player={playerCell} pathLen={path.Count} dist={dist:0.00} furn={playerOnFurnitureTimer:0.00} corner={corneredTimer:0.00} blocked={blockedSteer} vel={body.linearVelocity.magnitude:0.0}");
         }
 
         private Vector2Int NearestWalkable(Vector2Int cell)

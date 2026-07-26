@@ -41,6 +41,8 @@ namespace MiceToBeHome
         [Min(0f)] public float catAcceleration = 0.35f;
         [Min(0.1f)] public float catchRadius = 0.6f;
         [Min(0.5f)] public float catStartDistance = 4.5f;
+        [Tooltip("Speed multiplier (above max) the cat uses to decisively break out / press through a gap when cornered against a player camping on furniture.")]
+        [Min(1f)] public float catBreakoutBoost = 1.5f;
 
         [Header("Hit feedback")]
         [Tooltip("Time scale during a hit (1 = normal, lower = slower / more frozen).")]
