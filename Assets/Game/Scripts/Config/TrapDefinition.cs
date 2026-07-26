@@ -23,5 +23,8 @@ namespace MiceToBeHome
 
         [Tooltip("Placeholder color used when the visual has no sprite.")]
         public Color tint = Color.white;
+
+        [Tooltip("Sound played when the cat triggers this toy.")]
+        public AudioClip triggerSound;
     }
 }

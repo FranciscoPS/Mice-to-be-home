@@ -100,6 +100,11 @@ namespace MiceToBeHome
             repairProgress = 0f;
             SetGhost(true);
             UpdateRepairVisual();
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayTrap(definition.triggerSound);
+            }
             return definition.effectSeconds;
         }
 
